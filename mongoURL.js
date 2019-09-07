@@ -1,3 +1,4 @@
-const MONGO_URL = 'mongodb://<_____>:<_____>@<_____>.mlab.com:<_____>/<_____>';
+const MONGO_URL = 'mongodb://'+ process.env.DB_USER + ':' + process.env.DB_PASS + '@ds219078.mlab.com:19078/pinit';
+
 
 module.exports = MONGO_URL;

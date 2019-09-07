@@ -9,7 +9,7 @@ describe('Test the /Restaurants route :', () => {
 
   it('Should LIST ALL Restaurants on /Restaurants GET', (done) => {
 
-    chai.request(process.env.DATABASE_URL)
+    chai.request(process.env.Test_URL)
       .get(url)
       .end(function(err, res) {
 
