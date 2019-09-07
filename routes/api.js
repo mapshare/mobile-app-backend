@@ -135,14 +135,14 @@ router.get('/marks', (req,res,next) => {
 
 /////////////////////////USER///////////////////////////////
 
-// // get all users // remove in production!
-// router.get('/users', (req,res,next) => {
-//   data.getUsers().then(data => {
-//     res.json(data);
-//   }).catch(err => {
-//     res.send({'ilya error?': err})
-//   })
-// });
+ // get all users // remove in production!
+ router.get('/users', (req,res,next) => {
+   data.getUsers().then(data => {
+     res.json(data);
+   }).catch(err => {
+     res.send({'ilya error?': err})
+   })
+ });
 
 // add new user
 router.post('/users', (req,res,next) => {

@@ -8,8 +8,8 @@ const GeoSchema = new Schema({
     default: "Point"
   },
   coordinates: {
-    type: [Number],
-    index: "2dsphere",
+    type: [Number, Number],
+    index: '2d',
     required: [true, 'please provide coordinates of location'],
     validate: [checkCoordinates, '{PATH} must be of length 2: [lat, lng]']
   }
