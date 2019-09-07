@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "SET NODE_ENV=dev && node server.js",
+    "test": "mocha --timeout 10000"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,9 @@
     "mongoose": "^5.4.11"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.2.0",
     "nodemon": "^1.18.9"
   },
   "engines": {
