@@ -16,7 +16,14 @@ describe('Test the /Restaurants route :', () => {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         expect(res.body).to.be.a('array');
-        expect(res.body[0]).to.have.all.keys('id', 'text');
+        expect(res.body[0]).to.have.all.keys(
+          'locationId', 
+          'groupId',
+          'restaurantName',
+          'restaurantLocation',
+          'restaurantCuisine',
+          'restaurantPriceRange',
+          'restaurantReviews');
         expect(res.body[0].text).to.be.a('string');
 
         done();
