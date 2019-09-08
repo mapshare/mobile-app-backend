@@ -60,20 +60,21 @@ describe('Test the /Restaurants route :', () => {
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
         assert.equal(res.body.restaurantCuisine, "Test Restaurant Cuisine");
         assert.equal(res.body.restaurantPriceRange, "$");
+
         testLocationId = res.body.locationId;
+
         done();
       });
   });
 
   it('Should READ ALL Restaurants on /restaurants GET', (done) => {
-
     chai.request(process.env.Test_URL)
       .get('/restaurants')
       .end(function (err, res) {
-
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         expect(res.body).to.be.a('array');
+
         expect(res.body[0]).to.have.all.keys(
           '_id',
           'groupId',
@@ -85,19 +86,17 @@ describe('Test the /Restaurants route :', () => {
           'restaurantReviews',
           '__v');
 
-
         done();
       });
   });
 
   it('Should READ Restaurant with the requested id on /restaurants GET', (done) => {
-
     chai.request(process.env.Test_URL)
       .get('/restaurants/' + testLocationId)
       .end(function (err, res) {
-
         assert.equal(res.status, 200);
         assert.equal(res.type, 'application/json', "Response should be json");
+
         assert.equal(res.body.groupId, testGroupId);
         assert.equal(res.body.restaurantName, "Test Restaurant Name");
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
@@ -137,6 +136,7 @@ describe('Test the /Restaurants route :', () => {
       .end(function (err, res) {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
+
         done();
       });
   });

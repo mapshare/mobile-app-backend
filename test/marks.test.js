@@ -6,5 +6,5 @@ let expect = chai.expect;
 let assert = chai.assert;
 
 describe('Test the /marks route :', () => {
-    
+
 });

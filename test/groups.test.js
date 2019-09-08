@@ -21,12 +21,14 @@ describe('Test the /Groups route :', () => {
             })
             .end(function (err, res) {
                 testUserId = res.body._id;
+
                 done();
             });
     });
 
     after((done) => {
-        // NOTE: SHOULD CALL REMOVE USER 
+        // NOTE: SHOULD CALL REMOVE USER WHEN DELETE USER FUNCTION IS ADDED
+
         done();
     });
 
@@ -44,19 +46,19 @@ describe('Test the /Groups route :', () => {
                 assert.equal(res.body.groupName, "Test Group");
 
                 testGroupId = res.body._id;
+
                 done();
             });
     });
 
     it('Should READ ALL Restaurants on /groups GET', (done) => {
-
         chai.request(process.env.Test_URL)
             .get('/groups')
             .end(function (err, res) {
-
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.a('array');
+
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
                     'groupMarks',
@@ -70,17 +72,14 @@ describe('Test the /Groups route :', () => {
     });
 
     it('Should READ Group with the requested id on /groups GET', (done) => {
-
         chai.request(process.env.Test_URL)
             .get('/groups/' + testGroupId)
             .end(function (err, res) {
-
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
-                assert.equal(res.body.groupName,  "Test Group");
+                assert.equal(res.body.groupName, "Test Group");
 
                 done();
             });
     });
-
 });

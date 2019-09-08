@@ -23,6 +23,7 @@ describe('Test the /reviews route :', () => {
             })
             .end(function (err, res) {
                 testUserId = res.body._id;
+
                 done();
             });
     });
@@ -36,6 +37,7 @@ describe('Test the /reviews route :', () => {
             })
             .end(function (err, res) {
                 testGroupId = res.body._id;
+
                 done();
             });
     });
@@ -54,6 +56,7 @@ describe('Test the /reviews route :', () => {
             })
             .end(function (err, res) {
                 testLocationId = res.body.locationId;
+
                 done();
             });
     });
@@ -63,6 +66,7 @@ describe('Test the /reviews route :', () => {
             .delete('/restaurants/' + testLocationId)
             .send({ "userId": "5d74270ba2c6a64de821fd01" })
             .end(function (err, res) {
+
                 done();
             });
     });
@@ -91,9 +95,7 @@ describe('Test the /reviews route :', () => {
             });
     });
 
-
     it('Should READ reviews for selected location /reviews GET', (done) => {
-
         chai.request(process.env.Test_URL)
             .get('/reviews?locationId=' + testLocationId)
             .end(function (err, res) {
@@ -133,14 +135,15 @@ describe('Test the /reviews route :', () => {
                 done();
             });
     });
-    
-  it('Should DELETE the reviews from database DELETE', (done) => {
-    chai.request(process.env.Test_URL)
-      .delete('/reviews/' + testReviewId)
-      .end(function (err, res) {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        done();
-      });
-  });
+
+    it('Should DELETE the reviews from database DELETE', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/reviews/' + testReviewId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                done();
+            });
+    });
 });

@@ -21,7 +21,7 @@ describe('Test the /users route :', () => {
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
-                
+
                 assert.equal(res.body.userEmail, "test@test.com");
                 assert.equal(res.body.userFirstName, "Test First Name");
                 assert.equal(res.body.userLastName, "Test Last Name");
@@ -29,9 +29,8 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.userPicture, "1231231");
 
                 testUserId = res.body._id;
+
                 done();
             });
     });
-
-   
 });
