@@ -9,6 +9,7 @@ describe('Test the /reviews route :', () => {
     var testLocationId = 0;
     var testUserId = 0;
     var testGroupId = 0;
+    var testReviewId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -84,7 +85,7 @@ describe('Test the /reviews route :', () => {
                 assert.equal(res.body.reviewRating, "5");
                 assert.equal(res.body.reviewContent, "Test Review");
 
-                testLocationId = res.body.locationId;
+                testReviewId = res.body._id;
 
                 done();
             });
@@ -111,4 +112,35 @@ describe('Test the /reviews route :', () => {
             });
     });
 
+    it('Should UPDATE Review on /reviews PUT', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/reviews/' + testReviewId)
+            .send({
+                "locationId": testLocationId,
+                "reviewUser": { "userId": testUserId },
+                "reviewRating": "3",
+                "reviewContent": "New Test Content"
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.success.locationId, testLocationId);
+                assert.equal(res.body.success.reviewUser.userId, testUserId);
+                assert.equal(res.body.success.reviewRating, "3");
+                assert.equal(res.body.success.reviewContent, "New Test Content");
+
+                done();
+            });
+    });
+    
+  it('Should DELETE the reviews from database DELETE', (done) => {
+    chai.request(process.env.Test_URL)
+      .delete('/reviews/' + testReviewId)
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        done();
+      });
+  });
 });
