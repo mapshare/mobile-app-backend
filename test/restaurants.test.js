@@ -7,15 +7,44 @@ let assert = chai.assert;
 
 describe('Test the /Restaurants route :', () => {
   var testLocationId = 0;
-  // NOTE: should add a test group and user creation in a before statement
+  var testUserId = 0;
+  var testGroupId = 0;
 
+  before((done) => {
+    chai.request(process.env.Test_URL)
+      .post('/users')
+      .send({
+        "userEmail": "test@test.com",
+        "userFirstName": "test",
+        "userLastName": "Lasttest",
+        "googleId": "12345",
+        "userPicture": "1231231"
+      })
+      .end(function (err, res) {
+        testUserId = res.body._id;
+        done();
+      });
+  });
+
+  before((done) => {
+    chai.request(process.env.Test_URL)
+      .post('/groups')
+      .send({
+        "userId": testUserId,
+        "groupName": "Test Group"
+      })
+      .end(function (err, res) {
+        testGroupId = res.body._id;
+        done();
+      });
+  });
 
   it('should CREATE a restaurant to the database PUT', (done) => {
     chai.request(process.env.Test_URL)
       .post('/restaurants')
       .send({
-        "userId": "5d74270ba2c6a64de821fd01",
-        "groupId": "5d74296011aeae35d420328c",
+        "userId": testUserId,
+        "groupId": testGroupId,
         "geometry": { "coordinates": [0.5, 0.5] },
         "restaurantName": "Test Restaurant Name",
         "restaurantLocation": "Test Restaurant Location",
@@ -26,7 +55,7 @@ describe('Test the /Restaurants route :', () => {
         assert.equal(res.status, 201);
         assert.equal(res.type, 'application/json', "Response should be json");
 
-        assert.equal(res.body.groupId, "5d74296011aeae35d420328c");
+        assert.equal(res.body.groupId, testGroupId);
         assert.equal(res.body.restaurantName, "Test Restaurant Name");
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
         assert.equal(res.body.restaurantCuisine, "Test Restaurant Cuisine");
@@ -69,7 +98,7 @@ describe('Test the /Restaurants route :', () => {
 
         assert.equal(res.status, 200);
         assert.equal(res.type, 'application/json', "Response should be json");
-        assert.equal(res.body.groupId, "5d74296011aeae35d420328c");
+        assert.equal(res.body.groupId, testGroupId);
         assert.equal(res.body.restaurantName, "Test Restaurant Name");
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
         assert.equal(res.body.restaurantCuisine, "Test Restaurant Cuisine");
@@ -83,17 +112,17 @@ describe('Test the /Restaurants route :', () => {
     chai.request(process.env.Test_URL)
       .put('/restaurants/' + testLocationId)
       .send({
-        "userId": "5d74270ba2c6a64de821fd01",
+        "userId": testUserId,
         "restaurantName": "Restaurant New Name",
         "restaurantLocation": "Location New Name",
         "priceRange": "$",
-        "groupId": "5d74296011aeae35d420328c"
+        "groupId": testGroupId
       })
       .end(function (err, res) {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
 
-        assert.equal(res.body.success.groupId, "5d74296011aeae35d420328c");
+        assert.equal(res.body.success.groupId, testGroupId);
         assert.equal(res.body.success.restaurantName, "Restaurant New Name");
         assert.equal(res.body.success.restaurantLocation, "Location New Name");
         assert.equal(res.body.success.restaurantPriceRange, "$");
@@ -104,7 +133,7 @@ describe('Test the /Restaurants route :', () => {
   it('Should DELETE the first restaurant from database DELETE', (done) => {
     chai.request(process.env.Test_URL)
       .delete('/restaurants/' + testLocationId)
-      .send({ "userId": "5d74270ba2c6a64de821fd01" })
+      .send({ "userId": testUserId })
       .end(function (err, res) {
         expect(res).to.have.status(200);
         expect(res).to.be.json;

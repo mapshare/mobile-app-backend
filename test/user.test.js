@@ -15,7 +15,7 @@ describe('Test the /users route :', () => {
                 "userEmail": "test@test.com",
                 "userFirstName": "Test First Name",
                 "userLastName": "Test Last Name",
-                "googleId": "12345",
+                "googleId": "432432",
                 "userPicture": "1231231"
             })
             .end(function (err, res) {
@@ -25,7 +25,7 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.userEmail, "test@test.com");
                 assert.equal(res.body.userFirstName, "Test First Name");
                 assert.equal(res.body.userLastName, "Test Last Name");
-                assert.equal(res.body.googleId, "12345");
+                assert.equal(res.body.googleId, "432432");
                 assert.equal(res.body.userPicture, "1231231");
 
                 testUserId = res.body._id;
@@ -33,4 +33,5 @@ describe('Test the /users route :', () => {
             });
     });
 
+   
 });
