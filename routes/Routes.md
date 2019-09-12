@@ -1,3 +1,15 @@
+# NOTE: 
+
+##  List of possible routes to cut/change
+- Cuisines
+- PriceRange
+- restaurant could be just call location
+
+## Maybe host the chat with different Database
+- [Redis](https://redis.io/)
+- [FireBase](https://firebase.google.com)
+    - [example](https://snack.expo.io/@bacon/firebase-basic-chat)
+
 # Cuisines
 ## GET - "/cuisines"
     Gets all cuisines
@@ -149,6 +161,10 @@
     Delete review by id
     
 # Users
+## Important Note:
+    We will need to add authenication to the site I am interested in using json web tokens what do you guys think.   
+    https://jwt.io/
+
 ## Data Stored
 ```
 {
@@ -167,14 +183,56 @@
     Get all users
 
 ## GET - "/users/:id"
-    Get user by id
+    Get user account information by id
 
 ## POST - "/users"
     Add user
 
+## POST - "/signup"
+    Allows user to create account
+
+## POST - "/login"
+    Allows user to login to account
+
+## "/ForgetPassword"
+    Allows user to reset a forgotten password
+    
+## "/logout"
+    Allows user to logout
 
 ## PUT - "/users/:id"
     Update user by id
 
 ## DELETE - "/users/:id"
     Delete user by id
+
+
+# Event
+## Data Stored
+```
+{
+    eventID:  String,
+    locationID: {locationId: ObjectId },
+    groupID: { groupID: ObjectId },
+    eventName: String,
+    eventDescription: String,
+    attendees: [ userID: ObjectId ]
+}
+```
+## GET - "/events"
+    Get all events
+
+## GET - "/events"
+    Get event by id
+
+## POST - "/events"
+    Add event
+
+## PUT - "/events/:id"
+    Update event by id
+
+## DELETE - "/events/:id"
+    Delete event by id
+
+# Chat
+## 

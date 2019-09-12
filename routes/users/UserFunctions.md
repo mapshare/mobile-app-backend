@@ -5,7 +5,7 @@
 - Delete account
 - Login to account
 - Logout of account
-- View account inform7ation
+- View account information
 - (local account) Change account Password
 - (local account) Change account Name
 - (local account) Forget account password
@@ -16,6 +16,7 @@
 - Create group
 - Delete group
 - View all groups
+- Search Groups
 - Change "Active" group
 - Add a group
 - Delete a group
