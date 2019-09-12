@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const routes = require('./routes/api');
+const routes = require('./routes/index.js');
 const MONGO_URL = require('./mongoURL');
 
 //set up express app
