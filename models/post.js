@@ -3,20 +3,20 @@ const Schema = mongoose.Schema;
 
 // create post Schema & model
 const PostSchema = new Schema({
-    PostTitle: {
+    postTitle: {
         type: String,
         required: [true, 'Post title field is required']
     },
-    PostContent: {
+    postContent: {
         type: String,
         required: [true, 'Post content field is required']
     },
-    groupFeed: {
+    groupFeedId: {
         type: Schema.Types.ObjectId,
         ref: "groupFeed",
         required: [true, 'Group Feed field is required']
     },
-    user: { 
+    userId: { 
         type: Schema.Types.ObjectId, 
         ref: "user",
         required: [true, 'User field is required']

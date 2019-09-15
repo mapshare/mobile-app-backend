@@ -75,7 +75,7 @@ module.exports = () => {
                             reject("GroupFeed doesn't exist");
                             return;
                         }
-                        groupFeed.groupId = groupId ? groupId : doc.groupId
+                        groupFeed.groupId = groupId ? groupId : groupFeed.groupId
                         groupFeed.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))
@@ -97,6 +97,6 @@ module.exports = () => {
                     })
                     .catch(err => reject(err));
             });
-        },
+        }
     }
 }
