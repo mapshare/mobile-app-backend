@@ -5,10 +5,7 @@
 - PriceRange
 - restaurant could be just call location
 
-## Maybe host the chat with different Database
-- [Redis](https://redis.io/)
-- [FireBase](https://firebase.google.com)
-    - [example](https://snack.expo.io/@bacon/firebase-basic-chat)
+## auto reset databse for test
 
 # Cuisines
 ## GET - "/cuisines"
