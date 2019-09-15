@@ -12,7 +12,7 @@ describe('Test the /users route :', () => {
         chai.request(process.env.Test_URL)
             .post('/users')
             .send({
-                "userEmail": "test@test.com",
+                "userEmail": "test123@test123.com",
                 "userFirstName": "Test First Name",
                 "userLastName": "Test Last Name",
                 "googleId": "432432",
@@ -22,7 +22,7 @@ describe('Test the /users route :', () => {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body.userEmail, "test@test.com");
+                assert.equal(res.body.userEmail, "test123@test123.com");
                 assert.equal(res.body.userFirstName, "Test First Name");
                 assert.equal(res.body.userLastName, "Test Last Name");
                 assert.equal(res.body.googleId, "432432");
