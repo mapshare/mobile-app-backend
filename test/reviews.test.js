@@ -52,7 +52,7 @@ describe('Test the /reviews route :', () => {
                 "restaurantName": "Test Restaurant Name",
                 "restaurantLocation": "Test Restaurant Location",
                 "restaurantCuisine": "Test Restaurant Cuisine",
-                "priceRange": "$"
+                "priceRange": 1
             })
             .end(function (err, res) {
                 testLocationId = res.body.locationId;

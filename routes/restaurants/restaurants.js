@@ -16,9 +16,10 @@ router.get('/restaurants', (req, res, next) => {
 // add new restaurant to db
 router.post('/restaurants', (req, res, next) => {
     data.addRestaurant(req.body).then(data => {
-        console.log('answer: ', data)
+        //console.log('answer: ', data)
         res.status(201).json(data)
     }).catch(err => {
+        console.log('Restaurants POST ERROR: ', err)
         res.status(400).send(err)
     })
 });
@@ -44,7 +45,7 @@ router.put('/restaurants/:id', (req, res, next) => {
     data.updateRestaurantById(req.params.id, req.body).then(data => {
         res.status(200).json(data) // returns old data
     }).catch(err => {
-        console.log('returning smt')
+        console.log('Restaurants PUT ERROR: ', err)
         res.status(400).send({ 'error': err })
     })
 

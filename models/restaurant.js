@@ -28,16 +28,15 @@ const RestaurantSchema = new Schema({
   restaurantPriceRange: {
     type: String,
     required: [true, 'restaurantPriceRange ($, $$, $$$) is required'],
-    validate: {
+    /*validate: {
       validator: function(v) {
-        if (v.split('').some(char => {return (char !== "$")}) || ![1,2,3].includes(v.length)) {
+        if (v !== 0 & v !== 1 & v !== 2) {
           return false
         }
         return true
-        //return /\d{3}-\d{3}-\d{4}/.test(v);
       },
       message: props => `${props.value} is not a valid price range!`
-    },
+    },*/
   },
   restaurantReviews: [{
     type: Schema.Types.ObjectId,
