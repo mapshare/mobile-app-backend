@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const dataService = require("./groupsService");
-//const dataService = require("../../dataService");
 const data = dataService();
 
-//list groups
+// get list of groups
 router.get('/groups', (req, res, next) => {
     data.getGroups().then(data => {
         res.json(data);

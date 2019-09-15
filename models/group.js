@@ -8,10 +8,11 @@ const GroupSchema = new Schema({
     required: [true, 'groupName field is required']
   },
   groupMarks: [{ type: Schema.Types.ObjectId, ref: "mark" }],
-  groupMembers: [{ type: Schema.Types.ObjectId, ref: "user" }]
+  groupMembers: [{ type: Schema.Types.ObjectId, ref: "user" }],
+  groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },
 })
 
-GroupSchema.virtual('groupId').get(function() { return this._id; });
+GroupSchema.virtual('groupId').get(function () { return this._id; });
 
 const Group = mongoose.model('group', GroupSchema);
 

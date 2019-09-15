@@ -3,15 +3,14 @@ const Schema = mongoose.Schema;
 
 // create group feed Schema & model
 const GroupFeedSchema = new Schema({
-  group: {
+  groupId: {
     type: Schema.Types.ObjectId,
     ref: "group",
     required: [true, 'Group field is required']
   },
-  posts: [{
+  postsId: [{
     type: Schema.Types.ObjectId,
-    ref: "post",
-    required: [true, 'Posts field is required']
+    ref: "post"
   }]
 })
 
