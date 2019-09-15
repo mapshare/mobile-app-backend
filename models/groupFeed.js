@@ -1,18 +1,20 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// create group Schema & model
-const GroupSchema = new Schema({
-  groupName: {
-    type: String,
-    required: [true, 'groupName field is required']
+// create group feed Schema & model
+const GroupFeedSchema = new Schema({
+  group: {
+    type: Schema.Types.ObjectId,
+    ref: "group",
+    required: [true, 'Group field is required']
   },
-  groupMarks: [{ type: Schema.Types.ObjectId, ref: "mark" }],
-  groupMembers: [{ type: Schema.Types.ObjectId, ref: "user" }]
+  posts: [{
+    type: Schema.Types.ObjectId,
+    ref: "post",
+    required: [true, 'Posts field is required']
+  }]
 })
 
-GroupSchema.virtual('groupId').get(function() { return this._id; });
+const GroupFeed = mongoose.model('groupFeed', GroupFeedSchema);
 
-const Group = mongoose.model('group', GroupSchema);
-
-module.exports = Group;
+module.exports = GroupFeed;

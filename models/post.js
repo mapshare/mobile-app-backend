@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// create group Schema & model
-const GroupSchema = new Schema({
+// create post Schema & model
+const PostSchema = new Schema({
     PostTitle: {
         type: String,
         required: [true, 'Post title field is required']
@@ -23,8 +23,6 @@ const GroupSchema = new Schema({
     }
 })
 
-GroupSchema.virtual('groupId').get(function () { return this._id; });
+const Post = mongoose.model('post', PostSchema);
 
-const Group = mongoose.model('group', GroupSchema);
-
-module.exports = Group;
+module.exports = Post;
