@@ -1,7 +1,7 @@
 # What a User can do
 
-- View welcome Page
-- Create account
+- View welcome Page       
+- Create account         
 - Delete account
 - Login to account
 - Logout of account
