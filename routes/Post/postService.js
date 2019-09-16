@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Post = require('../../models/post');
 const GroupFeed = require('../../models/groupFeed');
-const Users = require('../../models/user');
+const User = require('../../models/user');
 
 
 module.exports = () => {
@@ -34,34 +34,34 @@ module.exports = () => {
                     reject({ "error": "groupFeedId or userId cannot be converted to valid ObjectId" });
                     return;
                 }
-
+                
                 User.findById(userId)
                     .then(user => {
                         if (!user) {
                             reject({ "error": "user doesn't exist" })
                         } else {
-                            user.push.Post(data._id);
-                            user.save()
-                                .then(userData => {
-                                    GroupFeed.findById(groupFeedId).then(groupfeed => {
-                                        if (!groupfeed) {
-                                            reject({ "error": "groupfeed doesn't exist" })
-                                        } else {
-                                            Post.create({
-                                                ...PostData,
-                                                userId: user._id,
-                                                groupfeedId: groupfeed._id
-                                            }).then(data => {
-                                                groupfeed.push.Post(data._id);
+                            GroupFeed.findById(groupFeedId).then(groupfeed => {
+                                if (!groupfeed) {
+                                    reject({ "error": "groupfeed doesn't exist" })
+                                } else {
+                                    Post.create({
+                                        postTitle: postTitle,
+                                        postContent: postContent,
+                                        userId: userId,
+                                        groupFeedId: groupFeedId
+                                    }).then(data => {
+                                        groupfeed.postsId.push(data._id);
+                                        user.postsId.push(data._id);
+                                        user.save()
+                                            .then(userData => {
                                                 groupfeed.save()
                                                     .then(groupData => {
                                                         resolve(data);
-                                                    })
-                                                    .catch(err => reject(err));
-                                            });
-                                        }
+                                                    }).catch(err => reject(err));
+                                            }).catch(err => reject(err));
                                     }).catch(err => reject(err));
-                                });
+                                }
+                            }).catch(err => reject(err));
                         }
                     }).catch(err => reject(err));
             }).catch(err => reject(err));
@@ -76,18 +76,19 @@ module.exports = () => {
                 }
 
                 Post.findById(id)
-                    .then(Post => {
-                        if (!Post) {
+                    .then(post => {
+                        if (!post) {
                             reject("Post doesn't exist");
                             return;
                         }
-
-                        Post.postTitle = postTitle ? postTitle : Post.postTitle
-                        Post.postContent = postContent ? postContent : Post.postContent
-                        Post.groupFeedId = groupFeedId ? groupFeedId : Post.groupFeedId
-                        Post.userId = userId ? userId : Post.userId
-
-                        Post.save()
+                        post.postTitle = postTitle ? postTitle : post.postTitle
+                        post.postContent = postContent ? postContent : post.postContent
+                        post.groupFeedId = groupFeedId ? groupFeedId : post.groupFeedId
+                        post.userId = userId ? userId : post.userId
+                        console.log("\n\n\n");
+                        console.log(post);
+                        console.log("\n\n\n");
+                        post.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))
                     }).catch(err => reject(err));

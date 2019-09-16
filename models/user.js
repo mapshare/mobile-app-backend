@@ -33,8 +33,12 @@ const UserSchema = new Schema({
         return /^\d+$/.test(v);
       },
       message: props => `${props.value} is not a valid google id!`
-    },
-  }
+    }
+  },
+  postsId:[{
+    type: Schema.Types.ObjectId,
+    ref: 'post'
+  }]
 })
 
 UserSchema.virtual('userId').get(function() { return this._id; });

@@ -42,7 +42,8 @@ module.exports = () => {
                         reject({ "error": "group doesn't exist" })
                     } else {
                         GroupFeed.create({
-                            ...groupFeedData
+                            ...groupFeedData,
+                            postId: postsId
                         })
                             .then(data => {
                                 group.groupFeed = data._id;

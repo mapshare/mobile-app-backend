@@ -14,17 +14,17 @@ router.get('/post', (req, res, next) => {
 
 // add post
 router.post('/post', (req, res, next) => {
-    data.addGroupFeed(req.body).then(data => {
+    data.addPost(req.body).then(data => {
         res.status(200).json(data);
     }).catch(err => {
-        console.log(err);
+        console.log("HERE HERE HERE HERE" + err);
         res.status(400).send({ "error": err })
     })
 });
 
 // get post by id
-router.get('/post/:post', (req, res, next) => {
-    data.getGroupFeedById(req.params.groupFeedId).then(data => {
+router.get('/post/:postid', (req, res, next) => {
+    data.getPostById(req.params.postid).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         console.log(err);
@@ -34,7 +34,7 @@ router.get('/post/:post', (req, res, next) => {
 
 // update post in db
 router.put('/post/:id', (req, res, next) => {
-    data.updateGroupFeedById(req.params.id, req.body).then(data => {
+    data.updatePostById(req.params.id, req.body).then(data => {
         res.status(200).json(data) 
     }).catch(err => {
         console.log(err);
@@ -45,7 +45,7 @@ router.put('/post/:id', (req, res, next) => {
 
 // delete post in db
 router.delete('/post/:id', (req, res, next) => {
-    data.deleteGroupFeedById(req.params.id).then(data => {
+    data.deletePostById(req.params.id).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })
