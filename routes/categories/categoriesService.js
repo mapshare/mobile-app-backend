@@ -21,9 +21,6 @@ module.exports = () => {
         },
 
         addCategories: (categoriesData) => {
-            return new Promise((resolve, reject) => {
-                
-            }
         }
     }
 }
