@@ -5,7 +5,7 @@ const data = dataService();
 
 //Get list of Categories
 router.get('/categories', (req, res, next) => {
-    data.getGroupFeed().then(data => {
+    data.getCategories().then(data => {
         res.json(data);
     }).catch(err => {
         res.send({ 'Error: ': err })
@@ -14,7 +14,7 @@ router.get('/categories', (req, res, next) => {
 
 //Add to list of Categories
 router.post('/categories', (req, res, next) => {
-    data.addGroupFeed(req.body).then(data => {
+    data.addCategories(req.body).then(data => {
         res.status(200).json(data);
     }).catch(err => {
         console.log(err);
@@ -24,7 +24,7 @@ router.post('/categories', (req, res, next) => {
 
 //Get Categories by ID
 router.get('/categories/:categoriesId', (req, res, next) => {
-    data.getGroupFeedById(req.params.groupFeedId).then(data => {
+    data.getCategories(req.params.categoriesId).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         console.log(err);
