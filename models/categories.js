@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 // create  Categories Schema & model
 const CategoriesSchema = new Schema({
-  cefaultCategories: {
+  defaultCategories: {
     type: String,
     required: [true, 'Name field is required']
   },
