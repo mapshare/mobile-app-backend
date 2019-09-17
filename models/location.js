@@ -7,11 +7,11 @@ const LocationSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: [true, "locationId is required to save Location"]
   },
-  // groupId: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: "group",
-  //   required: [true, "groupId required to save Location"]
-  // },
+  groupId: {
+    type: Schema.Types.ObjectId,
+    ref: "group",
+    required: [true, "groupId required to save Location"]
+  },
   locationName: {
     type: String,
     required: [true, "locationName field is required"]
@@ -37,6 +37,9 @@ const LocationSchema = new Schema({
       },
       message: props => `${props.value} is not a valid price range!`
     }
+  },
+  additionalInformation: {
+    type: String
   },
   locationReviewSet: [
     {
