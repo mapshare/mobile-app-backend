@@ -5,6 +5,7 @@ var priceRanges = require('./priceRanges/priceRanges');
 var restaurants = require('./restaurants/restaurants');
 var review = require('./reviews/reviews');
 var users = require('./users/users');
+var unverifiedUser = require('./unverifiedUser/unverifiedUser');
 
 const express = require("express");
 const router = express.Router();
@@ -21,5 +22,6 @@ router.use('/', priceRanges);
 router.use('/', restaurants);
 router.use('/', review);
 router.use('/', users);
+router.use('/', unverifiedUser);
 
 module.exports = router;
