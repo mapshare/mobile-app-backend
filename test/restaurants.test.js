@@ -49,7 +49,7 @@ describe('Test the /Restaurants route :', () => {
         "restaurantName": "Test Restaurant Name",
         "restaurantLocation": "Test Restaurant Location",
         "restaurantCuisine": "Test Restaurant Cuisine",
-        "priceRange": "$"
+        "priceRange": 1
       })
       .end(function (err, res) {
         assert.equal(res.status, 201);
@@ -59,7 +59,7 @@ describe('Test the /Restaurants route :', () => {
         assert.equal(res.body.restaurantName, "Test Restaurant Name");
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
         assert.equal(res.body.restaurantCuisine, "Test Restaurant Cuisine");
-        assert.equal(res.body.restaurantPriceRange, "$");
+        assert.equal(res.body.restaurantPriceRange, 1);
 
         testLocationId = res.body.locationId;
 
@@ -101,7 +101,7 @@ describe('Test the /Restaurants route :', () => {
         assert.equal(res.body.restaurantName, "Test Restaurant Name");
         assert.equal(res.body.restaurantLocation, "Test Restaurant Location");
         assert.equal(res.body.restaurantCuisine, "Test Restaurant Cuisine");
-        assert.equal(res.body.restaurantPriceRange, "$");
+        assert.equal(res.body.restaurantPriceRange, 1);
 
         done();
       });
@@ -114,7 +114,7 @@ describe('Test the /Restaurants route :', () => {
         "userId": testUserId,
         "restaurantName": "Restaurant New Name",
         "restaurantLocation": "Location New Name",
-        "priceRange": "$",
+        "priceRange": 1,
         "groupId": testGroupId
       })
       .end(function (err, res) {
@@ -124,7 +124,7 @@ describe('Test the /Restaurants route :', () => {
         assert.equal(res.body.success.groupId, testGroupId);
         assert.equal(res.body.success.restaurantName, "Restaurant New Name");
         assert.equal(res.body.success.restaurantLocation, "Location New Name");
-        assert.equal(res.body.success.restaurantPriceRange, "$");
+        assert.equal(res.body.success.restaurantPriceRange, 1);
         done();
       });
   });

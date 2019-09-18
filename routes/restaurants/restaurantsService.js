@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const Restaurant = require('../../models/restaurant');
-const Cuisine = require('../../models/cuisine');
 const Group = require('../../models/group');
-const PriceRange = require('../../models/priceRange');
 const Mark = require('../../models/mark');
 const Review = require('../../models/review');
 const User = require('../../models/user');
@@ -42,6 +40,7 @@ module.exports = () => {
 
         //PREVENT ADDING DUPLICATE??
         addRestaurant: (restaurantData) => {
+
             return new Promise((resolve, reject) => {
 
                 let { groupId, geometry, restaurantName, restaurantLocation, userId, priceRange } = restaurantData
@@ -57,8 +56,8 @@ module.exports = () => {
                 }
 
                 // validate priceRange here if required, such that new mark wont be created
-                if (priceRange.split('').some(char => { return (char !== "$") }) || ![1, 2, 3].includes(priceRange.length)) {
-                    reject({ "error": "invalid priceRange" })
+                if (priceRange !== 0 & priceRange !== 1 & priceRange !== 2) {
+                    reject({ "error": "invalid priceRange - " + priceRange })
                     return
                 }
 
@@ -77,9 +76,9 @@ module.exports = () => {
                             geometry
                         })
                             .then(data => {
-                                console.log('returned from mark', data)
+                                //console.log('returned from mark', data)
                                 refId = data.id // later populated via id!
-                                console.log('ID to use: ', data.locationId)
+                                //console.log('ID to use: ', data.locationId)
 
                                 Restaurant.create({
                                     ...restaurantData,
@@ -87,51 +86,13 @@ module.exports = () => {
                                     locationId: data.locationId
                                 })
                                     .then(data => {
-                                        console.log('returned from restaurant: ', data)
-
-                                        // add restaurant to PriceRange collection
-                                        if (priceRange) {
-                                            PriceRange.findOne({ priceRange })
-                                                .then(rangeData => {
-                                                    if (rangeData) {
-                                                        console.log('range already exists')
-                                                        rangeData.restaurantList.push(data.locationId)
-                                                        rangeData.save()
-                                                            .then(newrangedata => {
-                                                                console.log('new price range data', newrangedata)
-                                                            })
-                                                            .catch(err => console.log("new price range error", err))
-                                                    } else {
-                                                        console.log('range doesnt exist yet')
-                                                        PriceRange.create({
-                                                            priceRange,
-                                                            restaurantList: [data.locationId]
-                                                        })
-                                                            .then(newrangedata => {
-                                                                console.log('new price range data', newrangedata)
-                                                            })
-                                                            .catch(err => console.log("new price range error", err))
-                                                    }
-                                                })
-                                                .catch(err => console.log('couldnt find priceRange?', err))
-                                            // PriceRange.findOneAndUpdate(
-                                            //   { priceRange },
-                                            //   { $push: { restaurantList: refId } },
-                                            //   { runValidators: true }
-                                            // )
-                                            // .then(priceData => {
-                                            //   console.log('priceData: ', priceData)
-                                            // })
-                                            // .catch(err => {
-                                            //   console.log('price add error: ', err)
-                                            // })
-                                        }
+                                        //console.log('returned from restaurant: ', data)
 
                                         doc.groupMarks.push(refId)
 
                                         doc.save()
                                             .then(groupData => {
-                                                console.log('returned from adding marker&user to group', groupData)
+                                                //console.log('returned from adding marker&user to group', groupData)
                                                 resolve(data) // restaurantData
                                             })
                                             .catch(err => {
@@ -192,15 +153,6 @@ module.exports = () => {
                                 console.log("error deleting reviewData", err)
                             })
 
-                        PriceRange.findOne({ priceRange: restaurantData.restaurantPriceRange })
-                            .then(rangeData => {
-                                rangeData.restaurantList.splice(rangeData.restaurantList.indexOf(locationId), 1)
-                                rangeData.save()
-                                    .catch(err => console.log("err", err))
-                            })
-                            .catch(err => {
-                                console.log("error deleting id from priceRange collection", err)
-                            })
 
                         Group.updateOne(
                             { _id: restaurantData.groupId },
@@ -256,26 +208,7 @@ module.exports = () => {
                                 .then(groupData => {
                                     if (groupData.groupMembers.some(id => { return id.equals(userId) })) {
 
-                                        if (priceRange && priceRange !== doc.restaurantPriceRange) {
-
-                                            PriceRange.findOne({ priceRange })
-                                                .then(rangeData => {
-                                                    rangeData.restaurantList.push(locationId)
-                                                    rangeData.save()
-                                                        .catch(err => console.log("err", err))
-                                                })
-                                                .catch(err => console.log("err", err))
-
-                                            PriceRange.findOne({ priceRange: doc.restaurantPriceRange })
-                                                .then(rangeData => {
-                                                    rangeData.restaurantList.splice(rangeData.restaurantList.indexOf(locationId), 1)
-                                                    rangeData.save()
-                                                        .catch(err => console.log("err", err))
-                                                })
-                                                .catch(err => console.log("err", err))
-
-                                        }
-
+                                        doc.restaurantName = restaurantName ? restaurantName : doc.restaurantName
                                         doc.restaurantName = restaurantName ? restaurantName : doc.restaurantName
                                         doc.restaurantLocation = restaurantLocation ? restaurantLocation : doc.restaurantLocation
                                         doc.restaurantPriceRange = priceRange ? priceRange : doc.restaurantPriceRange

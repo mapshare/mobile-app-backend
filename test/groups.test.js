@@ -62,6 +62,7 @@ describe('Test the /Groups route :', () => {
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
                     'groupMarks',
+                    'groupFeed',
                     'groupMembers',
                     'groupName',
                     '__v');
