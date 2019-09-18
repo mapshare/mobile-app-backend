@@ -4,7 +4,7 @@ const dataService = require("./locationsService");
 // const dataService = require("../../dataService");
 const data = dataService();
 
-// get list of restaurants from db
+// get list of locations from db
 router.get("/locations", (req, res, next) => {
   data
     .getLocations()
