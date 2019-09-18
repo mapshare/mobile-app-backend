@@ -52,6 +52,12 @@ const LocationSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "locationImage"
     }
+  ],
+  locationMarkSet: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "mark"
+    }
   ]
 });
 
