@@ -17,33 +17,19 @@ const GeoSchema = new Schema({
 
 // create mark Schema & model
 const MarkSchema = new Schema({
-  locationId: {
-    type: Schema.Types.ObjectId,
-    required: [true, 'unique locationId is required to save user / OR USE _OID????']
-  },
   markCoordinates: {
     long: Number,
     lat: Number,
   },
-  // restaurantId: {
-  //   type: String,
-  //   //required: [true, 'corresponding restaurantId required for mark']
-  // },
   geometry: {
     type: GeoSchema,
     required: [true, "geoSchema required to save mark"]
-  },
-  groupId: Schema.Types.ObjectId
-})
-// , {
-//   toObject: {virtuals: true},
-//   toJSON: {virtuals: true}
-// })
+  }
+});
 
 function checkCoordinates(array) {
   return array.length === 2
 }
 
 const Mark = mongoose.model('mark', MarkSchema);
-
 module.exports = Mark;

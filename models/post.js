@@ -11,18 +11,14 @@ const PostSchema = new Schema({
         type: String,
         required: [true, 'Post content field is required']
     },
-    groupFeedId: {
+    postCreatedByUser: {
         type: Schema.Types.ObjectId,
-        ref: "groupFeed",
-        required: [true, 'Group Feed field is required']
-    },
-    userId: { 
-        type: Schema.Types.ObjectId, 
         ref: "user",
         required: [true, 'User field is required']
-    }
+    },
+    postDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultPostCategory" },
+    postCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customPostCategory" },
 })
 
 const Post = mongoose.model('post', PostSchema);
-
 module.exports = Post;

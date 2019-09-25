@@ -1,17 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const Mark = require("./mark");
+const LocationImage = require("./locationImage");
 
 // create Location Schema & model
 const LocationSchema = new Schema({
-  locationId: {
-    type: Schema.Types.ObjectId,
-    required: [true, "locationId is required to save Location"]
-  },
-  groupId: {
-    type: Schema.Types.ObjectId,
-    ref: "group",
-    required: [true, "groupId required to save Location"]
-  },
   locationName: {
     type: String,
     required: [true, "locationName field is required"]
@@ -20,47 +13,26 @@ const LocationSchema = new Schema({
     type: String,
     required: [true, "locationAddress (string) is required"]
   },
-  priceRange: {
-    type: String,
-    required: [true, "priceRange ($, $$, $$$) is required"],
-    validate: {
-      validator: function(v) {
-        if (
-          v.split("").some(char => {
-            return char !== "$";
-          }) ||
-          ![1, 2, 3].includes(v.length)
-        ) {
-          return false;
-        }
-        return true;
-      },
-      message: props => `${props.value} is not a valid price range!`
-    }
+  loactionPriceRange: {
+    type: Number,
+    required: [true, "priceRange (0, 1, 2) is required"],
   },
   additionalInformation: {
     type: String
   },
-  locationReviewSet: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "review"
-    }
-  ],
   locationImageSet: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "locationImage"
-    }
+    { LocationImage }
   ],
-  locationMarkSet: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "mark"
-    }
-  ]
+  locationDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultLocationCategory" },
+  locationCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customLocationCategory" },
+  locationReviewSet: [
+    { type: Schema.Types.ObjectId, ref: "user.review" }
+  ],
+  locationMark: [
+    { Mark }
+  ],
+  locationCreatedBy: { type: Schema.Types.ObjectId, ref: "user" }
 });
 
 const Location = mongoose.model("location", LocationSchema);
-
 module.exports = Location;
