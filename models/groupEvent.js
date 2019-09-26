@@ -5,7 +5,7 @@ const Event = require("./groupEventSubDocs/event");
 // create group Event Schema & model
 const GroupEventSchema = new Schema({
     group: { type: Schema.Types.ObjectId, ref: "group" },
-    GroupEvents: [
+    groupEvents: [
         { Event }
     ],
 });

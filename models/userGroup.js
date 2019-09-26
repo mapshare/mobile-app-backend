@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const GroupRoles = require("./groupRoles");
 
 // create User Group Schema & model
 const UserGroupSchema = new Schema({
@@ -9,5 +8,5 @@ const UserGroupSchema = new Schema({
     userGroupRole: { type: Schema.Types.ObjectId, ref: "groupRoles" },
 })
 
-const UserGroup = mongoose.model('userGroup', UserSchema);
+const UserGroup = mongoose.model('userGroup', UserGroupSchema);
 module.exports = UserGroup;

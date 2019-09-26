@@ -8,11 +8,11 @@ const GroupSchema = new Schema({
     required: [true, 'groupName field is required']
   },
   groupLocation: { type: Schema.Types.ObjectId, ref: "groupLocation" },
-  groupMembers: { type: Schema.Types.ObjectId, ref: "groupMembers" },
+  groupMembers: [{ type: Schema.Types.ObjectId, ref: "users" }],
   groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },
   groupEvents: { type: Schema.Types.ObjectId, ref: "groupEvents" },
-  groupDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultGroupCategory" },
-  groupCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customGroupCategory" }
+  groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultGroupCategory" }],
+  groupCustomCategory: [{ type: Schema.Types.ObjectId, ref: "customGroupCategory" }]
 });
 
 GroupSchema.virtual('groupId').get(function () { return this._id; });
