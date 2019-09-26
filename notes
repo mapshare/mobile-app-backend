@@ -1,0 +1,15 @@
+Following Modules are required for this:
+1) Express
+2) Socket.io
+3) EJS (Simple Templating language)
+
+
+Notes:
+
+While working on Socket.io, we are dealing with two files at the same time:
+The server app file (e.g. index.js)
+
+The client front-end file (e.g. index.ejs)
+
+By using Socket.io, basically we are creating a “tunnel” between the server
+and client with continuous real-time connection.
