@@ -4,12 +4,12 @@ const Schema = mongoose.Schema;
 // Create Custom Categories Schema & model
 
 const DefaultCategorisSchema = new Schema({
-    defaultName: {
+    categoryName: {
       type: String,
       required: [true, 'categoryName field is required']
     },
 })
 
-const dCategories = mongoose.model('cCategories', DefaultCategorisSchema);
+const dCategories = mongoose.model('dCategories', DefaultCategorisSchema);
 
 module.exports = dCategories;
