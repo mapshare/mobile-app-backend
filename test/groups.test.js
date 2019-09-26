@@ -8,16 +8,16 @@ let assert = chai.assert;
 describe('Test the /Groups route :', () => {
     var testGroupId = 0;
     var testUserId = 0;
+    var testGroupRoleId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
             .post('/users')
             .send({
-                "userEmail": "test@test.com",
-                "userFirstName": "test",
-                "userLastName": "Lasttest",
-                "googleId": "12345",
-                "userPicture": "1231231"
+                "userEmail": "groupTest@test123.com",
+                "userFirstName": "Group Test First Name",
+                "userLastName": "Group Test Last Name",
+                "googleId": "423423424234"
             })
             .end(function (err, res) {
                 testUserId = res.body._id;
@@ -26,10 +26,40 @@ describe('Test the /Groups route :', () => {
             });
     });
 
-    after((done) => {
-        // NOTE: SHOULD CALL REMOVE USER WHEN DELETE USER FUNCTION IS ADDED
+    before((done) => {
+        chai.request(process.env.Test_URL)
+            .post('/groupRoles')
+            .send({
+                "groupRoleName": "Admin",
+                "groupRolePermisionLevel": 3
+            })
+            .end(function (err, res) {
+                testGroupRoleId = res.body._id;
 
-        done();
+                done();
+            });
+    });
+
+    after((done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/users/' + testUserId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                done();
+            });
+    });
+
+    after((done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groupRoles/' + testGroupRoleId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                done();
+            });
     });
 
     it('should CREATE a Group POST', (done) => {
@@ -37,6 +67,7 @@ describe('Test the /Groups route :', () => {
             .post('/groups')
             .send({
                 "userId": testUserId,
+                "groupRole": testGroupRoleId,
                 "groupName": "Test Group"
             })
             .end(function (err, res) {
@@ -51,18 +82,17 @@ describe('Test the /Groups route :', () => {
             });
     });
 
-    it('Should READ ALL Restaurants on /groups GET', (done) => {
+    it('Should READ ALL Groups on /groups GET', (done) => {
         chai.request(process.env.Test_URL)
             .get('/groups')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.a('array');
-
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
-                    'groupMarks',
-                    'groupFeed',
+                    'groupDefaultCategory',
+                    'groupCustomCategory',
                     'groupMembers',
                     'groupName',
                     '__v');
@@ -79,6 +109,33 @@ describe('Test the /Groups route :', () => {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
                 assert.equal(res.body.groupName, "Test Group");
+
+                done();
+            });
+    });
+
+    it('Should UPDATE Group on /groups PUT', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId)
+            .send({
+                "groupName": "New Test Group Name"
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.success.groupName, "New Test Group Name");
+
+                done();
+            });
+    });
+
+    it('Should DELETE the group from database DELETE', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groups/' + testGroupId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
 
                 done();
             });

@@ -5,11 +5,11 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /groupFeed route :', () => {
+describe('Test the /groupEvent route :', () => {
     var testUserId = 0;
     var testGroupId = 0;
     var testGroupId2 = 0;
-    var testGroupFeedId = 0;
+    var testGroupEventId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -104,12 +104,12 @@ describe('Test the /groupFeed route :', () => {
     });
 
 
-    it('should CREATE a GroupFeed to the database PUT', (done) => {
+    it('should CREATE a GroupEvent to the database PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupFeed')
+            .post('/groupEvent')
             .send({
                 "group": testGroupId,
-                "groupPosts": []
+                "groupEvents": []
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
@@ -117,16 +117,16 @@ describe('Test the /groupFeed route :', () => {
 
                 assert.equal(res.body.group, testGroupId);
 
-                testGroupFeedId = res.body._id;
+                testGroupEventId = res.body._id;
 
                 done();
             });
     });
 
 
-    it('Should READ ALL GroupFeed on /groupFeed GET', (done) => {
+    it('Should READ ALL GroupEvent on /groupEvent GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed')
+            .get('/groupEvent')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -134,7 +134,7 @@ describe('Test the /groupFeed route :', () => {
 
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
-                    'groupPosts',
+                    'groupEvents',
                     'group',
                     '__v');
 
@@ -142,9 +142,9 @@ describe('Test the /groupFeed route :', () => {
             });
     });
 
-    it('Should READ GroupFeed with the requested id on /groupFeed GET', (done) => {
+    it('Should READ GroupEvent with the requested id on /groupEvent GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed/' + testGroupFeedId)
+            .get('/groupEvent/' + testGroupEventId)
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
@@ -155,9 +155,9 @@ describe('Test the /groupFeed route :', () => {
             });
     });
 
-    it('Should UPDATE GroupFeed on /groupFeed PUT', (done) => {
+    it('Should UPDATE GroupEvent on /groupEvent PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .put('/groupFeed/' + testGroupFeedId)
+            .put('/groupEvent/' + testGroupEventId)
             .send({
                 "group": testGroupId2
             })
@@ -171,9 +171,9 @@ describe('Test the /groupFeed route :', () => {
             });
     });
 
-    it('Should DELETE the groupFeed with the requested id on /groupFeed DELETE', (done) => {
+    it('Should DELETE the groupEvent with the requested id on /groupEvent DELETE', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groupFeed/' + testGroupFeedId)
+            .delete('/groupEvent/' + testGroupEventId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;

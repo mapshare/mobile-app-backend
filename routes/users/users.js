@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const dataService = require("./userService");
-// const dataService = require("../../dataService");
 const data = dataService();
 
 // get all users // remove in production!
@@ -32,10 +31,19 @@ router.get('/users/:id', (req, res, next) => {
     })
 })
 
-// add user to existing group (or other update?)
+// update user by id
 router.put('/users/:id', (req, res, next) => {
     data.updateUserById(req.params.id, req.body).then(data => {
         res.status(200).json(data);
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// delete users by id
+router.delete('/users/:id', (req, res, next) => {
+    data.deleteUserbyId(req.params.id).then(data => {
+        res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })
     })

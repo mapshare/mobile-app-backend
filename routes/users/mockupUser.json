@@ -1,0 +1,33 @@
+{
+    "userGroup": ["5d8bf9a44b839728ec67fcee", "5d8bf9a44b839728ec67fcee"],
+    "userPosts": ["5d8bf9a44b839728ec67fcee", "5d8bf9a44b839728ec67fcee"],
+    "userEvent": ["5d8bf9a44b839728ec67fcee", "5d8bf9a44b839728ec67fcee"],
+    "_id": "5d8bf9a44b839728ec67fcee",
+    "userEmail": "test123@test123.com",
+    "userFirstName": "Test First Name",
+    "userLastName": "Test Last Name",
+    "googleId": "432432",
+    "userImages": [{
+        "UserImageFileName": "jfjldsjlfkdjsljfs",
+        "UserImageTimeStamp": "date"
+    }],
+    "userReviews": [{
+        "reviewRating": 5,
+        "reviewContent": "Hello World",
+        "reviewUpdatedAt": "Date",
+        "reviewCreatedAt": "Date"
+    }],
+    "userCustomGroupCategory": [{
+        "customGroupCategoryName": "name1"
+    }],
+    "userCustomLocationCategory": [{
+        "customLocationCategoryName": "name2"
+    }],
+    "userCustomEventCategory": [{
+        "CustomEventCategoryName": "name3"
+    }],
+    "userCustomPostCategory": [{
+        "CustomPostCategoryName": "name4"
+    }],
+    "__v": 0
+}

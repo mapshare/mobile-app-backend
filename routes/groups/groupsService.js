@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
-const Restaurant = require('../../models/restaurant');
 const Group = require('../../models/group');
-const Mark = require('../../models/mark');
-const Review = require('../../models/review');
 const User = require('../../models/user');
+const UserGroup = require('../../models/userGroup');
+const GroupRole = require('../../models/groupRoles');
 
 module.exports = () => {
     return {
@@ -24,43 +23,72 @@ module.exports = () => {
             })
         },
 
-        addGroup: (groupData) => {
+        addGroup: (newData) => {
             return new Promise((resolve, reject) => {
-
-                if (!groupData.userId) {
-                    reject("need userId field")
-                    return
+                if (!newData.userId) {
+                    reject("need userId field");
+                    return;
                 }
 
-                User.findById(groupData.userId)
+                User.findById(newData.userId)
                     .then(userData => {
 
                         if (!userData) {
-                            reject("user doesn't exist")
-                            return
+                            reject("user doesn't exist");
+                            return;
+                        }
+                    }).catch(err => reject(err));
+                // Will need to create groupLocation, groupFeed and groupEvents table here aswel
+
+                Group.create({
+                    groupName: newData.groupName
+                }).then(groupData => {
+                    UserGroup.create({
+                        user: newData.userId,
+                        group: groupData._id,
+                        userGroupRole: newData.groupRole
+                    }).then(data => {
+                        resolve(groupData)
+                    }).catch(err => reject(err));
+                }).catch(err => reject(err));
+            });
+        },
+
+        updateGroupById: (GroupId, newData) => {
+            return new Promise((resolve, reject) => {
+                let { groupName } = newData;
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
                         }
 
-                        Group.create({
-                            ...groupData,
-                            groupMembers: [groupData.userId]   // add initial groupmember
-                        })
-                            .then(data => {
-                                console.log('groupId: ', data.groupId)
-                                userData.userGroups.push(data.groupId)
+                        groupData.groupName = groupName ? groupName : groupData.groupName;
 
-                                userData.save()
-                                    .then(() => resolve(data))
-                                    .catch(err => {
-                                        reject({ "group created, but couldn't add group to user": err })
-                                    })
+                        groupData.save()
+                            .then(data => { resolve({ "success": data }) })
+                            .catch(err => reject(err))
+                    }).catch(err => reject(err));
+            });
+        },
 
-                            })
+        deleteGroupById: (GroupId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        // Should Delete Related userGroup documents
+                        groupData.remove()
+                            .then(data => resolve(data))
                             .catch(err => reject(err));
-
                     })
-                    .catch(err => reject(err))
-
-            })
+                    .catch(err => reject(err));
+            });
         }
     }
 }

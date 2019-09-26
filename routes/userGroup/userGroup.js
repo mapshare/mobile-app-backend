@@ -1,30 +1,30 @@
 const express = require("express");
 const router = express.Router();
-const dataService = require("./postService");
+const dataService = require("./userGroupService");
 const data = dataService();
 
-// get list of all posts
-router.get('/post', (req, res, next) => {
-    data.getPost().then(data => {
+// get list of UserGroup 
+router.get('/userGroup', (req, res, next) => {
+    data.getUserGroup().then(data => {
         res.json(data);
     }).catch(err => {
         res.send({ 'Error: ': err })
     })
 });
 
-// add post
-router.post('/post', (req, res, next) => {
-    data.addPost(req.body).then(data => {
+// add UserGroup
+router.post('/userGroup', (req, res, next) => {
+    data.addUserGroup(req.body).then(data => {
         res.status(200).json(data);
     }).catch(err => {
-        console.log("HERE HERE HERE HERE" + err);
+        console.log(err);
         res.status(400).send({ "error": err })
     })
 });
 
-// get post by id
-router.get('/post/:postid', (req, res, next) => {
-    data.getPostById(req.params.postid).then(data => {
+// get UserGroup by id
+router.get('/userGroup/:userGroupId', (req, res, next) => {
+    data.getUserGroupById(req.params.userGroupId).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         console.log(err);
@@ -32,9 +32,9 @@ router.get('/post/:postid', (req, res, next) => {
     })
 });
 
-// update post in db
-router.put('/post/:id', (req, res, next) => {
-    data.updatePostById(req.params.id, req.body).then(data => {
+// update UserGroup in db
+router.put('/userGroup/:id', (req, res, next) => {
+    data.updateUserGroupById(req.params.id, req.body).then(data => {
         res.status(200).json(data) 
     }).catch(err => {
         console.log(err);
@@ -43,9 +43,9 @@ router.put('/post/:id', (req, res, next) => {
 
 });
 
-// delete post in db
-router.delete('/post/:id', (req, res, next) => {
-    data.deletePostById(req.params.id).then(data => {
+// delete UserGroup in db
+router.delete('/userGroup/:id', (req, res, next) => {
+    data.deleteUserGroupById(req.params.id).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })

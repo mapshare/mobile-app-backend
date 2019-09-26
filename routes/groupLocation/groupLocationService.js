@@ -1,22 +1,22 @@
 const mongoose = require("mongoose");
-const GroupFeed = require('../../models/groupFeed');
+const GroupLocation = require('../../models/groupLocation');
 const Group = require('../../models/group');
 
 module.exports = () => {
     return {
-        getGroupFeed: () => {
+        getGroupLocation: () => {
             return new Promise((resolve, reject) => {
-                GroupFeed.find()
+                GroupLocation.find()
                     .then(data => resolve(data))
                     .catch(err => reject(err));
             });
         },
-        getGroupFeedById: (id) => {
+        getGroupLocationById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupFeed.findById(id)
+                GroupLocation.findById(id)
                     .then(data => {
                         if (data) resolve(data)
-                        else reject('no GroupFeed with specified id')
+                        else reject('no GroupLocation with specified id')
                     })
                     .catch(err => {
                         reject(err)
@@ -24,16 +24,16 @@ module.exports = () => {
 
             });
         },
-        addGroupFeed: (groupFeedData) => {
+        addGroupLocation: (groupLocationData) => {
             return new Promise((resolve, reject) => {
-                let { group, groupPosts } = groupFeedData;
+                let { group, groupLocations } = groupLocationData;
 
                 if (!mongoose.Types.ObjectId.isValid(group)) {
-                    reject({ "error": "groupId cannot be converted to valid ObjectId" });
+                    reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
-                if (!mongoose.Types.Array === groupPosts) {
-                    reject({ "error": "GroupPosts must be an array" });
+                if (!mongoose.Types.Array === groupLocations) {
+                    reject({ "error": "groupLocations must be an array" });
                     return;
                 }
 
@@ -41,11 +41,11 @@ module.exports = () => {
                     if (!groupData) {
                         reject({ "error": "group doesn't exist" })
                     } else {
-                        GroupFeed.create({
-                            ...groupFeedData
+                        GroupLocation.create({
+                            ...groupLocationData
                         })
                             .then(data => {
-                                groupData.groupFeed = data._id;
+                                groupData.groupLocation = data._id;
                                 groupData.save()
                                     .then(d => {
                                         resolve(data)
@@ -61,7 +61,7 @@ module.exports = () => {
                     .catch(err => reject(err));
             });
         },
-        updateGroupFeedById: (id, newData) => {
+        updateGroupLocationById: (id, newData) => {
             return new Promise((resolve, reject) => {
                 let { group } = newData;
                 if (!mongoose.Types.ObjectId.isValid(group)) {
@@ -69,29 +69,29 @@ module.exports = () => {
                     return;
                 }
 
-                GroupFeed.findById(id)
-                    .then(groupFeed => {
-                        if (!groupFeed) {
-                            reject("GroupFeed doesn't exist");
+                GroupLocation.findById(id)
+                    .then(groupLocation => {
+                        if (!groupLocation) {
+                            reject("GroupLocation doesn't exist");
                             return;
                         }
-                        groupFeed.group = group ? group : groupFeed.group
-                        groupFeed.save()
+                        groupLocation.group = group ? group : groupLocation.group
+                        groupLocation.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))
                     })
                     .catch(err => reject(err));
             });
         },
-        deleteGroupFeedById: (id) => {
+        deleteGroupLocationById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupFeed.findById(id)
-                    .then(groupFeed => {
-                        if (!groupFeed) {
-                            reject("GroupFeed doesn't exist");
+                GroupLocation.findById(id)
+                    .then(groupLocation => {
+                        if (!groupLocation) {
+                            reject("GroupLocation doesn't exist");
                             return;
                         }
-                        groupFeed.remove()
+                        groupLocation.remove()
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     })

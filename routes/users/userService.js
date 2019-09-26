@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-const Restaurant = require('../../models/restaurant');
 const Group = require('../../models/group');
-const Mark = require('../../models/mark');
-const Review = require('../../models/review');
 const User = require('../../models/user');
 
 module.exports = () => {
@@ -33,10 +30,10 @@ module.exports = () => {
         processUser: (userData) => {
             return new Promise((resolve, reject) => {
 
-                let { userEmail, userFirstName, userLastName, googleId, userPicture } = userData
+                let { userEmail, userFirstName, userLastName, googleId } = userData
 
-                if (!(userEmail && userFirstName && userLastName && userPicture && googleId)) {
-                    reject({ "error": "please provide userEmail, userFirstName, userLastName, googleId, userPicture" })
+                if (!(userEmail && userFirstName && userLastName && googleId)) {
+                    reject({ "error": "please provide userEmail, userFirstName, userLastName, googleId" })
                     return
                 }
 
@@ -49,7 +46,6 @@ module.exports = () => {
                                 userEmail,
                                 userFirstName,
                                 userLastName,
-                                userPicture,
                                 googleId
                             })
                                 .then(data => {
@@ -76,69 +72,63 @@ module.exports = () => {
             });
         },
 
-        updateUserById: (userId, userData) => {
+        updateUserById: (userId, newData) => {
             return new Promise((resolve, reject) => {
+                let { userGroup,
+                    userPosts,
+                    userEvent,
+                    userEmail,
+                    userFirstName,
+                    userLastName,
+                    googleId,
+                    userImages,
+                    userReviews,
+                    userCustomGroupCategory,
+                    userCustomLocationCategory,
+                    userCustomEventCategory,
+                    userCustomPostCategory } = newData;
 
-                let { addGroup, removeGroup } = userData
-
-                if ((addGroup && removeGroup) || !(addGroup || removeGroup)) {
-                    reject("either include addGroup or removeGroup (xor)")
-                    return
-                }
-
-                let groupId = addGroup ? addGroup : removeGroup
-
-                Group.findById(groupId)
-                    .then(doc => {
-
-                        if (!doc) {
-                            reject("group doesn't exist") //TURN INTO 404????????????
-                            return
-                        }
-                        else if (doc.groupMembers.some(id => { return id.equals(userId) })) {
-                            if (removeGroup) {
-                                doc.groupMembers.splice(doc.groupMembers.indexOf(userId), 1)
-                            } else {
-                                reject("user already in group")
-                                return
-                            }
-                        }
-                        else if (removeGroup) {
-                            reject("user not in group")
-                            return
+                User.findById(userId)
+                    .then(user => {
+                        if (!user) {
+                            reject("User doesn't exist");
+                            return;
                         }
 
-                        User.findOneAndUpdate(
-                            { _id: userId },
-                            addGroup ? {
-                                $push: { userGroups: mongoose.Types.ObjectId(addGroup) }
-                            } : {
-                                    $pull: { userGroups: mongoose.Types.ObjectId(removeGroup) }
-                                },
-                            { new: true }
-                        )
-                            .then(data => {
-                                if (data) {
-                                    console.log('user exists')
-                                    if (addGroup) {
-                                        doc.groupMembers.push(userId)
-                                    }
-                                    doc.save()
-                                        .then(data => console.log("new group:", data))
-                                        .catch(err => console.log("error when saving updated group", err))
-                                    console.log("successfull in updating user", data)
-                                    resolve(data)
-                                } else {
-                                    reject("user does not exist")
-                                }
-                            })
-                            .catch(err => {
-                                console.log('error deleting group from user')
-                                reject(err)
-                            })
+                        user.userGroup = userGroup ? userGroup : user.userGroup;
+                        user.userPosts = userPosts ? userPosts : user.userPosts;
+                        user.userEvent = userEvent ? userEvent : user.userEvent;
+                        user.userEmail = userEmail ? userEmail : user.userEmail;
+                        user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
+                        user.userLastName = userLastName ? userLastName : user.userLastName;
+                        user.googleId = googleId ? googleId : user.googleId;
+                        user.userImages = userImages ? userImages : user.userImages;
+                        user.userReviews = userReviews ? userReviews : user.userReviews;
+                        user.userCustomGroupCategory = userCustomGroupCategory ? userCustomGroupCategory : user.userCustomGroupCategory;
+                        user.userCustomLocationCategory = userCustomLocationCategory ? userCustomLocationCategory : user.userCustomLocationCategory;
+                        user.userCustomEventCategory = userCustomEventCategory ? userCustomEventCategory : user.userCustomEventCategory;
+                        user.userCustomPostCategory = userCustomPostCategory ? userCustomPostCategory : user.userCustomPostCategory;
+
+                        user.save()
+                            .then(data => { resolve({ "success": data }) })
+                            .catch(err => reject(err))
+                    }).catch(err => reject(err));
+            });
+        },
+        deleteUserbyId: (id) => {
+            return new Promise((resolve, reject) => {
+                User.findById(id)
+                    .then(user => {
+                        if (!user) {
+                            reject("User doesn't exist");
+                            return;
+                        }
+                        user.remove()
+                            .then(data => resolve(data))
+                            .catch(err => reject(err));
                     })
-                    .catch(err => reject(err))
-            })
+                    .catch(err => reject(err));
+            });
         }
     }
 }

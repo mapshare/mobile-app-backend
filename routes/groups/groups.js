@@ -30,4 +30,23 @@ router.get('/groups/:groupId', (req, res, next) => {
     })
 });
 
+// update Group in db
+router.put('/groups/:id', (req, res, next) => {
+    data.updateGroupById(req.params.id, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    })
+
+});
+
+// delete Group in db
+router.delete('/groups/:id', (req, res, next) => {
+    data.deleteGroupById(req.params.id).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
 module.exports = router;
