@@ -3,10 +3,13 @@ const Schema = mongoose.Schema;
 
 // create group Schema & model
 const UserImageSchema = new Schema({
-    UserImageFileName: {
+  userImageData: {
+    type: Buffer
+  },
+  userImageContentType: {
     type: String
   },
-  UserImageTimeStamp: {
+  userImageTimeStamp: {
     type: Date,
     default: Date.now
   }

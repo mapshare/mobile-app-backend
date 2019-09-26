@@ -21,7 +21,7 @@ const LocationSchema = new Schema({
     type: String
   },
   locationImageSet: [
-    { LocationImage }
+    LocationImage
   ],
   locationDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultLocationCategory" },
   locationCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customLocationCategory" },
@@ -29,7 +29,7 @@ const LocationSchema = new Schema({
     { type: Schema.Types.ObjectId, ref: "user.review" }
   ],
   locationMark: [
-    { Mark }
+    Mark
   ],
   locationCreatedBy: { type: Schema.Types.ObjectId, ref: "user" }
 });

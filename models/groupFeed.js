@@ -6,7 +6,7 @@ const Post = require("./groupFeedSubDocs/post");
 const GroupFeedSchema = new Schema({
   group: { type: Schema.Types.ObjectId, ref: "group" },
   groupPosts: [
-    { Post }
+    Post
   ],
 });
 
