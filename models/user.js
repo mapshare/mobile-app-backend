@@ -34,10 +34,10 @@ const UserSchema = new Schema({
     }
   },
   userImages: [
-    { UserImages }
+    UserImages
   ],
   userReviews: [
-    { Review }
+    Review
   ],
   userGroup: [
     {
@@ -54,16 +54,16 @@ const UserSchema = new Schema({
     ref: 'userEvent'
   }],
   userCustomGroupCategory: [
-    { CustomGroupCategory }
+    CustomGroupCategory
   ],
   userCustomLocationCategory: [
-    { CustomLocationCategory }
+    CustomLocationCategory
   ],
   userCustomEventCategory: [
-    { CustomEventCategory }
+    CustomEventCategory
   ],
   userCustomPostCategory: [
-    { CustomPostCategory }
+    CustomPostCategory
   ],
 });
 

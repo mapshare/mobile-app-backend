@@ -6,7 +6,7 @@ const Location = require("./groupLocationSubDocs/location");
 const GroupLocationSchema = new Schema({
     group: { type: Schema.Types.ObjectId, ref: "group" },
     groupLocations: [
-        { Location }
+        Location
     ],
 });
 
