@@ -12,14 +12,8 @@ module.exports = () => {
 
         addUser: (userData) => {
             return new Promise((resolve, reject) => {
-                let { userEmail, userFirstName, userLastName, googleId, userImages } = userData
-
                 const newUser = new User({
-                    userEmail: userEmail,
-                    userFirstName: userFirstName,
-                    userLastName: userLastName,
-                    googleId: googleId,
-                    userImages: [userImages]
+                    ...userData
                 })
                 newUser.save()
                     .then(data => resolve(data))
@@ -104,12 +98,7 @@ module.exports = () => {
                         user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
                         user.userLastName = userLastName ? userLastName : user.userLastName;
                         user.googleId = googleId ? googleId : user.googleId;
-
-
-                        user.userImages.push(userImages);
-
-
-                        //user.userImages = userImages ? userImages : user.userImages;
+                        user.userImages = userImages ? userImages : user.userImages;
                         user.userReviews = userReviews ? userReviews : user.userReviews;
                         user.userCustomGroupCategory = userCustomGroupCategory ? userCustomGroupCategory : user.userCustomGroupCategory;
                         user.userCustomLocationCategory = userCustomLocationCategory ? userCustomLocationCategory : user.userCustomLocationCategory;

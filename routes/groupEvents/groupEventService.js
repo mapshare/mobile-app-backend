@@ -63,7 +63,7 @@ module.exports = () => {
         },
         updateGroupEventById: (id, newData) => {
             return new Promise((resolve, reject) => {
-                let { group } = newData;
+                let { group, groupEvents } = newData;
                 if (!mongoose.Types.ObjectId.isValid(group)) {
                     reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
@@ -75,7 +75,8 @@ module.exports = () => {
                             reject("GroupEvent doesn't exist");
                             return;
                         }
-                        groupEvent.group = group ? group : groupEvent.group
+                        groupEvent.group = group ? group : groupEvent.group;
+                        groupEvent.groupEvents = groupEvents ? groupEvents : groupEvent.groupEvents;
                         groupEvent.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))

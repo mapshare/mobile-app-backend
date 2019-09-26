@@ -109,14 +109,21 @@ describe('Test the /groupFeed route :', () => {
             .post('/groupFeed')
             .send({
                 "group": testGroupId,
-                "groupPosts": []
+                "groupPosts": [{
+                    "postTitle": "TestTitle",
+                    "postContent": "TestContent",
+                    "postCreatedByUser": testUserId
+                }]
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
                 assert.equal(res.body.group, testGroupId);
-
+                assert.equal(res.body.groupPosts[0].postTitle, "TestTitle");
+                assert.equal(res.body.groupPosts[0].postContent, "TestContent");
+                assert.equal(res.body.groupPosts[0].postCreatedByUser, testUserId);
+                
                 testGroupFeedId = res.body._id;
 
                 done();
@@ -159,13 +166,21 @@ describe('Test the /groupFeed route :', () => {
         chai.request(process.env.Test_URL)
             .put('/groupFeed/' + testGroupFeedId)
             .send({
-                "group": testGroupId2
+                "group": testGroupId2,
+                "groupPosts": [{
+                    "postTitle": "TestTitle1",
+                    "postContent": "TestContent1",
+                    "postCreatedByUser": testUserId
+                }]
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
                 assert.equal(res.body.success.group, testGroupId2);
+                assert.equal(res.body.success.groupPosts[0].postTitle, "TestTitle1");
+                assert.equal(res.body.success.groupPosts[0].postContent, "TestContent1");
+                assert.equal(res.body.success.groupPosts[0].postCreatedByUser, testUserId);
 
                 done();
             });

@@ -5,7 +5,7 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /Location route :', () => {
+describe('Test the /groupLocation route :', () => {
     var testUserId = 0;
     var testGroupId = 0;
     var testGroupId2 = 0;
@@ -109,13 +109,36 @@ describe('Test the /Location route :', () => {
             .post('/groupLocation')
             .send({
                 "group": testGroupId,
-                "groupLocations": []
+                "groupLocations": [{
+                    locationName: "TestLocationName",
+                    locationAddress: "TestLocationAddress",
+                    loactionPriceRange: 2,
+                    additionalInformation: "TestInfo",
+                    locationImageSet: [
+                        {
+                            LocationImageData: "test",
+                            LocationImageContentType: "png"
+                        }
+                    ],
+                    locationMark: [
+                        { "geometry": { "coordinates": [0.5, 0.5] } }
+                    ],
+                    locationCreatedBy: testUserId
+                }]
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
                 assert.equal(res.body.group, testGroupId);
+                assert.equal(res.body.groupLocations[0].locationName, "TestLocationName");
+                assert.equal(res.body.groupLocations[0].locationAddress, "TestLocationAddress");
+                assert.equal(res.body.groupLocations[0].loactionPriceRange, 2);
+                assert.equal(res.body.groupLocations[0].additionalInformation, "TestInfo");
+                assert.equal(res.body.groupLocations[0].locationImageSet[0].LocationImageContentType, "png");
+                assert.equal(res.body.groupLocations[0].locationMark[0].geometry.coordinates[0], 0.5);
+                assert.equal(res.body.groupLocations[0].locationMark[0].geometry.coordinates[1], 0.5);
+                assert.equal(res.body.groupLocations[0].locationCreatedBy, testUserId);
 
                 testGroupLocationId = res.body._id;
 
@@ -159,13 +182,37 @@ describe('Test the /Location route :', () => {
         chai.request(process.env.Test_URL)
             .put('/groupLocation/' + testGroupLocationId)
             .send({
-                "group": testGroupId2
+                "group": testGroupId2,
+                "groupLocations": [{
+                    locationName: "TestLocationName1",
+                    locationAddress: "TestLocationAddress1",
+                    loactionPriceRange: 3,
+                    additionalInformation: "TestInfo1",
+                    locationImageSet: [
+                        {
+                            LocationImageData: "test",
+                            LocationImageContentType: "jpg"
+                        }
+                    ],
+                    locationMark: [
+                        { "geometry": { "coordinates": [0.7, 0.7] } }
+                    ],
+                    locationCreatedBy: testUserId
+                }]
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
-
+                
                 assert.equal(res.body.success.group, testGroupId2);
+                assert.equal(res.body.success.groupLocations[0].locationName, "TestLocationName1");
+                assert.equal(res.body.success.groupLocations[0].locationAddress, "TestLocationAddress1");
+                assert.equal(res.body.success.groupLocations[0].loactionPriceRange, 3);
+                assert.equal(res.body.success.groupLocations[0].additionalInformation, "TestInfo1");
+                assert.equal(res.body.success.groupLocations[0].locationImageSet[0].LocationImageContentType, "jpg");
+                assert.equal(res.body.success.groupLocations[0].locationMark[0].geometry.coordinates[0], 0.7);
+                assert.equal(res.body.success.groupLocations[0].locationMark[0].geometry.coordinates[1], 0.7);
+                assert.equal(res.body.success.groupLocations[0].locationCreatedBy, testUserId);
 
                 done();
             });

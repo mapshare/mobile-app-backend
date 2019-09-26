@@ -63,19 +63,20 @@ module.exports = () => {
         },
         updateGroupFeedById: (id, newData) => {
             return new Promise((resolve, reject) => {
-                let { group } = newData;
+                let { group, groupPosts } = newData;
                 if (!mongoose.Types.ObjectId.isValid(group)) {
                     reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
-
+                
                 GroupFeed.findById(id)
                     .then(groupFeed => {
                         if (!groupFeed) {
                             reject("GroupFeed doesn't exist");
                             return;
                         }
-                        groupFeed.group = group ? group : groupFeed.group
+                        groupFeed.group = group ? group : groupFeed.group;
+                        groupFeed.groupPosts = groupPosts ? groupPosts : groupFeed.groupPosts;
                         groupFeed.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))

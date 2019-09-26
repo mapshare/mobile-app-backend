@@ -109,13 +109,20 @@ describe('Test the /groupEvent route :', () => {
             .post('/groupEvent')
             .send({
                 "group": testGroupId,
-                "groupEvents": []
+                "groupEvents": [{
+                    eventName: "testEventName",
+                    eventDescription: "testEventDescription",
+                    eventUsers: [testUserId],
+                }]
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
                 assert.equal(res.body.group, testGroupId);
+                assert.equal(res.body.groupEvents[0].eventName, "testEventName");
+                assert.equal(res.body.groupEvents[0].eventDescription, "testEventDescription");
+                assert.equal(res.body.groupEvents[0].eventUsers[0], testUserId);
 
                 testGroupEventId = res.body._id;
 
@@ -159,13 +166,21 @@ describe('Test the /groupEvent route :', () => {
         chai.request(process.env.Test_URL)
             .put('/groupEvent/' + testGroupEventId)
             .send({
-                "group": testGroupId2
+                "group": testGroupId2,
+                "groupEvents": [{
+                    eventName: "testEventName1",
+                    eventDescription: "testEventDescription1",
+                    eventUsers: [testUserId],
+                }]
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
                 assert.equal(res.body.success.group, testGroupId2);
+                assert.equal(res.body.success.groupEvents[0].eventName, "testEventName1");
+                assert.equal(res.body.success.groupEvents[0].eventDescription, "testEventDescription1");
+                assert.equal(res.body.success.groupEvents[0].eventUsers[0], testUserId);
 
                 done();
             });

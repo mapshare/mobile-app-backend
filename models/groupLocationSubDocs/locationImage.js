@@ -3,7 +3,10 @@ const Schema = mongoose.Schema;
 
 // create group Schema & model
 const LocationImageSchema = new Schema({
-  fileName: {
+  LocationImageData: {
+    type: Buffer
+  },
+  LocationImageContentType: {
     type: String
   },
   timeStamp: {
