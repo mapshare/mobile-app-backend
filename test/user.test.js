@@ -15,7 +15,8 @@ describe('Test the /users route :', () => {
                 "userEmail": "test123@test123.com",
                 "userFirstName": "Test First Name",
                 "userLastName": "Test Last Name",
-                "googleId": "432432"
+                "googleId": "432432",
+                "userImages": { "userImageData": "Image1", "userImageContentType": "png" }
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
@@ -25,6 +26,7 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.userFirstName, "Test First Name");
                 assert.equal(res.body.userLastName, "Test Last Name");
                 assert.equal(res.body.googleId, "432432");
+                assert.equal(res.body.userImages[0].userImageContentType, "png");
 
                 testUserId = res.body._id;
 

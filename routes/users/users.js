@@ -14,10 +14,11 @@ router.get('/users', (req, res, next) => {
 
 // add new user
 router.post('/users', (req, res, next) => {
-    //data.addUser(req.body).then(data => {
-    data.processUser(req.body).then(data => {
+    data.addUser(req.body).then(data => {
+    //data.processUser(req.body).then(data => {
         res.status(200).json(data);
     }).catch(err => {
+        console.log(err)
         res.status(400).send(err)
     })
 });

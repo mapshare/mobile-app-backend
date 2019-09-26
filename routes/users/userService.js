@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const Group = require('../../models/group');
 const User = require('../../models/user');
-
 module.exports = () => {
     return {
         getUsers: () => {
@@ -14,15 +12,17 @@ module.exports = () => {
 
         addUser: (userData) => {
             return new Promise((resolve, reject) => {
-                console.log('new user data: ', userData)
+                let { userEmail, userFirstName, userLastName, googleId, userImages } = userData
 
-                // format creation body first?
-                // create. if exists, return error? currently email can't be duplicate
-                User.create({ ...userData })
-                    .then(data => {
-                        console.log('userId: ', data.userId)
-                        resolve(data)
-                    })
+                const newUser = new User({
+                    userEmail: userEmail,
+                    userFirstName: userFirstName,
+                    userLastName: userLastName,
+                    googleId: googleId,
+                    userImages: [userImages]
+                })
+                newUser.save()
+                    .then(data => resolve(data))
                     .catch(err => reject(err));
             })
         },
@@ -30,7 +30,8 @@ module.exports = () => {
         processUser: (userData) => {
             return new Promise((resolve, reject) => {
 
-                let { userEmail, userFirstName, userLastName, googleId } = userData
+                let { userEmail, userFirstName, userLastName, googleId, userImages } = userData
+                console.log(userData);
 
                 if (!(userEmail && userFirstName && userLastName && googleId)) {
                     reject({ "error": "please provide userEmail, userFirstName, userLastName, googleId" })
@@ -46,13 +47,14 @@ module.exports = () => {
                                 userEmail,
                                 userFirstName,
                                 userLastName,
-                                googleId
+                                googleId,
+                                userImages: userImages
                             })
                                 .then(data => {
                                     console.log('new user created')
                                     resolve(data)
                                 })
-                                .catch(err => reject(err))
+                                .catch(err => { reject(err); console.log(err) })
                         }
                     })
                     .catch(err => reject(err))
@@ -102,7 +104,12 @@ module.exports = () => {
                         user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
                         user.userLastName = userLastName ? userLastName : user.userLastName;
                         user.googleId = googleId ? googleId : user.googleId;
-                        user.userImages = userImages ? userImages : user.userImages;
+
+
+                        user.userImages.push(userImages);
+
+
+                        //user.userImages = userImages ? userImages : user.userImages;
                         user.userReviews = userReviews ? userReviews : user.userReviews;
                         user.userCustomGroupCategory = userCustomGroupCategory ? userCustomGroupCategory : user.userCustomGroupCategory;
                         user.userCustomLocationCategory = userCustomLocationCategory ? userCustomLocationCategory : user.userCustomLocationCategory;
