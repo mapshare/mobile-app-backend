@@ -6,5 +6,5 @@ const CustomPostCategorySchema = new Schema({
     customPostCategoryName: ""
 });
 
-const CustomPostCategory = mongoose.model('customPostCategory', CustomPostCategorySchema);
-module.exports = CustomPostCategory;
+//const CustomPostCategory = mongoose.model('customPostCategory', CustomPostCategorySchema);
+module.exports = CustomPostCategorySchema;

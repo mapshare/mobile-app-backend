@@ -6,7 +6,7 @@ const GroupRoles = require("./groupRoles");
 const UserGroupSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: "user" },
     group: { type: Schema.Types.ObjectId, ref: "group" },
-    userGroupRole: { GroupRoles },
+    userGroupRole: { type: Schema.Types.ObjectId, ref: "groupRoles" },
 })
 
 const UserGroup = mongoose.model('userGroup', UserSchema);

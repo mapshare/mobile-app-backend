@@ -12,5 +12,5 @@ const LocationImageSchema = new Schema({
   }
 });
 
-const LocationImage = mongoose.model("locationImage", LocationImageSchema);
-module.exports = LocationImage;
+//const LocationImage = mongoose.model("locationImage", LocationImageSchema);
+module.exports = LocationImageSchema;

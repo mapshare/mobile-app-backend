@@ -20,5 +20,5 @@ const PostSchema = new Schema({
     postCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customPostCategory" },
 })
 
-const Post = mongoose.model('post', PostSchema);
-module.exports = Post;
+//const Post = mongoose.model('post', PostSchema);
+module.exports = PostSchema;

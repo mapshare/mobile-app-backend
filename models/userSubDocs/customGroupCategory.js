@@ -6,5 +6,5 @@ const CustomGroupCategorySchema = new Schema({
     customGroupCategoryName: ""
 });
 
-const CustomGroupCategory = mongoose.model('customGroupCategory', CustomGroupCategorySchema);
-module.exports = CustomGroupCategory;
+//const CustomGroupCategory = mongoose.model('customGroupCategory', CustomGroupCategorySchema);
+module.exports = CustomGroupCategorySchema;

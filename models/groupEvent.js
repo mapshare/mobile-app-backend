@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Event = require("./event");
+const Event = require("./groupEventSubDocs/event");
 
 // create group Event Schema & model
 const GroupEventSchema = new Schema({

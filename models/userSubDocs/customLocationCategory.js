@@ -6,5 +6,5 @@ const CustomLocationCategorySchema = new Schema({
     customLocationCategoryName: ""
 });
 
-const CustomLocationCategory = mongoose.model('customLocationCategory', CustomLocationCategorySchema);
-module.exports = CustomLocationCategory;
+//const CustomLocationCategory = mongoose.model('customLocationCategory', CustomLocationCategorySchema);
+module.exports = CustomLocationCategorySchema;

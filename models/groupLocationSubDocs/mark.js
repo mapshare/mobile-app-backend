@@ -31,5 +31,5 @@ function checkCoordinates(array) {
   return array.length === 2
 }
 
-const Mark = mongoose.model('mark', MarkSchema);
-module.exports = Mark;
+//const Mark = mongoose.model('mark', MarkSchema);
+module.exports = MarkSchema;

@@ -34,5 +34,5 @@ const LocationSchema = new Schema({
   locationCreatedBy: { type: Schema.Types.ObjectId, ref: "user" }
 });
 
-const Location = mongoose.model("location", LocationSchema);
-module.exports = Location;
+//const Location = mongoose.model("location", LocationSchema);
+module.exports = LocationSchema;

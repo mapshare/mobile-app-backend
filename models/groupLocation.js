@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Location = require("./location");
+const Location = require("./groupLocationSubDocs/location");
 
 // create group location Schema & model
 const GroupLocationSchema = new Schema({

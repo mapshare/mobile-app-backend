@@ -6,5 +6,5 @@ const CustomEventCategorySchema = new Schema({
     customEventCategoryName: ""
 });
 
-const CustomEventCategory = mongoose.model('customEventCategory', CustomEventCategorySchema);
-module.exports = CustomEventCategory;
+//const CustomEventCategory = mongoose.model('customEventCategory', CustomEventCategorySchema);
+module.exports = CustomEventCategorySchema;

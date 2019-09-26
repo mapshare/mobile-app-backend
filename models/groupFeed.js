@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Post = require("./post");
+const Post = require("./groupFeedSubDocs/post");
 
 // create group feed Schema & model
 const GroupFeedSchema = new Schema({

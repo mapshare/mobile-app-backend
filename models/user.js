@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const UserImages = require("./userImages");
-const Review = require("./review");
-const CustomGroupCategory = require("./customGroupCategory");
-const CustomLocationCategory = require("./customLocationCategory");
-const CustomEventCategory = require("./customEventCategory");
-const CustomPostCategory = require("./customPostCategory");
+
+const UserImages = require("./userSubDocs/userImages");
+const Review = require("./userSubDocs/review");
+const CustomGroupCategory = require("./userSubDocs/customGroupCategory");
+const CustomLocationCategory = require("./userSubDocs/customLocationCategory");
+const CustomEventCategory = require("./userSubDocs/customEventCategory");
+const CustomPostCategory = require("./userSubDocs/customPostCategory");
+
 // create user Schema & model
 const UserSchema = new Schema({
   userEmail: {
