@@ -1,22 +1,22 @@
 const mongoose = require("mongoose");
-const GroupLocation = require('../../models/groupLocation');
+const GroupMark = require('../../models/groupMarks');
 const Group = require('../../models/group');
 
 module.exports = () => {
     return {
-        getGroupLocation: () => {
+        getGroupMark: () => {
             return new Promise((resolve, reject) => {
-                GroupLocation.find()
+                GroupMark.find()
                     .then(data => resolve(data))
                     .catch(err => reject(err));
             });
         },
-        getGroupLocationById: (id) => {
+        getGroupMarkById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupLocation.findById(id)
+                GroupMark.findById(id)
                     .then(data => {
                         if (data) resolve(data)
-                        else reject('no GroupLocation with specified id')
+                        else reject('no GroupMark with specified id')
                     })
                     .catch(err => {
                         reject(err)
@@ -24,16 +24,16 @@ module.exports = () => {
 
             });
         },
-        addGroupLocation: (groupLocationData) => {
+        addGroupMark: (groupMarkData) => {
             return new Promise((resolve, reject) => {
-                let { group, groupLocations } = groupLocationData;
+                let { group, groupMarks } = groupMarkData;
 
                 if (!mongoose.Types.ObjectId.isValid(group)) {
                     reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
-                if (!mongoose.Types.Array === groupLocations) {
-                    reject({ "error": "groupLocations must be an array" });
+                if (!mongoose.Types.Array === groupMarks) {
+                    reject({ "error": "groupMarks must be an array" });
                     return;
                 }
 
@@ -41,11 +41,11 @@ module.exports = () => {
                     if (!groupData) {
                         reject({ "error": "group doesn't exist" })
                     } else {
-                        GroupLocation.create({
-                            ...groupLocationData
+                        GroupMark.create({
+                            ...groupMarkData
                         })
                             .then(data => {
-                                groupData.groupLocation = data._id;
+                                groupData.groupMark = data._id;
                                 groupData.save()
                                     .then(d => {
                                         resolve(data)
@@ -61,38 +61,38 @@ module.exports = () => {
                     .catch(err => reject(err));
             });
         },
-        updateGroupLocationById: (id, newData) => {
+        updateGroupMarkById: (id, newData) => {
             return new Promise((resolve, reject) => {
-                let { group, groupLocations } = newData;
+                let { group, groupMarks } = newData;
                 if (!mongoose.Types.ObjectId.isValid(group)) {
                     reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
 
-                GroupLocation.findById(id)
-                    .then(groupLocation => {
-                        if (!groupLocation) {
-                            reject("GroupLocation doesn't exist");
+                GroupMark.findById(id)
+                    .then(groupMark => {
+                        if (!groupMark) {
+                            reject("GroupMark doesn't exist");
                             return;
                         }
-                        groupLocation.group = group ? group : groupLocation.group;
-                        groupLocation.groupLocations = groupLocations ? groupLocations : groupLocation.groupLocations;
-                        groupLocation.save()
+                        groupMark.group = group ? group : groupMark.group;
+                        groupMark.groupMarks = groupMarks ? groupMarks : groupMark.groupMarks;
+                        groupMark.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))
                     })
                     .catch(err => reject(err));
             });
         },
-        deleteGroupLocationById: (id) => {
+        deleteGroupMarkById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupLocation.findById(id)
-                    .then(groupLocation => {
-                        if (!groupLocation) {
-                            reject("GroupLocation doesn't exist");
+                GroupMark.findById(id)
+                    .then(groupMark => {
+                        if (!groupMark) {
+                            reject("GroupMark doesn't exist");
                             return;
                         }
-                        groupLocation.remove()
+                        groupMark.remove()
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     })

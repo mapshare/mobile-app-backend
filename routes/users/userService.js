@@ -78,11 +78,7 @@ module.exports = () => {
                     userLastName,
                     googleId,
                     userImages,
-                    userReviews,
-                    userCustomGroupCategory,
-                    userCustomLocationCategory,
-                    userCustomEventCategory,
-                    userCustomPostCategory } = newData;
+                    userReviews } = newData;
 
                 User.findById(userId)
                     .then(user => {
@@ -100,10 +96,6 @@ module.exports = () => {
                         user.googleId = googleId ? googleId : user.googleId;
                         user.userImages = userImages ? userImages : user.userImages;
                         user.userReviews = userReviews ? userReviews : user.userReviews;
-                        user.userCustomGroupCategory = userCustomGroupCategory ? userCustomGroupCategory : user.userCustomGroupCategory;
-                        user.userCustomLocationCategory = userCustomLocationCategory ? userCustomLocationCategory : user.userCustomLocationCategory;
-                        user.userCustomEventCategory = userCustomEventCategory ? userCustomEventCategory : user.userCustomEventCategory;
-                        user.userCustomPostCategory = userCustomPostCategory ? userCustomPostCategory : user.userCustomPostCategory;
 
                         user.save()
                             .then(data => { resolve({ "success": data }) })

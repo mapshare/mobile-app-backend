@@ -5,29 +5,29 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /defaultPostCategory route :', () => {
-    var testDefaultPostCategoryId = 0;
+describe('Test the /defaultCategory route :', () => {
+    var testDefaultCategoryId = 0;
 
     it('should CREATE a eventRole - POST', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/defaultPostCategory')
+            .post('/defaultCategory')
             .send({
-                defaultPostCategoryName: "TestName"
+                defaultCategoryName: "TestName"
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body.defaultPostCategoryName, "TestName");
+                assert.equal(res.body.defaultCategoryName, "TestName");
 
-                testDefaultPostCategoryId = res.body._id;
+                testDefaultCategoryId = res.body._id;
                 done();
             });
     });
 
-    it('Should READ ALL defaultPostCategory on /defaultPostCategory - GET', (done) => {
+    it('Should READ ALL defaultCategory on /defaultCategory - GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/defaultPostCategory')
+            .get('/defaultCategory')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -35,45 +35,45 @@ describe('Test the /defaultPostCategory route :', () => {
 
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
-                    "defaultPostCategoryName",
+                    "defaultCategoryName",
                     '__v');
 
                 done();
             });
     });
 
-    it('Should READ group with the requested id on /defaultPostCategory GET', (done) => {
+    it('Should READ group with the requested id on /defaultCategory GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/defaultPostCategory/' + testDefaultPostCategoryId)
+            .get('/defaultCategory/' + testDefaultCategoryId)
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body._id, testDefaultPostCategoryId);
+                assert.equal(res.body._id, testDefaultCategoryId);
 
                 done();
             });
     });
 
-    it('Should UPDATE eventRole on /defaultPostCategory PUT', (done) => {
+    it('Should UPDATE eventRole on /defaultCategory PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .put('/defaultPostCategory/' + testDefaultPostCategoryId)
+            .put('/defaultCategory/' + testDefaultCategoryId)
             .send({
-                defaultPostCategoryName: "TestName2",
+                defaultCategoryName: "TestName2",
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
-                assert.equal(res.body.success.defaultPostCategoryName, "TestName2");
+                assert.equal(res.body.success.defaultCategoryName, "TestName2");
 
                 done();
             });
     });
 
-    it('Should DELETE the defaultPostCategory from database DELETE', (done) => {
+    it('Should DELETE the defaultCategory from database DELETE', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/defaultPostCategory/' + testDefaultPostCategoryId)
+            .delete('/defaultCategory/' + testDefaultCategoryId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;

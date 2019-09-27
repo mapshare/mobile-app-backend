@@ -17,11 +17,7 @@ describe('Test the /users route :', () => {
                 "userLastName": "Test Last Name",
                 "googleId": "432432",
                 "userImages": [{ "userImageData": "Image1", "userImageContentType": "png" }],
-                "userReviews": [{ "reviewRating": 5, "reviewContent": "Test Review" }],
-                "userCustomGroupCategory": [{ "customGroupCategoryName": "TestGroupName" }],
-                "userCustomEventCategory": [{ "customEventCategoryName": "TestEventName" }],
-                "userCustomLocationCategory": [{ "customLocationCategoryName": "TestLocationName" }],
-                "userCustomPostCategory": [{ "customPostCategoryName": "TestPostName" }]
+                "userReviews": [{ "reviewRating": 5, "reviewContent": "Test Review" }]
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
@@ -34,10 +30,6 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.userImages[0].userImageContentType, "png");
                 assert.equal(res.body.userReviews[0].reviewRating, 5);
                 assert.equal(res.body.userReviews[0].reviewContent, "Test Review");
-                assert.equal(res.body.userCustomGroupCategory[0].customGroupCategoryName, "TestGroupName");
-                assert.equal(res.body.userCustomEventCategory[0].customEventCategoryName, "TestEventName");
-                assert.equal(res.body.userCustomLocationCategory[0].customLocationCategoryName, "TestLocationName");
-                assert.equal(res.body.userCustomPostCategory[0].customPostCategoryName, "TestPostName");
 
                 testUserId = res.body._id;
 
@@ -56,10 +48,6 @@ describe('Test the /users route :', () => {
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
                     "googleId",
-                    "userCustomEventCategory",
-                    "userCustomGroupCategory",
-                    "userCustomLocationCategory",
-                    "userCustomPostCategory",
                     "userEmail",
                     "userEvent",
                     "userFirstName",
@@ -68,6 +56,7 @@ describe('Test the /users route :', () => {
                     "userLastName",
                     "userPosts",
                     "userReviews",
+                    "userProfilePic",
                     '__v');
 
                 done();
@@ -97,10 +86,6 @@ describe('Test the /users route :', () => {
                 "googleId": "45454544",
                 "userImages": [{ "userImageData": "Image1", "userImageContentType": "jpg" }],
                 "userReviews": [{ "reviewRating": 2, "reviewContent": "Test Update Review" }],
-                "userCustomGroupCategory": [{ "customGroupCategoryName": "TestGroupName1" }],
-                "userCustomEventCategory": [{ "customEventCategoryName": "TestEventName1" }],
-                "userCustomLocationCategory": [{ "customLocationCategoryName": "TestLocationName1" }],
-                "userCustomPostCategory": [{ "customPostCategoryName": "TestPostName1" }]
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -113,10 +98,6 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.success.userImages[0].userImageContentType, "jpg");
                 assert.equal(res.body.success.userReviews[0].reviewRating, 2);
                 assert.equal(res.body.success.userReviews[0].reviewContent, "Test Update Review");
-                assert.equal(res.body.success.userCustomGroupCategory[0].customGroupCategoryName, "TestGroupName1");
-                assert.equal(res.body.success.userCustomEventCategory[0].customEventCategoryName, "TestEventName1");
-                assert.equal(res.body.success.userCustomLocationCategory[0].customLocationCategoryName, "TestLocationName1");
-                assert.equal(res.body.success.userCustomPostCategory[0].customPostCategoryName, "TestPostName1");
 
                 done();
             });

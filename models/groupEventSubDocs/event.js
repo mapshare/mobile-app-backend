@@ -6,7 +6,7 @@ const EventSchema = new Schema({
     eventName: "",
     eventDescription: "",
     eventUsers: [{ type: Schema.Types.ObjectId, ref: "userEvent" }],
-    eventLocation: { type: Schema.Types.ObjectId, ref: "location" },
+    eventMark: { type: Schema.Types.ObjectId, ref: "mark" },
     eventDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultEventCategory" },
     eventCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customEventCategory" },
 })

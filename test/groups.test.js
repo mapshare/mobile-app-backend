@@ -92,7 +92,7 @@ describe('Test the /Groups route :', () => {
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
                     'groupDefaultCategory',
-                    'groupCustomCategory',
+                    'groupCustomMarkCategory',
                     'groupMembers',
                     'groupName',
                     '__v');

@@ -3,10 +3,6 @@ const Schema = mongoose.Schema;
 
 const UserImages = require("./userSubDocs/userImages");
 const Review = require("./userSubDocs/review");
-const CustomGroupCategory = require("./userSubDocs/customGroupCategory");
-const CustomLocationCategory = require("./userSubDocs/customLocationCategory");
-const CustomEventCategory = require("./userSubDocs/customEventCategory");
-const CustomPostCategory = require("./userSubDocs/customPostCategory");
 
 // create user Schema & model
 const UserSchema = new Schema({
@@ -33,6 +29,10 @@ const UserSchema = new Schema({
       message: props => `${props.value} is not a valid google id!`
     }
   },
+  userProfilePic: [{
+    type: Schema.Types.ObjectId,
+    ref: 'userImages'
+  }],
   userImages: [
     UserImages
   ],
@@ -52,19 +52,7 @@ const UserSchema = new Schema({
   userEvent: [{
     type: Schema.Types.ObjectId,
     ref: 'userEvent'
-  }],
-  userCustomGroupCategory: [
-    CustomGroupCategory
-  ],
-  userCustomLocationCategory: [
-    CustomLocationCategory
-  ],
-  userCustomEventCategory: [
-    CustomEventCategory
-  ],
-  userCustomPostCategory: [
-    CustomPostCategory
-  ],
+  }]
 });
 
 UserSchema.virtual('userId').get(function () { return this._id; });

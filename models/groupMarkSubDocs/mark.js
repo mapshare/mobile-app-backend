@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const Location = require("./location");
 
 // create GeoSchema for mark location
 const GeoSchema = new Schema({
@@ -17,6 +18,18 @@ const GeoSchema = new Schema({
 
 // create mark Schema & model
 const MarkSchema = new Schema({
+  markName: {
+    type: String
+  },
+  defaultMarkCategroy: {
+    type: Schema.Types.ObjectId, ref: "DefaultMarkCategroy"
+  },
+  customMarkCategroy: {
+    type: Schema.Types.ObjectId, ref: "CustomMarkCategroy"
+  },
+  markLocations: [
+    Location
+  ],
   markCoordinates: {
     long: Number,
     lat: Number,
