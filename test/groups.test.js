@@ -8,6 +8,7 @@ let assert = chai.assert;
 describe('Test the /Groups route :', () => {
     var testGroupId = 0;
     var testUserId = 0;
+    var testUserId2 = 0;
     var testGroupRoleId = 0;
 
     before((done) => {
@@ -28,6 +29,22 @@ describe('Test the /Groups route :', () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
+            .post('/users')
+            .send({
+                "userEmail": "groupTestUser2@test123.com",
+                "userFirstName": "Group Test First Name2",
+                "userLastName": "Group Test Last Name2",
+                "googleId": "95408430895034"
+            })
+            .end(function (err, res) {
+                testUserId2 = res.body._id;
+                done();
+            });
+    });
+
+
+    before((done) => {
+        chai.request(process.env.Test_URL)
             .post('/groupRoles')
             .send({
                 "groupRoleName": "Admin",
@@ -43,6 +60,17 @@ describe('Test the /Groups route :', () => {
     after((done) => {
         chai.request(process.env.Test_URL)
             .delete('/users/' + testUserId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                done();
+            });
+    });
+
+    after((done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/users/' + testUserId2)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -94,6 +122,9 @@ describe('Test the /Groups route :', () => {
                     'groupDefaultCategory',
                     'groupCustomMarkCategory',
                     'groupMembers',
+                    'groupEvents',
+                    'groupFeed',
+                    'groupMarks',
                     'groupName',
                     '__v');
 
@@ -118,13 +149,30 @@ describe('Test the /Groups route :', () => {
         chai.request(process.env.Test_URL)
             .put('/groups/' + testGroupId)
             .send({
-                "groupName": "New Test Group Name"
+                "groupName": "New Test Group Name",
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
                 assert.equal(res.body.success.groupName, "New Test Group Name");
+
+                done();
+            });
+    });
+
+    it('Should Add a Group member on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .post('/groups/' + testGroupId + '/member')
+            .send({
+                "newGroupMember": testUserId2,
+                "groupRole": testGroupRoleId
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupMembers.length, 2);
 
                 done();
             });

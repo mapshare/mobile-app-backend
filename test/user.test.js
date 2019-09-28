@@ -6,7 +6,7 @@ let expect = chai.expect;
 let assert = chai.assert;
 
 describe('Test the /users route :', () => {
-    var testUserId = 0;
+    var testUserId = 0;    
 
     it('should CREATE a user - POST', (done) => {
         chai.request(process.env.Test_URL)
@@ -55,6 +55,7 @@ describe('Test the /users route :', () => {
                     "userImages",
                     "userLastName",
                     "userPosts",
+                    "userMarks",
                     "userReviews",
                     "userProfilePic",
                     '__v');
@@ -90,7 +91,7 @@ describe('Test the /users route :', () => {
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
-                
+
                 assert.equal(res.body.success.userEmail, "test456@test456.com");
                 assert.equal(res.body.success.userFirstName, "New First Name");
                 assert.equal(res.body.success.userLastName, "New Last Name");

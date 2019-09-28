@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const User = require('../../models/user');
+const UserGroup = require('../../models/userGroup');
+const Group = require('../../models/group');
+
 module.exports = () => {
     return {
         getUsers: () => {
@@ -106,12 +109,46 @@ module.exports = () => {
         deleteUserbyId: (id) => {
             return new Promise((resolve, reject) => {
                 User.findById(id)
-                    .then(user => {
-                        if (!user) {
+                    .then(userData => {
+                        if (!userData) {
                             reject("User doesn't exist");
                             return;
                         }
-                        user.remove()
+                        
+                        // Remove Group Reference to UserGroup
+                        UserGroup.find({ user: userData._id }).exec(function (err, data) {
+                            data.forEach(userGroup => {
+                                Group.findOneAndUpdate(
+                                    { _id: userGroup._id },
+                                    { $pull: { groupMembers: userGroup._id } },
+                                    { new: true })
+                                    .then(data => { })
+                                    .catch(err => reject(err));
+                            });
+                        });
+                        
+                        // Remove UserGroups referencing User
+                        UserGroup.deleteMany({ user: userData._id })
+                            .then(data => { })
+                            .catch(err => reject(err));
+                            
+                        // Remove Review
+                        /*
+                        userData.userReviews.forEach(review => {
+                            Mark.findOneAndUpdate(
+                                { _id: element.user },
+                                { $pull: { userPosts: element._id } },
+                                { new: true })
+                                .then(data => { })
+                                .catch(err => reject(err));
+                        });
+                        
+                        // Delete Group Feed Referencing to the Group being deleted
+                        GroupFeed.deleteOne({ group: groupData._id })
+                            .then(data => { })
+                            .catch(err => reject(err));*/
+                        
+                        User.deleteOne({ _id: userData._id })
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     })

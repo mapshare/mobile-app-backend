@@ -7,9 +7,9 @@ const GroupMarkSchema = new Schema({
     group: { type: Schema.Types.ObjectId, ref: "group" },
     groupMarks: [
         Mark
-    ],
+    ]
 });
 
 
-const GroupMark = mongoose.model('GroupMark', GroupMarkSchema);
+const GroupMark = mongoose.model('groupMarks', GroupMarkSchema);
 module.exports = GroupMark;

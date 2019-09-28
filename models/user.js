@@ -52,6 +52,10 @@ const UserSchema = new Schema({
   userEvent: [{
     type: Schema.Types.ObjectId,
     ref: 'userEvent'
+  }],
+  userMarks: [{
+    type: Schema.Types.ObjectId,
+    ref: 'groupMark'
   }]
 });
 

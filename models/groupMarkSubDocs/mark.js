@@ -37,7 +37,8 @@ const MarkSchema = new Schema({
   geometry: {
     type: GeoSchema,
     required: [true, "geoSchema required to save mark"]
-  }
+  },
+  groupMarkCreatedBy: { type: Schema.Types.ObjectId, ref: "user" },
 });
 
 function checkCoordinates(array) {

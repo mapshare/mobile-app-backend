@@ -11,5 +11,5 @@ const GroupEventSchema = new Schema({
 });
 
 
-const GroupEvent = mongoose.model('GroupEvent', GroupEventSchema);
+const GroupEvent = mongoose.model('groupEvents', GroupEventSchema);
 module.exports = GroupEvent;

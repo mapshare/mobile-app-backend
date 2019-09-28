@@ -11,7 +11,6 @@ describe('Test the /groupEvent route :', () => {
     var testGroupId2 = 0;
     var testGroupEventId = 0;
     var testMarkId = 0;
-    var testGroupLocationId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -63,7 +62,7 @@ describe('Test the /groupEvent route :', () => {
             .post('/groups')
             .send({
                 "userId": testUserId,
-                "groupName": "User Group Test Group",
+                "groupName": "User Group Test Group 2",
                 "groupRole": testGroupRoleId
             })
             .end(function (err, res) {
@@ -75,31 +74,28 @@ describe('Test the /groupEvent route :', () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupMark')
+            .post('/groups/' + testGroupId + '/mark')
             .send({
-                "group": testGroupId,
-                "groupMarks": [{
-                    markName: "TestMarkName",
-                    markLocations: [
-                        {
-                            locationAddress: "TestMarkAddress",
-                            loactionPriceRange: 2,
-                            additionalInformation: "TestInfo",
-                            locationImageSet: [
-                                {
-                                    locationImageData: "test",
-                                    locationImageContentType: "png"
-                                }
-                            ],
-                            locationCreatedBy: testUserId
-                        }
-                    ],
-                    geometry: { "coordinates": [0.5, 0.5] }
-                }]
+                markName: "TestMarkName",
+                markLocations: [
+                    {
+                        locationAddress: "TestMarkAddress",
+                        loactionPriceRange: 2,
+                        additionalInformation: "TestInfo",
+                        locationImageSet: [
+                            {
+                                locationImageData: "test",
+                                locationImageContentType: "png"
+                            }
+                        ]
+                    }
+                ],
+                geometry: { "coordinates": [0.7, 0.7] },
+                groupMarkCreatedBy: testUserId
             })
             .end(function (err, res) {
-                testGroupLocationId = res.body._id;
-                testMarkId = res.body.groupMarks[0]._id;
+                assert.equal(res.status, 200);
+                testMarkId = res.body.addedMark._id;
                 done();
             });
     });
@@ -111,7 +107,7 @@ describe('Test the /groupEvent route :', () => {
                 done();
             });
     });
-
+    
     after((done) => {
         chai.request(process.env.Test_URL)
             .delete('/groups/' + testGroupId)
@@ -136,37 +132,26 @@ describe('Test the /groupEvent route :', () => {
             });
     });
 
-    after((done) => {
-        chai.request(process.env.Test_URL)
-            .delete('/groupLocation/' + testGroupLocationId)
-            .end(function (err, res) {
-                done();
-            });
-    });
 
     it('should CREATE a GroupEvent to the database PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupEvent')
+            .post('/groups/' + testGroupId + '/event')
             .send({
-                "group": testGroupId,
-                "groupEvents": [{
-                    eventName: "testEventName",
-                    eventDescription: "testEventDescription",
-                    eventUsers: [testUserId],
-                    eventMark: testMarkId
-                }]
+                eventName: "testEventName",
+                eventDescription: "testEventDescription",
+                eventUsers: [testUserId],
+                eventMark: testMarkId
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupEvents[0].eventName, "testEventName");
-                assert.equal(res.body.groupEvents[0].eventDescription, "testEventDescription");
-                assert.equal(res.body.groupEvents[0].eventUsers[0], testUserId);
-                assert.equal(res.body.groupEvents[0].eventMark, testMarkId);
+                assert.equal(res.body.addedEvent.eventName, "testEventName");
+                assert.equal(res.body.addedEvent.eventDescription, "testEventDescription");
+                assert.equal(res.body.addedEvent.eventUsers[0], testUserId);
+                assert.equal(res.body.addedEvent.eventMark, testMarkId);
 
-                testGroupEventId = res.body._id;
+                testGroupEventId = res.body.groupEvents._id;
 
                 done();
             });
@@ -213,6 +198,7 @@ describe('Test the /groupEvent route :', () => {
                     eventName: "testEventName1",
                     eventDescription: "testEventDescription1",
                     eventUsers: [testUserId],
+                    eventMark: testMarkId
                 }]
             })
             .end(function (err, res) {
@@ -227,7 +213,6 @@ describe('Test the /groupEvent route :', () => {
                 done();
             });
     });
-
     it('Should DELETE the groupEvent with the requested id on /groupEvent DELETE', (done) => {
         chai.request(process.env.Test_URL)
             .delete('/groupEvent/' + testGroupEventId)

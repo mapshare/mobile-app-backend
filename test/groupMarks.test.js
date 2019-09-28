@@ -106,43 +106,40 @@ describe('Test the /groupMark route :', () => {
 
     it('should CREATE a GroupMark to the database PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupMark')
+            .post('/groups/' + testGroupId + '/mark')
             .send({
-                "group": testGroupId,
-                "groupMarks": [{
-                    markName: "TestMarkName",
-                    markLocations: [
-                        {
-                            locationAddress: "TestMarkAddress",
-                            loactionPriceRange: 2,
-                            additionalInformation: "TestInfo",
-                            locationImageSet: [
-                                {
-                                    locationImageData: "test",
-                                    locationImageContentType: "png"
-                                }
-                            ],
-                            locationCreatedBy: testUserId
-                        }
-                    ],
-                    geometry: { "coordinates": [0.5, 0.5] }
-                }]
+                markName: "TestGroupMarkName",
+                markLocations: [
+                    {
+                        locationAddress: "TestGroupMarkAddress",
+                        loactionPriceRange: 2,
+                        additionalInformation: "TestInfo",
+                        locationImageSet: [
+                            {
+                                locationImageData: "test",
+                                locationImageContentType: "png"
+                            }
+                        ]
+                    }
+                ],
+                geometry: { "coordinates": [0.5, 0.5] },
+                groupMarkCreatedBy: testUserId
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
-            
-                assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupMarks[0].markName, "TestMarkName");
-                assert.equal(res.body.groupMarks[0].markLocations[0].locationAddress, "TestMarkAddress");
-                assert.equal(res.body.groupMarks[0].markLocations[0].loactionPriceRange, 2);
-                assert.equal(res.body.groupMarks[0].markLocations[0].additionalInformation, "TestInfo");
-                assert.equal(res.body.groupMarks[0].markLocations[0].locationImageSet[0].locationImageContentType, "png");
-                assert.equal(res.body.groupMarks[0].geometry.coordinates[0], 0.5);
-                assert.equal(res.body.groupMarks[0].geometry.coordinates[1], 0.5);
-                assert.equal(res.body.groupMarks[0].markLocations[0].locationCreatedBy, testUserId);
 
-                testGroupMarkId = res.body._id;
+                assert.equal(res.body.groupMarks.group, testGroupId);
+                assert.equal(res.body.addedMark.markName, "TestGroupMarkName");
+                assert.equal(res.body.addedMark.markLocations[0].locationAddress, "TestGroupMarkAddress");
+                assert.equal(res.body.addedMark.markLocations[0].loactionPriceRange, 2);
+                assert.equal(res.body.addedMark.markLocations[0].additionalInformation, "TestInfo");
+                assert.equal(res.body.addedMark.markLocations[0].locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.addedMark.geometry.coordinates[0], 0.5);
+                assert.equal(res.body.addedMark.geometry.coordinates[1], 0.5);
+                assert.equal(res.body.addedMark.groupMarkCreatedBy, testUserId);
+
+                testGroupMarkId = res.body.groupMarks._id;
 
                 done();
             });
@@ -197,11 +194,11 @@ describe('Test the /groupMark route :', () => {
                                     locationImageData: "test1",
                                     locationImageContentType: "jpg"
                                 }
-                            ],
-                            locationCreatedBy: testUserId
+                            ]
                         }
                     ],
-                    geometry: { "coordinates": [0.7, 0.7] }
+                    geometry: { "coordinates": [0.7, 0.7] },
+                    groupMarkCreatedBy: testUserId
                 }]
             })
             .end(function (err, res) {
@@ -216,7 +213,7 @@ describe('Test the /groupMark route :', () => {
                 assert.equal(res.body.success.groupMarks[0].markLocations[0].locationImageSet[0].locationImageContentType, "jpg");
                 assert.equal(res.body.success.groupMarks[0].geometry.coordinates[0], 0.7);
                 assert.equal(res.body.success.groupMarks[0].geometry.coordinates[1], 0.7);
-                assert.equal(res.body.success.groupMarks[0].markLocations[0].locationCreatedBy, testUserId);
+                assert.equal(res.body.success.groupMarks[0].groupMarkCreatedBy, testUserId);
 
                 done();
             });

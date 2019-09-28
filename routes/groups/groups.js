@@ -8,7 +8,7 @@ router.get('/groups', (req, res, next) => {
     data.getGroups().then(data => {
         res.json(data);
     }).catch(err => {
-        res.send({ 'ilya error?': err })
+        res.send({ 'error': err })
     })
 });
 
@@ -41,6 +41,48 @@ router.put('/groups/:id', (req, res, next) => {
 
 });
 
+// add Group member
+router.post('/groups/:id/member', (req, res, next) => {
+    data.addGroupMember(req.params.id, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    })
+
+});
+
+// add Group Mark
+router.post('/groups/:id/mark', (req, res, next) => {
+    data.addGroupMark(req.params.id, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    }) 
+});
+
+// add Group Post
+router.post('/groups/:id/post', (req, res, next) => {
+    data.addGroupPost(req.params.id, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    }) 
+});
+
+
+// add Group Event
+router.post('/groups/:id/event', (req, res, next) => {
+    data.addGroupEvent(req.params.id, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    }) 
+});
+
 // delete Group in db
 router.delete('/groups/:id', (req, res, next) => {
     data.deleteGroupById(req.params.id).then(data => {
@@ -49,4 +91,5 @@ router.delete('/groups/:id', (req, res, next) => {
         res.status(400).send({ "error": err })
     })
 });
+
 module.exports = router;

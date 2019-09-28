@@ -20,8 +20,7 @@ const LocationSchema = new Schema({
   ],
   locationReviewSet: [
     { type: Schema.Types.ObjectId, ref: "user.review" }
-  ],
-  locationCreatedBy: { type: Schema.Types.ObjectId, ref: "user" }
+  ]
 });
 
 //const Location = mongoose.model("location", LocationSchema);
