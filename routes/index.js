@@ -6,7 +6,6 @@ var Groups = require('./groups/groups');
 var GroupMember = require('./groupMember/groupMember');
 var GroupEvents = require('./groupEvents/groupEvents');
 var Users = require('./users/users');
-var UserEvent = require('./userEvent/userEvent');
 var DefaultCategory = require('./defaultCategory/defaultCategory');
 
 
@@ -26,7 +25,6 @@ router.use('/', GroupMember);
 router.use('/', GroupEvents);
 router.use('/', Users);
 router.use('/', EventRoles);
-router.use('/', UserEvent);
 router.use('/', DefaultCategory);
 
 module.exports = router;
