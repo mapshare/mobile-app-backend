@@ -109,19 +109,18 @@ describe('Test the /groupMark route :', () => {
             .post('/groups/' + testGroupId + '/mark')
             .send({
                 markName: "TestGroupMarkName",
-                markLocations: [
-                    {
-                        locationAddress: "TestGroupMarkAddress",
-                        loactionPriceRange: 2,
-                        additionalInformation: "TestInfo",
-                        locationImageSet: [
-                            {
-                                locationImageData: "test",
-                                locationImageContentType: "png"
-                            }
-                        ]
-                    }
-                ],
+                markLocations: {
+                    locationAddress: "TestGroupMarkAddress",
+                    loactionPriceRange: 2,
+                    additionalInformation: "TestInfo",
+                    locationImageSet: [
+                        {
+                            locationImageData: "test",
+                            locationImageContentType: "png"
+                        }
+                    ]
+                }
+                ,
                 geometry: { "coordinates": [0.5, 0.5] },
                 groupMarkCreatedBy: testUserId
             })
@@ -131,10 +130,10 @@ describe('Test the /groupMark route :', () => {
 
                 assert.equal(res.body.groupMarks.group, testGroupId);
                 assert.equal(res.body.addedMark.markName, "TestGroupMarkName");
-                assert.equal(res.body.addedMark.markLocations[0].locationAddress, "TestGroupMarkAddress");
-                assert.equal(res.body.addedMark.markLocations[0].loactionPriceRange, 2);
-                assert.equal(res.body.addedMark.markLocations[0].additionalInformation, "TestInfo");
-                assert.equal(res.body.addedMark.markLocations[0].locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.addedMark.markLocations.locationAddress, "TestGroupMarkAddress");
+                assert.equal(res.body.addedMark.markLocations.loactionPriceRange, 2);
+                assert.equal(res.body.addedMark.markLocations.additionalInformation, "TestInfo");
+                assert.equal(res.body.addedMark.markLocations.locationImageSet[0].locationImageContentType, "png");
                 assert.equal(res.body.addedMark.geometry.coordinates[0], 0.5);
                 assert.equal(res.body.addedMark.geometry.coordinates[1], 0.5);
                 assert.equal(res.body.addedMark.groupMarkCreatedBy, testUserId);
@@ -184,19 +183,17 @@ describe('Test the /groupMark route :', () => {
                 "group": testGroupId,
                 "groupMarks": [{
                     markName: "TestMarkName1",
-                    markLocations: [
-                        {
-                            locationAddress: "TestMarkAddress1",
-                            loactionPriceRange: 3,
-                            additionalInformation: "TestInfo1",
-                            locationImageSet: [
-                                {
-                                    locationImageData: "test1",
-                                    locationImageContentType: "jpg"
-                                }
-                            ]
-                        }
-                    ],
+                    markLocations: {
+                        locationAddress: "TestMarkAddress1",
+                        loactionPriceRange: 3,
+                        additionalInformation: "TestInfo1",
+                        locationImageSet: [
+                            {
+                                locationImageData: "test1",
+                                locationImageContentType: "jpg"
+                            }
+                        ]
+                    },
                     geometry: { "coordinates": [0.7, 0.7] },
                     groupMarkCreatedBy: testUserId
                 }]
@@ -204,13 +201,13 @@ describe('Test the /groupMark route :', () => {
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
-
+                
                 assert.equal(res.body.success.group, testGroupId);
                 assert.equal(res.body.success.groupMarks[0].markName, "TestMarkName1");
-                assert.equal(res.body.success.groupMarks[0].markLocations[0].locationAddress, "TestMarkAddress1");
-                assert.equal(res.body.success.groupMarks[0].markLocations[0].loactionPriceRange, 3);
-                assert.equal(res.body.success.groupMarks[0].markLocations[0].additionalInformation, "TestInfo1");
-                assert.equal(res.body.success.groupMarks[0].markLocations[0].locationImageSet[0].locationImageContentType, "jpg");
+                assert.equal(res.body.success.groupMarks[0].markLocations.locationAddress, "TestMarkAddress1");
+                assert.equal(res.body.success.groupMarks[0].markLocations.loactionPriceRange, 3);
+                assert.equal(res.body.success.groupMarks[0].markLocations.additionalInformation, "TestInfo1");
+                assert.equal(res.body.success.groupMarks[0].markLocations.locationImageSet[0].locationImageContentType, "jpg");
                 assert.equal(res.body.success.groupMarks[0].geometry.coordinates[0], 0.7);
                 assert.equal(res.body.success.groupMarks[0].geometry.coordinates[1], 0.7);
                 assert.equal(res.body.success.groupMarks[0].groupMarkCreatedBy, testUserId);

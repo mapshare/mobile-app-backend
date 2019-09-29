@@ -77,8 +77,7 @@ describe('Test the /groupEvent route :', () => {
             .post('/groups/' + testGroupId + '/mark')
             .send({
                 markName: "TestMarkName",
-                markLocations: [
-                    {
+                markLocations: {
                         locationAddress: "TestMarkAddress",
                         loactionPriceRange: 2,
                         additionalInformation: "TestInfo",
@@ -88,8 +87,7 @@ describe('Test the /groupEvent route :', () => {
                                 locationImageContentType: "png"
                             }
                         ]
-                    }
-                ],
+                    },
                 geometry: { "coordinates": [0.7, 0.7] },
                 groupMarkCreatedBy: testUserId
             })

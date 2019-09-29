@@ -27,9 +27,7 @@ const MarkSchema = new Schema({
   customMarkCategroy: {
     type: Schema.Types.ObjectId, ref: "CustomMarkCategroy"
   },
-  markLocations: [
-    Location
-  ],
+  markLocations: Location,
   markCoordinates: {
     long: Number,
     lat: Number,

@@ -212,8 +212,7 @@ describe('Test the /Groups route :', () => {
             .post('/groups/' + testGroupId + '/mark')
             .send({
                 markName: "Test Add Mark Thru group",
-                markLocations: [
-                    {
+                markLocations: {
                         locationAddress: "TestMarkAddress",
                         loactionPriceRange: 2,
                         additionalInformation: "TestInfo",
@@ -223,8 +222,7 @@ describe('Test the /Groups route :', () => {
                                 locationImageContentType: "png"
                             }
                         ]
-                    }
-                ],
+                    },
                 geometry: { "coordinates": [0.6, 0.6] },
                 groupMarkCreatedBy: testGroupMemberId
             })
@@ -234,10 +232,10 @@ describe('Test the /Groups route :', () => {
 
                 assert.equal(res.body.groupMarks.group, testGroupId);
                 assert.equal(res.body.addedMark.markName, "Test Add Mark Thru group");
-                assert.equal(res.body.addedMark.markLocations[0].locationAddress, "TestMarkAddress");
-                assert.equal(res.body.addedMark.markLocations[0].loactionPriceRange, 2);
-                assert.equal(res.body.addedMark.markLocations[0].additionalInformation, "TestInfo");
-                assert.equal(res.body.addedMark.markLocations[0].locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.addedMark.markLocations.locationAddress, "TestMarkAddress");
+                assert.equal(res.body.addedMark.markLocations.loactionPriceRange, 2);
+                assert.equal(res.body.addedMark.markLocations.additionalInformation, "TestInfo");
+                assert.equal(res.body.addedMark.markLocations.locationImageSet[0].locationImageContentType, "png");
                 assert.equal(res.body.addedMark.geometry.coordinates[0], 0.6);
                 assert.equal(res.body.addedMark.geometry.coordinates[1], 0.6);
                 assert.equal(res.body.addedMark.groupMarkCreatedBy, testGroupMemberId);
