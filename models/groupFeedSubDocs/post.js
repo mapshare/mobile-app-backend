@@ -15,9 +15,7 @@ const PostSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "groupMember",
         required: [true, 'User field is required']
-    },
-    postDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultPostCategory" },
-    postCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customPostCategory" },
+    }
 })
 
 //const Post = mongoose.model('post', PostSchema);

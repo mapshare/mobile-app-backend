@@ -17,7 +17,7 @@ const GroupMemberSchema = new Schema({
     }],
     groupMemberMarks: [{
         type: Schema.Types.ObjectId,
-        ref: 'groupMark'
+        ref: 'mark'
     }],
     groupMemberReviews: [{
         type: Schema.Types.ObjectId,

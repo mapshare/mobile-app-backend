@@ -22,10 +22,10 @@ const MarkSchema = new Schema({
     type: String
   },
   defaultMarkCategroy: {
-    type: Schema.Types.ObjectId, ref: "DefaultMarkCategroy"
+    type: Schema.Types.ObjectId, ref: "defaultCategory"
   },
   customMarkCategroy: {
-    type: Schema.Types.ObjectId, ref: "CustomMarkCategroy"
+    type: Schema.Types.ObjectId, ref: "customMarkCategroy"
   },
   markLocations: Location,
   markCoordinates: {

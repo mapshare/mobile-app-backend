@@ -9,10 +9,10 @@ const GroupSchema = new Schema({
     required: [true, 'groupName field is required']
   },
   groupMarks: { type: Schema.Types.ObjectId, ref: "groupMarks" },
-  groupMembers: [{ type: Schema.Types.ObjectId, ref: "userGroup" }],
+  groupMembers: [{ type: Schema.Types.ObjectId, ref: "groupMember" }],
   groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },
   groupEvents: { type: Schema.Types.ObjectId, ref: "groupEvents" },
-  groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultGroupCategory" }],
+  groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultCategory" }],
   groupCustomMarkCategory: [CustomMarkCategory]
 });
 

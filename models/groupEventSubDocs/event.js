@@ -6,9 +6,7 @@ const EventSchema = new Schema({
     eventName: "",
     eventDescription: "",
     eventMembers: [{ type: Schema.Types.ObjectId, ref: "groupMember" }],
-    eventMark: { type: Schema.Types.ObjectId, ref: "mark" },
-    eventDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultEventCategory" },
-    eventCustomCategory: { type: Schema.Types.ObjectId, ref: "user.customEventCategory" },
+    eventMark: { type: Schema.Types.ObjectId, ref: "mark" }
 })
 
 module.exports = EventSchema;
