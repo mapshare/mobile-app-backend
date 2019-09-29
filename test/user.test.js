@@ -50,7 +50,6 @@ describe('Test the /users route :', () => {
                     "userGroups",
                     "userImages",
                     "userLastName",
-                    "userProfilePic",
                     '__v');
 
                 done();

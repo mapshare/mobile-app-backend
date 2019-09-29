@@ -5,7 +5,6 @@ const GroupMember = require('../../models/groupMember');
 const GroupRole = require('../../models/groupRoles');
 const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
-const UserEvent = require('../../models/userEvent');
 const GroupMark = require('../../models/groupMarks');
 
 module.exports = () => {
@@ -293,24 +292,14 @@ module.exports = () => {
 
 
 
-                        // Remove Event References to the User table 
+                        // Remove Event References to the groupMember table 
                         GroupEvent.findOne({ group: groupData._id }).exec(function (err, data) {
                             if (data) {
                                 data.groupEvents.forEach(event => {
-                                    // Remove User References to UserEvent
-                                    UserEvent.find({ event: event._id }).exec(function (err, data) {
-                                        data.forEach(userEvent => {
-                                            GroupMember.findOneAndUpdate(
-                                                { _id: userEvent.user },
-                                                { $pull: { groupMemberEvent: userEvent._id } },
-                                                { new: true })
-                                                .then(data => { })
-                                                .catch(err => reject(err));
-                                        });
-                                    });
-
-                                    // Remove UserEvent referencing Event
-                                    UserEvent.deleteMany({ event: event._id })
+                                    GroupMember.findOneAndUpdate(
+                                        { "groupMemberEvent.$._id": event._id },
+                                        { $pull: { "groupMemberEvent.$._id": event._id } },
+                                        { new: true })
                                         .then(data => { })
                                         .catch(err => reject(err));
                                 });
