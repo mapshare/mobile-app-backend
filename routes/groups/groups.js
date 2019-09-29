@@ -59,7 +59,7 @@ router.post('/groups/:id/mark', (req, res, next) => {
     }).catch(err => {
         console.log(err);
         res.status(400).send({ "error": err })
-    }) 
+    })
 });
 
 // add Group Post
@@ -69,7 +69,7 @@ router.post('/groups/:id/post', (req, res, next) => {
     }).catch(err => {
         console.log(err);
         res.status(400).send({ "error": err })
-    }) 
+    })
 });
 
 
@@ -80,7 +80,17 @@ router.post('/groups/:id/event', (req, res, next) => {
     }).catch(err => {
         console.log(err);
         res.status(400).send({ "error": err })
-    }) 
+    })
+});
+
+// add Group Member to Event
+router.post('/groups/:groupId/event/:eventId', (req, res, next) => {
+    data.addGroupMemberToEvent(req.params.groupId, req.params.eventId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send({ "error": err })
+    })
 });
 
 // delete Group in db

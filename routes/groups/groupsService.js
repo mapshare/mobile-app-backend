@@ -136,7 +136,7 @@ module.exports = () => {
                                         .then(group => {
                                             userData.save()
                                                 .then(user => {
-                                                    resolve(groupData)
+                                                    resolve(data)
                                                 });
                                         });
                                 }).catch(err => reject(err));
@@ -168,7 +168,7 @@ module.exports = () => {
                                     .catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
-            }).catch(err => reject(err));
+            });
         },
 
         addGroupPost: (GroupId, newData) => {
@@ -192,7 +192,7 @@ module.exports = () => {
                                     }).catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
-            }).catch(err => reject(err));
+            });
         },
 
         addGroupEvent: (GroupId, newData) => {
@@ -217,7 +217,31 @@ module.exports = () => {
                                     .catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
-            }).catch(err => reject(err));
+            });
+        },
+
+        addGroupMemberToEvent: (groupId, eventId, newData) => {
+            return new Promise((resolve, reject) => {
+                let { newGroupMember } = newData;
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        GroupEvent.findOneAndUpdate(
+                            { "groupEvents._id": eventId },
+                            { $addToSet: { "groupEvents.$.eventMembers": newGroupMember } }
+                        ).then(data => {
+                            GroupEvent.findOne({ "groupEvents._id": eventId })
+                                .then(data => {
+                                    resolve(data)
+                                }).catch(err => reject("Error could find event: " + err));
+                        }).catch(err => reject("Error could not add member to event: " + err));
+
+                    }).catch(err => reject(err));
+            });
         },
 
         deleteGroupById: (GroupId) => {
