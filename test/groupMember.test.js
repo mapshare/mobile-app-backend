@@ -5,8 +5,8 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /userGroup route :', () => {
-    var testUserGroupId = 0;
+describe('Test the /groupMember route :', () => {
+    var testGroupMemberId = 0;
     var testUserId = 0
     var testGroupId = 0
     var testGroupRoleId = 0;
@@ -110,13 +110,13 @@ describe('Test the /userGroup route :', () => {
     });
 
 
-    it('should CREATE a userGroup - POST', (done) => {
+    it('should CREATE a groupMember - POST', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/userGroup')
+            .post('/groupMember')
             .send({
                 user: testUserId,
                 group: testGroupId,
-                userGroupRole: testGroupRoleId2
+                groupMemberRole: testGroupRoleId2
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
@@ -124,16 +124,16 @@ describe('Test the /userGroup route :', () => {
 
                 assert.equal(res.body.user, testUserId);
                 assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.userGroupRole, testGroupRoleId2);
+                assert.equal(res.body.groupMemberRole, testGroupRoleId2);
 
-                testUserGroupId = res.body._id;
+                testGroupMemberId = res.body._id;
                 done();
             });
     });
 
-    it('Should READ ALL userGroup on /userGroup - GET', (done) => {
+    it('Should READ ALL groupMember on /groupMember - GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/userGroup')
+            .get('/groupMember')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -143,33 +143,37 @@ describe('Test the /userGroup route :', () => {
                     "_id",
                     "group",
                     "user",
-                    "userGroupRole",
+                    "groupMemberEvent",
+                    "groupMemberMarks",
+                    "groupMemberPosts",
+                    "groupMemberReviews",
+                    "groupMemberRole",
                     "__v");
 
                 done();
             });
     });
 
-    it('Should READ userGroup with the requested id on /userGroup GET', (done) => {
+    it('Should READ groupMember with the requested id on /groupMember GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/userGroup/' + testUserGroupId)
+            .get('/groupMember/' + testGroupMemberId)
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body._id, testUserGroupId);
+                assert.equal(res.body._id, testGroupMemberId);
 
                 done();
             });
     });
 
-    it('Should UPDATE userGroup on /userGroup PUT', (done) => {
+    it('Should UPDATE groupMember on /groupMember PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .put('/userGroup/' + testUserGroupId)
+            .put('/groupMember/' + testGroupMemberId)
             .send({
                 user: testUserId,
                 group: testGroupId,
-                userGroupRole: testGroupRoleId
+                groupMemberRole: testGroupRoleId
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -177,15 +181,15 @@ describe('Test the /userGroup route :', () => {
 
                 assert.equal(res.body.success.user, testUserId);
                 assert.equal(res.body.success.group, testGroupId);
-                assert.equal(res.body.success.userGroupRole, testGroupRoleId);
+                assert.equal(res.body.success.groupMemberRole, testGroupRoleId);
 
                 done();
             });
     });
 
-    it('Should DELETE the userGroup from database DELETE', (done) => {
+    it('Should DELETE the groupMember from database DELETE', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/userGroup/' + testUserGroupId)
+            .delete('/groupMember/' + testGroupMemberId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;

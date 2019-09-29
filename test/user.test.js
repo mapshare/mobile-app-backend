@@ -16,8 +16,7 @@ describe('Test the /users route :', () => {
                 "userFirstName": "Test First Name",
                 "userLastName": "Test Last Name",
                 "googleId": "432432",
-                "userImages": [{ "userImageData": "Image1", "userImageContentType": "png" }],
-                "userReviews": [{ "reviewRating": 5, "reviewContent": "Test Review" }]
+                "userImages": [{ "userImageData": "Image1", "userImageContentType": "png" }]
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
@@ -28,8 +27,6 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.userLastName, "Test Last Name");
                 assert.equal(res.body.googleId, "432432");
                 assert.equal(res.body.userImages[0].userImageContentType, "png");
-                assert.equal(res.body.userReviews[0].reviewRating, 5);
-                assert.equal(res.body.userReviews[0].reviewContent, "Test Review");
 
                 testUserId = res.body._id;
 
@@ -49,14 +46,10 @@ describe('Test the /users route :', () => {
                     '_id',
                     "googleId",
                     "userEmail",
-                    "userEvent",
                     "userFirstName",
-                    "userGroup",
+                    "userGroups",
                     "userImages",
                     "userLastName",
-                    "userPosts",
-                    "userMarks",
-                    "userReviews",
                     "userProfilePic",
                     '__v');
 
@@ -86,7 +79,6 @@ describe('Test the /users route :', () => {
                 "userLastName": "New Last Name",
                 "googleId": "45454544",
                 "userImages": [{ "userImageData": "Image1", "userImageContentType": "jpg" }],
-                "userReviews": [{ "reviewRating": 2, "reviewContent": "Test Update Review" }],
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -97,8 +89,6 @@ describe('Test the /users route :', () => {
                 assert.equal(res.body.success.userLastName, "New Last Name");
                 assert.equal(res.body.success.googleId, "45454544");
                 assert.equal(res.body.success.userImages[0].userImageContentType, "jpg");
-                assert.equal(res.body.success.userReviews[0].reviewRating, 2);
-                assert.equal(res.body.success.userReviews[0].reviewContent, "Test Update Review");
 
                 done();
             });

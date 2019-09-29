@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const LocationImage = require("./locationImage");
+const Review = require("./review");
 
 // create Location Schema & model
 const LocationSchema = new Schema({
@@ -19,7 +20,7 @@ const LocationSchema = new Schema({
     LocationImage
   ],
   locationReviewSet: [
-    { type: Schema.Types.ObjectId, ref: "user.review" }
+    Review
   ]
 });
 

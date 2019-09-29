@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const User = require('../../models/user');
-const UserGroup = require('../../models/userGroup');
+const GroupMember = require('../../models/groupMember');
 const Group = require('../../models/group');
 
 module.exports = () => {
@@ -73,7 +73,7 @@ module.exports = () => {
 
         updateUserById: (userId, newData) => {
             return new Promise((resolve, reject) => {
-                let { userGroup,
+                let { userGroups,
                     userPosts,
                     userEvent,
                     userEmail,
@@ -90,7 +90,7 @@ module.exports = () => {
                             return;
                         }
 
-                        user.userGroup = userGroup ? userGroup : user.userGroup;
+                        user.userGroups = userGroups ? userGroups : user.userGroups;
                         user.userPosts = userPosts ? userPosts : user.userPosts;
                         user.userEvent = userEvent ? userEvent : user.userEvent;
                         user.userEmail = userEmail ? userEmail : user.userEmail;
@@ -114,41 +114,28 @@ module.exports = () => {
                             reject("User doesn't exist");
                             return;
                         }
-                        
-                        // Remove Group Reference to UserGroup
-                        UserGroup.find({ user: userData._id }).exec(function (err, data) {
-                            data.forEach(userGroup => {
-                                Group.findOneAndUpdate(
-                                    { _id: userGroup._id },
-                                    { $pull: { groupMembers: userGroup._id } },
-                                    { new: true })
+
+                        // Remove Group Reference to GroupMember
+                        GroupMember.find({ user: userData._id }).exec(function (err, data) {
+                            if (data) {
+                                data.forEach(groupMember => {
+                                    Group.findOneAndUpdate(
+                                        { _id: groupMember.group },
+                                        { $pull: { groupMembers: groupMember._id } },
+                                        { new: true })
+                                        .then(data => { })
+                                        .catch(err => reject(err));
+                                });
+                                // Remove GroupMember referencing User
+                                GroupMember.deleteMany({ user: userData._id })
                                     .then(data => { })
                                     .catch(err => reject(err));
-                            });
+                            }
                         });
+
+
                         
-                        // Remove UserGroups referencing User
-                        UserGroup.deleteMany({ user: userData._id })
-                            .then(data => { })
-                            .catch(err => reject(err));
-                            
-                        // Remove Review
-                        /*
-                        userData.userReviews.forEach(review => {
-                            Mark.findOneAndUpdate(
-                                { _id: element.user },
-                                { $pull: { userPosts: element._id } },
-                                { new: true })
-                                .then(data => { })
-                                .catch(err => reject(err));
-                        });
-                        
-                        // Delete Group Feed Referencing to the Group being deleted
-                        GroupFeed.deleteOne({ group: groupData._id })
-                            .then(data => { })
-                            .catch(err => reject(err));*/
-                        
-                        User.deleteOne({ _id: userData._id })
+                        User.findByIdAndDelete(userData._id)
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     })

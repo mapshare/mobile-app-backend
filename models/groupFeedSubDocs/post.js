@@ -11,9 +11,9 @@ const PostSchema = new Schema({
         type: String,
         required: [true, 'Post content field is required']
     },
-    postCreatedByUser: {
+    postCreatedBy: {
         type: Schema.Types.ObjectId,
-        ref: "user",
+        ref: "groupMember",
         required: [true, 'User field is required']
     },
     postDefaultCategory: { type: Schema.Types.ObjectId, ref: "defaultPostCategory" },

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Group = require('../../models/group');
 const User = require('../../models/user');
-const UserGroup = require('../../models/userGroup');
+const GroupMember = require('../../models/groupMember');
 const GroupRole = require('../../models/groupRoles');
 const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
@@ -45,13 +45,13 @@ module.exports = () => {
                             groupName: newData.groupName
                         });
 
-                        UserGroup.create({
+                        GroupMember.create({
                             user: newData.userId,
                             group: groupData._id,
-                            userGroupRole: newData.groupRole
+                            groupMemberRole: newData.groupRole
                         }).then(data => {
                             groupData.groupMembers.push(data.id);
-                            userData.userGroup.push(data.id);
+                            userData.userGroups.push(data.id);
 
 
                             const groupFeedData = new GroupFeed({
@@ -124,13 +124,13 @@ module.exports = () => {
                                     reject("User doesn't exist");
                                     return;
                                 }
-                                UserGroup.create({
+                                GroupMember.create({
                                     user: userData._id,
                                     group: groupData._id,
-                                    userGroupRole: groupRole
+                                    groupMemberRole: groupRole
                                 }).then(data => {
                                     groupData.groupMembers.push(data.id);
-                                    userData.userGroup.push(data.id);
+                                    userData.userGroups.push(data.id);
 
                                     groupData.save()
                                         .then(group => {
@@ -230,19 +230,19 @@ module.exports = () => {
                         }
 
                         // Remove User Refence to Group
-                        UserGroup.find({ group: groupData._id }).exec(function (err, data) {
+                        GroupMember.find({ group: groupData._id }).exec(function (err, data) {
                             data.forEach(element => {
                                 User.findOneAndUpdate(
                                     { _id: element.user },
-                                    { $pull: { userGroup: element._id } },
+                                    { $pull: { groupMember: element._id } },
                                     { new: true })
                                     .then(data => { })
                                     .catch(err => reject(err));
                             });
                         });
 
-                        // Remove UserGroups referencing Group
-                        UserGroup.deleteMany({ group: groupData._id })
+                        // Remove GroupMembers referencing Group
+                        GroupMember.deleteMany({ group: groupData._id })
                             .then(data => { })
                             .catch(err => reject(err));
 
@@ -276,9 +276,9 @@ module.exports = () => {
                                     // Remove User References to UserEvent
                                     UserEvent.find({ event: event._id }).exec(function (err, data) {
                                         data.forEach(userEvent => {
-                                            User.findOneAndUpdate(
+                                            GroupMember.findOneAndUpdate(
                                                 { _id: userEvent.user },
-                                                { $pull: { userEvent: userEvent._id } },
+                                                { $pull: { groupMemberEvent: userEvent._id } },
                                                 { new: true })
                                                 .then(data => { })
                                                 .catch(err => reject(err));
@@ -298,8 +298,6 @@ module.exports = () => {
                             .then(data => { })
                             .catch(err => reject(err));
 
-
-                        // NOTE ADD REMOVE REVIEWS FROM MARKS ASWELL
                         // Remove Mark References to the User table 
                         GroupMark.findOne({ group: groupData._id }).exec(function (err, data) {
                             if (data) {

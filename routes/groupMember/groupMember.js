@@ -1,20 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const dataService = require("./userGroupService");
+const dataService = require("./groupMemberService");
 const data = dataService();
 
-// get list of UserGroup 
-router.get('/userGroup', (req, res, next) => {
-    data.getUserGroup().then(data => {
+// get list of GroupMember 
+router.get('/groupMember', (req, res, next) => {
+    data.getGroupMember().then(data => {
         res.json(data);
     }).catch(err => {
         res.send({ 'Error: ': err })
     })
 });
 
-// add UserGroup
-router.post('/userGroup', (req, res, next) => {
-    data.addUserGroup(req.body).then(data => {
+// add GroupMember
+router.post('/groupMember', (req, res, next) => {
+    data.addGroupMember(req.body).then(data => {
         res.status(200).json(data);
     }).catch(err => {
         console.log(err);
@@ -22,9 +22,9 @@ router.post('/userGroup', (req, res, next) => {
     })
 });
 
-// get UserGroup by id
-router.get('/userGroup/:userGroupId', (req, res, next) => {
-    data.getUserGroupById(req.params.userGroupId).then(data => {
+// get GroupMember by id
+router.get('/groupMember/:groupMemberId', (req, res, next) => {
+    data.getGroupMemberById(req.params.groupMemberId).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         console.log(err);
@@ -32,9 +32,9 @@ router.get('/userGroup/:userGroupId', (req, res, next) => {
     })
 });
 
-// update UserGroup in db
-router.put('/userGroup/:id', (req, res, next) => {
-    data.updateUserGroupById(req.params.id, req.body).then(data => {
+// update GroupMember in db
+router.put('/groupMember/:id', (req, res, next) => {
+    data.updateGroupMemberById(req.params.id, req.body).then(data => {
         res.status(200).json(data) 
     }).catch(err => {
         console.log(err);
@@ -43,9 +43,9 @@ router.put('/userGroup/:id', (req, res, next) => {
 
 });
 
-// delete UserGroup in db
-router.delete('/userGroup/:id', (req, res, next) => {
-    data.deleteUserGroupById(req.params.id).then(data => {
+// delete GroupMember in db
+router.delete('/groupMember/:id', (req, res, next) => {
+    data.deleteGroupMemberById(req.params.id).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })

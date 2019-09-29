@@ -139,7 +139,7 @@ describe('Test the /groupEvent route :', () => {
             .send({
                 eventName: "testEventName",
                 eventDescription: "testEventDescription",
-                eventUsers: [testUserId],
+                eventMembers: [testUserId],
                 eventMark: testMarkId
             })
             .end(function (err, res) {
@@ -148,7 +148,7 @@ describe('Test the /groupEvent route :', () => {
 
                 assert.equal(res.body.addedEvent.eventName, "testEventName");
                 assert.equal(res.body.addedEvent.eventDescription, "testEventDescription");
-                assert.equal(res.body.addedEvent.eventUsers[0], testUserId);
+                assert.equal(res.body.addedEvent.eventMembers[0], testUserId);
                 assert.equal(res.body.addedEvent.eventMark, testMarkId);
 
                 testGroupEventId = res.body.groupEvents._id;
@@ -197,7 +197,7 @@ describe('Test the /groupEvent route :', () => {
                 "groupEvents": [{
                     eventName: "testEventName1",
                     eventDescription: "testEventDescription1",
-                    eventUsers: [testUserId],
+                    eventMembers: [testUserId],
                     eventMark: testMarkId
                 }]
             })
@@ -208,7 +208,7 @@ describe('Test the /groupEvent route :', () => {
                 assert.equal(res.body.success.group, testGroupId2);
                 assert.equal(res.body.success.groupEvents[0].eventName, "testEventName1");
                 assert.equal(res.body.success.groupEvents[0].eventDescription, "testEventDescription1");
-                assert.equal(res.body.success.groupEvents[0].eventUsers[0], testUserId);
+                assert.equal(res.body.success.groupEvents[0].eventMembers[0], testUserId);
 
                 done();
             });

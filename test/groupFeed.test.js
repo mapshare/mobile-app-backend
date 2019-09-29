@@ -112,7 +112,7 @@ describe('Test the /groupFeed route :', () => {
                 "groupPosts": [{
                     "postTitle": "TestTitle",
                     "postContent": "TestContent",
-                    "postCreatedByUser": testUserId
+                    "postCreatedBy": testUserId
                 }]
             })
             .end(function (err, res) {
@@ -122,7 +122,7 @@ describe('Test the /groupFeed route :', () => {
                 assert.equal(res.body.group, testGroupId);
                 assert.equal(res.body.groupPosts[0].postTitle, "TestTitle");
                 assert.equal(res.body.groupPosts[0].postContent, "TestContent");
-                assert.equal(res.body.groupPosts[0].postCreatedByUser, testUserId);
+                assert.equal(res.body.groupPosts[0].postCreatedBy, testUserId);
                 
                 testGroupFeedId = res.body._id;
 
@@ -170,7 +170,7 @@ describe('Test the /groupFeed route :', () => {
                 "groupPosts": [{
                     "postTitle": "TestTitle1",
                     "postContent": "TestContent1",
-                    "postCreatedByUser": testUserId
+                    "postCreatedBy": testUserId
                 }]
             })
             .end(function (err, res) {
@@ -180,7 +180,7 @@ describe('Test the /groupFeed route :', () => {
                 assert.equal(res.body.success.group, testGroupId2);
                 assert.equal(res.body.success.groupPosts[0].postTitle, "TestTitle1");
                 assert.equal(res.body.success.groupPosts[0].postContent, "TestContent1");
-                assert.equal(res.body.success.groupPosts[0].postCreatedByUser, testUserId);
+                assert.equal(res.body.success.groupPosts[0].postCreatedBy, testUserId);
 
                 done();
             });

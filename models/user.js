@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
 const UserImages = require("./userSubDocs/userImages");
-const Review = require("./userSubDocs/review");
 
 // create user Schema & model
 const UserSchema = new Schema({
@@ -36,27 +34,12 @@ const UserSchema = new Schema({
   userImages: [
     UserImages
   ],
-  userReviews: [
-    Review
-  ],
-  userGroup: [
+  userGroups: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'userGroup'
+      ref: 'groupMember'
     }
-  ],
-  userPosts: [{
-    type: Schema.Types.ObjectId,
-    ref: 'post'
-  }],
-  userEvent: [{
-    type: Schema.Types.ObjectId,
-    ref: 'userEvent'
-  }],
-  userMarks: [{
-    type: Schema.Types.ObjectId,
-    ref: 'groupMark'
-  }]
+  ]
 });
 
 UserSchema.virtual('userId').get(function () { return this._id; });
