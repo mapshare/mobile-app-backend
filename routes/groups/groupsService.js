@@ -144,6 +144,36 @@ module.exports = () => {
             });
         },
 
+        deleteGroupMember: (groupId, groupMemberId, memberId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        User.findById(memberId)
+                            .then(userData => {
+                                if (!userData) {
+                                    reject("User doesn't exist");
+                                    return;
+                                }
+                                userData.userGroups.pull(data._id);
+                                groupData.groupMembers.pull(data._id);
+                                groupData.save()
+                                    .then(group => {
+                                        userData.save()
+                                            .then(user => { });
+                                    });
+
+                                GroupMember.deleteOne({ _id: groupMemberId })
+                                    .then(data => { resolve(data); })
+                                    .catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
 
         addGroupMark: (GroupId, newData) => {
             return new Promise((resolve, reject) => {
@@ -239,6 +269,129 @@ module.exports = () => {
                                 }).catch(err => reject("Error could find event: " + err));
                         }).catch(err => reject("Error could not add member to event: " + err));
 
+                    }).catch(err => reject(err));
+            });
+        },
+
+        deleteGroupMemberFromEvent: (groupId, eventId, memberId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        GroupEvent.findOneAndUpdate(
+                            { "groupEvents._id": eventId },
+                            { $pull: { "groupEvents.$.eventMembers": memberId } }
+                        ).then(data => {
+                            GroupEvent.findOne({ "groupEvents._id": eventId })
+                                .then(data => {
+                                    resolve(data)
+                                }).catch(err => reject("Error could find event: " + err));
+                        }).catch(err => reject("Error could not remove member to event: " + err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        addCustomCategoryMark: (groupId, newData) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        groupData.groupCustomMarkCategory.push(newData);
+
+                        groupData.save()
+                            .then(data => { resolve(data) })
+                            .catch(err => reject(err));
+
+                    }).catch(err => reject(err));
+            });
+        },
+
+        deleteCustomCategoryMark: (groupId, id) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        groupData.groupCustomMarkCategory.pull({ _id: id });
+
+                        groupData.save()
+                            .then(data => { resolve(data) })
+                            .catch(err => reject(err));
+                    }).catch(err => reject("Error: " + err));
+            });
+        },
+
+        deleteGroupMark: (groupId, markId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupMark.findById(groupData.groupMarks)
+                            .then(groupMarksData => {
+                                groupMarksData.groupMarks.pull(markId);
+                                groupMarksData.save()
+                                    .then(marks => {
+                                        resolve(marks)
+                                    })
+                                    .catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        deleteGroupEvent: (groupId, eventId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupEvent.findById(groupData.groupEvents)
+                            .then(groupEventsData => {
+                                groupEventsData.groupEvents.pull(eventId);
+                                groupEventsData.save()
+                                    .then(events => {
+                                        resolve(events)
+                                    })
+                                    .catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        deleteGroupPost: (groupId, postId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupFeed.findById(groupData.groupFeed).exec()
+                            .then(groupPostsData => {
+                                groupPostsData.groupPosts.pull(postId);
+                                groupPostsData.save()
+                                    .then(posts => {
+                                        resolve(posts)
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
         },
