@@ -52,14 +52,6 @@ router.post('/groups/:id/member', (req, res, next) => {
 
 });
 
-// delete Group member
-router.delete('/groups/:groupId/member/:id', (req, res, next) => {
-    data.deleteGroupMember(req.params.groupId, req.params.id).then(data => {
-        res.status(200).json(data)
-    }).catch(err => {
-        res.status(400).send({ "error": err })
-    })
-});
 
 // add Group Mark
 router.post('/groups/:id/mark', (req, res, next) => {
@@ -101,18 +93,28 @@ router.post('/groups/:groupId/event/:eventId', (req, res, next) => {
     })
 });
 
-// remove Group Member from Event
-router.delete('/groups/:groupId/event/:eventId/:memberId', (req, res, next) => {
-    data.deleteGroupMemberFromEvent(req.params.groupId, req.params.eventId, req.params.memberId).then(data => {
+// add custom mark category to event
+router.post('/groups/:groupId/customCategory', (req, res, next) => {
+    data.addCustomCategoryMark(req.params.groupId, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })
     })
 });
 
-// add custom mark category to event
-router.post('/groups/:groupId/customCategory', (req, res, next) => {
-    data.addCustomCategoryMark(req.params.groupId, req.body).then(data => {
+
+// delete Group member
+router.delete('/groups/:groupId/member/:id', (req, res, next) => {
+    data.deleteGroupMember(req.params.groupId, req.params.id).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// delete Group Member from Event
+router.delete('/groups/:groupId/event/:eventId/:memberId', (req, res, next) => {
+    data.deleteGroupMemberFromEvent(req.params.groupId, req.params.eventId, req.params.memberId).then(data => {
         res.status(200).json(data)
     }).catch(err => {
         res.status(400).send({ "error": err })
