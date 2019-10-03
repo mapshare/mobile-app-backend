@@ -35,7 +35,6 @@ router.put('/groups/:id', (req, res, next) => {
     data.updateGroupById(req.params.id, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 
@@ -46,10 +45,19 @@ router.post('/groups/:id/member', (req, res, next) => {
     data.addGroupMember(req.params.id, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 
+});
+
+
+// add Group Member to Event
+router.post('/groups/:groupId/event/:eventId', (req, res, next) => {
+    data.addGroupMemberToEvent(req.params.groupId, req.params.eventId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
 });
 
 
@@ -58,7 +66,6 @@ router.post('/groups/:id/mark', (req, res, next) => {
     data.addGroupMark(req.params.id, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 });
@@ -68,7 +75,6 @@ router.post('/groups/:id/post', (req, res, next) => {
     data.addGroupPost(req.params.id, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 });
@@ -78,17 +84,6 @@ router.post('/groups/:id/event', (req, res, next) => {
     data.addGroupEvent(req.params.id, req.body).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
-        res.status(400).send({ "error": err })
-    })
-});
-
-// add Group Member to Event
-router.post('/groups/:groupId/event/:eventId', (req, res, next) => {
-    data.addGroupMemberToEvent(req.params.groupId, req.params.eventId, req.body).then(data => {
-        res.status(200).json(data)
-    }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 });
@@ -102,6 +97,77 @@ router.post('/groups/:groupId/customCategory', (req, res, next) => {
     })
 });
 
+// get Group Mark
+router.get('/groups/:id/mark/:markId', (req, res, next) => {
+    data.getGroupMark(req.params.id, req.params.markId).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// get Group Post
+router.get('/groups/:id/post/:postId', (req, res, next) => {
+    data.getGroupPost(req.params.id, req.params.postId).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// get Group Event
+router.get('/groups/:id/event/:eventId', (req, res, next) => {
+    data.getGroupEvent(req.params.id, req.params.eventId).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// get custom mark category to event
+router.get('/groups/:groupId/customCategory/:categoryId', (req, res, next) => {
+    data.getCustomCategoryMark(req.params.groupId, req.params.categoryId).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// update Group Mark
+router.put('/groups/:id/mark/:markId', (req, res, next) => {
+    data.updateGroupMark(req.params.id, req.params.markId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// update Group Post
+router.put('/groups/:id/post/:postId', (req, res, next) => {
+    data.updateGroupPost(req.params.id, req.params.postId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// update Group Event
+router.put('/groups/:id/event/:eventId', (req, res, next) => {
+    data.updateGroupEvent(req.params.id, req.params.eventId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
+
+// update custom mark category to event
+router.put('/groups/:groupId/customCategory/:categoryId', (req, res, next) => {
+    data.updateCustomCategoryMark(req.params.groupId, req.params.categoryId, req.body).then(data => {
+        res.status(200).json(data)
+    }).catch(err => {
+        res.status(400).send({ "error": err })
+    })
+});
 
 // delete Group member
 router.delete('/groups/:groupId/member/:id', (req, res, next) => {
@@ -154,7 +220,6 @@ router.delete('/groups/:groupId/event/:id', (req, res, next) => {
     data.deleteGroupEvent(req.params.groupId, req.params.id).then(data => {
         res.status(200).json(data)
     }).catch(err => {
-        console.log(err);
         res.status(400).send({ "error": err })
     })
 });

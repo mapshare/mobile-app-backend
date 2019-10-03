@@ -315,6 +315,240 @@ module.exports = () => {
             });
         },
 
+        getGroupMark: (GroupId, markId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupMark.findById(groupData.groupMarks)
+                            .then(groupMarksData => {
+                                var markIndex = -1;
+                                for (var i = 0; i < groupMarksData.groupMarks.length; i++) {
+                                    if (groupMarksData.groupMarks[i]._id == markId) {
+                                        markIndex = i;
+                                    }
+                                }
+
+                                resolve({
+                                    groupMarks: groupMarksData,
+                                    mark: groupMarksData.groupMarks[markIndex]
+                                });
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        getGroupPost: (GroupId, postId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupFeed.findById(groupData.groupFeed).exec()
+                            .then(groupPostsData => {
+                                var postIndex = -1;
+                                for (var i = 0; i < groupPostsData.groupPosts.length; i++) {
+                                    if (groupPostsData.groupPosts[i]._id == postId) {
+                                        postIndex = i;
+                                    }
+                                }
+
+                                resolve({
+                                    groupPosts: groupPostsData,
+                                    post: groupPostsData.groupPosts[postIndex]
+                                });
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        getGroupEvent: (GroupId, eventId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupEvent.findById(groupData.groupEvents)
+                            .then(groupEventsData => {
+                                var eventIndex = -1;
+                                for (var i = 0; i < groupEventsData.groupEvents.length; i++) {
+                                    if (groupEventsData.groupEvents[i]._id == eventId) {
+                                        eventIndex = i;
+                                    }
+                                }
+
+                                resolve({
+                                    groupEvents: groupEventsData,
+                                    event: groupEventsData.groupEvents[eventIndex]
+                                });
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        getCustomCategoryMark: (groupId, categoryId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        var markCategoryIndex = -1;
+                        for (var i = 0; i < groupData.groupCustomMarkCategory.length; i++) {
+                            if (groupData.groupCustomMarkCategory[i]._id == categoryId) {
+                                markCategoryIndex = i;
+                            }
+                        }
+
+                        resolve({
+                            group: groupData,
+                            category: groupData.groupCustomMarkCategory[markCategoryIndex]
+                        });
+                    }).catch(err => reject(err));
+            });
+        },
+
+        updateGroupMark: (GroupId, markId, newData) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupMark.findById(groupData.groupMarks)
+                            .then(groupMarksData => {
+                                var markIndex = -1;
+                                for (var i = 0; i < groupMarksData.groupMarks.length; i++) {
+                                    if (groupMarksData.groupMarks[i]._id == markId) {
+                                        markIndex = i;
+                                    }
+                                }
+                                groupMarksData.groupMarks[markIndex].markName = newData.markName ? newData.markName : groupMarksData.groupMarks[markIndex].markName;
+                                groupMarksData.groupMarks[markIndex].markLocations = newData.markLocations ? newData.markLocations : groupMarksData.groupMarks[markIndex].markLocations;
+                                groupMarksData.groupMarks[markIndex].geometry = newData.geometry ? newData.geometry : groupMarksData.groupMarks[markIndex].geometry;
+
+                                groupMarksData.save()
+                                    .then(marks => {
+                                        resolve({
+                                            groupMarks: marks,
+                                            updatedMark: groupMarksData.groupMarks[markIndex]
+                                        })
+                                    })
+                                    .catch(err => reject(err));
+                            })
+                    }).catch(err => reject(err));
+            });
+        },
+
+        updateGroupPost: (GroupId, postId, newData) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupFeed.findById(groupData.groupFeed).exec()
+                            .then(groupPostsData => {
+                                var postIndex = -1;
+                                for (var i = 0; i < groupPostsData.groupPosts.length; i++) {
+                                    if (groupPostsData.groupPosts[i]._id == postId) {
+                                        postIndex = i;
+                                    }
+                                }
+
+                                groupPostsData.groupPosts[postIndex].postTitle = newData.postTitle ? newData.postTitle : groupPostsData.groupPosts[postIndex].postTitle;
+                                groupPostsData.groupPosts[postIndex].postContent = newData.postContent ? newData.postContent : groupPostsData.groupPosts[postIndex].postContent;
+
+                                groupPostsData.save()
+                                    .then(posts => {
+                                        resolve({
+                                            groupPosts: posts,
+                                            updatedPost: posts.groupPosts[postIndex]
+                                        })
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        updateGroupEvent: (GroupId, eventId, newData) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(GroupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupEvent.findById(groupData.groupEvents)
+                            .then(groupEventsData => {
+                                var eventIndex = -1;
+                                for (var i = 0; i < groupEventsData.groupEvents.length; i++) {
+                                    if (groupEventsData.groupEvents[i]._id == eventId) {
+                                        eventIndex = i;
+                                    }
+                                }
+                                groupEventsData.groupEvents[eventIndex].eventName = newData.eventName ? newData.eventName : groupEventsData.groupEvents[eventIndex].eventName;
+                                groupEventsData.groupEvents[eventIndex].eventDescription = newData.eventDescription ? newData.eventDescription : groupEventsData.groupEvents[eventIndex].eventDescription;
+
+                                groupEventsData.save()
+                                    .then(events => {
+                                        resolve({
+                                            groupEvents: events,
+                                            updatedEvent: events.groupEvents[eventIndex]
+                                        })
+                                    })
+                                    .catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        updateCustomCategoryMark: (groupId, categoryId, newData) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        var markCategoryIndex = -1;
+                        for (var i = 0; i < groupData.groupCustomMarkCategory.length; i++) {
+                            if (groupData.groupCustomMarkCategory[i]._id == categoryId) {
+                                markCategoryIndex = i;
+                            }
+                        }
+
+                        groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName;
+
+                        groupData.save()
+                            .then(data => {
+                                resolve({
+                                    group: data,
+                                    updatedCategory: data.groupCustomMarkCategory[markCategoryIndex]
+                                })
+                            })
+                            .catch(err => reject(err));
+
+                    }).catch(err => reject(err));
+            });
+        },
+
         deleteCustomCategoryMark: (groupId, id) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)

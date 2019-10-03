@@ -373,6 +373,176 @@ describe('Test the /Groups route :', () => {
             });
     });
 
+    it('Should GET a Mark on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .get('/groups/' + testGroupId + '/mark/' + testGroupMarkId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupMarks.group, testGroupId);
+                assert.equal(res.body.mark._id, testGroupMarkId);
+                assert.equal(res.body.mark.markName, "Test Add Mark Thru group");
+                assert.equal(res.body.mark.markLocations.locationAddress, "TestMarkAddress");
+                assert.equal(res.body.mark.markLocations.loactionPriceRange, 2);
+                assert.equal(res.body.mark.markLocations.additionalInformation, "TestInfo");
+                assert.equal(res.body.mark.markLocations.locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.mark.geometry.coordinates[0], 0.6);
+                assert.equal(res.body.mark.geometry.coordinates[1], 0.6);
+                assert.equal(res.body.mark.groupMarkCreatedBy, testGroupMemberId);
+
+                done();
+            });
+    });
+    it('Should GET a Event on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .get('/groups/' + testGroupId + '/event/' + testGroupEventId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupEvents.group, testGroupId);
+                assert.equal(res.body.event._id, testGroupEventId);
+                assert.equal(res.body.event.eventName, "testGroupEventName");
+                assert.equal(res.body.event.eventDescription, "testGroupEventDescription");
+                assert.equal(res.body.event.eventMembers[0], testGroupMemberId);
+                assert.equal(res.body.event.eventMark, testGroupMarkId);
+
+                done();
+            });
+    });
+
+    it('Should GET a group custom mark category on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .get('/groups/' + testGroupId + '/customCategory/' + testTestCustomMarkCategory)
+            .end(function (err, res) {
+
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.group._id, testGroupId);
+                assert.equal(res.body.category._id, testTestCustomMarkCategory);
+                assert.equal(res.body.category.customMarkCategoryName, "TestCustomMarkCategory");
+
+                done();
+            });
+    });
+
+    it('Should GET a group post on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .get('/groups/' + testGroupId + '/post/' + testPostId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupPosts.group, testGroupId);
+                assert.equal(res.body.post._id, testPostId);
+                assert.equal(res.body.post.postTitle, "TestGroupPostTitle");
+                assert.equal(res.body.post.postContent, "TestGroupPostContent");
+                assert.equal(res.body.post.postCreatedBy, testUserId);
+
+                done();
+            });
+    });
+
+    it('Should UPDATE a Mark on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId + '/mark/' + testGroupMarkId)
+            .send({
+                markName: "Test UPDATE Mark Thru group",
+                markLocations: {
+                    locationAddress: "TestUPDATEMarkAddress",
+                    loactionPriceRange: 3,
+                    additionalInformation: "TestUPDATEInfo",
+                    locationImageSet: [
+                        {
+                            locationImageData: "test",
+                            locationImageContentType: "png"
+                        }
+                    ]
+                },
+                geometry: { "coordinates": [0.3, 0.3] }
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupMarks.group, testGroupId);
+                assert.equal(res.body.updatedMark._id, testGroupMarkId);
+                assert.equal(res.body.updatedMark.markName, "Test UPDATE Mark Thru group");
+                assert.equal(res.body.updatedMark.markLocations.locationAddress, "TestUPDATEMarkAddress");
+                assert.equal(res.body.updatedMark.markLocations.loactionPriceRange, 3);
+                assert.equal(res.body.updatedMark.markLocations.additionalInformation, "TestUPDATEInfo");
+                assert.equal(res.body.updatedMark.markLocations.locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.updatedMark.geometry.coordinates[0], 0.3);
+                assert.equal(res.body.updatedMark.geometry.coordinates[1], 0.3);
+                assert.equal(res.body.updatedMark.groupMarkCreatedBy, testGroupMemberId);
+
+                done();
+            });
+    });
+    it('Should UPDATE a Event on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId + '/event/' + testGroupEventId)
+            .send({
+                eventName: "testUPDATEGroupEventName",
+                eventDescription: "testUPDATEGroupEventDescription"
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupEvents.group, testGroupId);
+                assert.equal(res.body.updatedEvent._id, testGroupEventId);
+                assert.equal(res.body.updatedEvent.eventName, "testUPDATEGroupEventName");
+                assert.equal(res.body.updatedEvent.eventDescription, "testUPDATEGroupEventDescription");
+                assert.equal(res.body.updatedEvent.eventMembers[0], testGroupMemberId);
+                assert.equal(res.body.updatedEvent.eventMark, testGroupMarkId);
+
+                done();
+            });
+    });
+
+    it('Should UPDATE a group custom mark category on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId + '/customCategory/' + testTestCustomMarkCategory)
+            .send({
+                "customMarkCategoryName": "TestUPDATECustomMarkCategory"
+            })
+            .end(function (err, res) {
+
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.group._id, testGroupId);
+                assert.equal(res.body.updatedCategory._id, testTestCustomMarkCategory);
+                assert.equal(res.body.updatedCategory.customMarkCategoryName, "TestUPDATECustomMarkCategory");
+
+                done();
+            });
+    });
+
+    it('Should UPDATE a group post on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId + '/post/' + testPostId)
+            .send({
+                "postTitle": "TestUPDATEGroupPostTitle",
+                "postContent": "TestUPDATEGroupPostContent"
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupPosts.group, testGroupId);
+                assert.equal(res.body.updatedPost._id, testPostId);
+                assert.equal(res.body.updatedPost.postTitle, "TestUPDATEGroupPostTitle");
+                assert.equal(res.body.updatedPost.postContent, "TestUPDATEGroupPostContent");
+                assert.equal(res.body.updatedPost.postCreatedBy, testUserId);
+
+                done();
+            });
+    });
+
     it('Should DELETE a Third Group member on /groups POST', (done) => {
         chai.request(process.env.Test_URL)
             .post('/groups/' + testGroupId + '/member')
@@ -402,8 +572,8 @@ describe('Test the /Groups route :', () => {
                 expect(res).to.be.json;
 
                 assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupEvents[0].eventName, "testGroupEventName");
-                assert.equal(res.body.groupEvents[0].eventDescription, "testGroupEventDescription");
+                assert.equal(res.body.groupEvents[0].eventName, "testUPDATEGroupEventName");
+                assert.equal(res.body.groupEvents[0].eventDescription, "testUPDATEGroupEventDescription");
                 assert.equal(res.body.groupEvents[0].eventMembers[0], testGroupMemberId);
                 assert.equal(res.body.groupEvents[0].eventMembers.length, 1);
                 assert.equal(res.body.groupEvents[0].eventMark, testGroupMarkId);
