@@ -143,6 +143,7 @@ describe('Test the /groupMember route :', () => {
                     "_id",
                     "group",
                     "user",
+                    "groupMemberChatRooms",
                     "groupMemberEvent",
                     "groupMemberMarks",
                     "groupMemberPosts",

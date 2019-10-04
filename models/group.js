@@ -12,6 +12,7 @@ const GroupSchema = new Schema({
   groupMembers: [{ type: Schema.Types.ObjectId, ref: "groupMember" }],
   groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },
   groupEvents: { type: Schema.Types.ObjectId, ref: "groupEvents" },
+  groupChat: { type: Schema.Types.ObjectId, ref: "groupChat" },
   groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultCategory" }],
   groupCustomMarkCategory: [CustomMarkCategory]
 });

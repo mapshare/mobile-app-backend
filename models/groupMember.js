@@ -22,6 +22,10 @@ const GroupMemberSchema = new Schema({
     groupMemberReviews: [{
         type: Schema.Types.ObjectId,
         ref: "review"
+    }],
+    groupMemberChatRooms: [{
+        type: Schema.Types.ObjectId,
+        ref: "chatRoom"
     }]
 });
 

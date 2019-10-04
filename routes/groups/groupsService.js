@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Group = require('../../models/group');
 const User = require('../../models/user');
 const GroupMember = require('../../models/groupMember');
-const GroupRole = require('../../models/groupRoles');
+const GroupChat = require('../../models/groupChat');
 const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
 const GroupMark = require('../../models/groupMarks');
@@ -74,6 +74,14 @@ module.exports = () => {
                             groupData.groupMarks = groupMarkData._id;
                             groupMarkData.save();
 
+
+                            const groupChatData = new GroupChat({
+                                "group": groupData._id,
+                                "groupChatRooms": []
+                            });
+                            groupData.groupChat = groupChatData._id;
+                            groupChatData.save();
+
                             groupData.save()
                                 .then(group => {
                                     userData.save()
@@ -144,32 +152,39 @@ module.exports = () => {
             });
         },
 
-        deleteGroupMember: (groupId, groupMemberId, memberId) => {
+        deleteGroupMember: (groupId, groupMemberId) => {
             return new Promise((resolve, reject) => {
 
-                Group.findById(groupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
+                GroupMember.findById(groupMemberId)
+                    .then(groupMemberData => {
+                        if (!groupMemberData) {
+                            reject("Group Member doesn't exist");
                             return;
                         }
-                        User.findById(memberId)
-                            .then(userData => {
-                                if (!userData) {
-                                    reject("User doesn't exist");
+                        Group.findById(groupId)
+                            .then(groupData => {
+                                if (!groupData) {
+                                    reject("Group doesn't exist");
                                     return;
                                 }
-                                userData.userGroups.pull(data._id);
-                                groupData.groupMembers.pull(data._id);
-                                groupData.save()
-                                    .then(group => {
-                                        userData.save()
-                                            .then(user => { });
-                                    });
+                                User.findById(groupMemberData.user)
+                                    .then(userData => {
+                                        if (!userData) {
+                                            reject("User doesn't exist");
+                                            return;
+                                        }
+                                        userData.userGroups.pull(groupMemberData._id);
+                                        groupData.groupMembers.pull(groupMemberData._id);
+                                        groupData.save()
+                                            .then(group => {
+                                                userData.save()
+                                                    .then(user => { });
+                                            });
 
-                                GroupMember.deleteOne({ _id: groupMemberId })
-                                    .then(data => { resolve(data); })
-                                    .catch(err => reject(err));
+                                        GroupMember.deleteOne({ _id: groupMemberData._id })
+                                            .then(data => { resolve({ success: true }); })
+                                            .catch(err => reject(err));
+                                    }).catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
@@ -269,6 +284,96 @@ module.exports = () => {
                                 }).catch(err => reject("Error could find event: " + err));
                         }).catch(err => reject("Error could not add member to event: " + err));
 
+                    }).catch(err => reject(err));
+            });
+        },
+
+        addChatRoom: (groupId, newData) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChatData => {
+                                groupChatData.groupChatRooms.push(newData);
+                                groupChatData.save()
+                                    .then(groupChat => {
+                                        resolve({
+                                            groupChat: groupChat,
+                                            addedChatRoom: groupChat.groupChatRooms[groupChat.groupChatRooms.length - 1]
+                                        })
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        addGroupMemberToChatRoom: (groupId, chatRoomId, newGroupMember) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChat => {
+                                var index = -1;
+                                for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
+                                    if (groupChat.groupChatRooms[i]._id == chatRoomId) {
+                                        groupChat.groupChatRooms[i].chatRoomMembers.push(newGroupMember);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                GroupMember.findById(newGroupMember)
+                                    .then(groupMember => {
+                                        groupMember.groupMemberChatRooms.push(groupChat.groupChatRooms[index]._id)
+
+                                        groupMember.save()
+                                            .then(groupMember => {
+                                                groupChat.save()
+                                                    .then(groupChat => {
+                                                        resolve({
+                                                            groupMember: groupMember,
+                                                            groupChat: groupChat.groupChatRooms[index]
+                                                        })
+                                                    }).catch(err => reject("Error could save chatRoom: " + err));
+                                            }).catch(err => reject("Error could save groupMember: " + err));
+                                    }).catch(err => reject("Error could not find group member" + err));
+                            }).catch(err => reject("Error could find chatRoom: " + err));
+                    }).catch(err => reject("Error could not find group" + err));
+            });
+        },
+
+        addChatMessage: (groupId, chatRoomId, newData) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChat => {
+                                var index = -1;
+                                for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
+                                    if (groupChat.groupChatRooms[i]._id == chatRoomId) {
+                                        groupChat.groupChatRooms[i].chatRoomMessage.push(newData);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                groupChat.save()
+                                    .then(groupChat => {
+                                        resolve(groupChat.groupChatRooms[index].chatRoomMessage)
+                                    }).catch(err => reject("Error could save chatRoom: " + err));
+                            }).catch(err => reject("Error could find chatRoom: " + err));
                     }).catch(err => reject(err));
             });
         },
@@ -419,6 +524,26 @@ module.exports = () => {
             });
         },
 
+        getChatRoom: (groupId, chatRoomId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChatData => {
+                                groupChatData.groupChatRooms.forEach(chatRoom => {
+                                    if (chatRoom._id == chatRoomId) {
+                                        resolve(chatRoom);
+                                    }
+                                });
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
         updateGroupMark: (GroupId, markId, newData) => {
             return new Promise((resolve, reject) => {
 
@@ -549,6 +674,74 @@ module.exports = () => {
             });
         },
 
+        updateChatRoom: (groupId, chatRoomId, newData) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChatData => {
+                                var index = -1;
+                                for (var i = 0; i < groupChatData.groupChatRooms.length; i++) {
+                                    if (groupChatData.groupChatRooms[i]._id == chatRoomId) {
+                                        index = i;
+                                    }
+                                }
+
+                                groupChatData.groupChatRooms[index].chatRoomName = newData.chatRoomName ? newData.chatRoomName : groupChatData.groupChatRooms[index].chatRoomName;
+
+                                groupChatData.save()
+                                    .then(groupChat => {
+                                        resolve({
+                                            groupChat: groupChat,
+                                            updatedChatRoom: groupChatData.groupChatRooms[index]
+                                        });
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
+                    }).catch(err => reject(err));
+            });
+        },
+
+        updateChatMessage: (groupId, chatRoomId, chatMessageId, newData) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChat => {
+                                var roomIndex = -1;
+                                var msgIndex = -1;
+                                for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
+                                    if (groupChat.groupChatRooms[i]._id == chatRoomId) {
+                                        roomIndex = i;
+                                        for (var j = 0; j < groupChat.groupChatRooms[j].chatRoomMessage.length; j++) {
+                                            if (groupChat.groupChatRooms[j].chatRoomMessage[j]._id == chatMessageId) {
+                                                msgIndex = j;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                groupChat.groupChatRooms[roomIndex].chatRoomMessage[msgIndex].messageBody = newData.messageBody ? newData.messageBody : groupChat.groupChatRooms[roomIndex].chatRoomMessage[msgIndex].messageBody;
+
+                                groupChat.save()
+                                    .then(groupChat => {
+                                        resolve(groupChat.groupChatRooms[roomIndex].chatRoomMessage[msgIndex])
+                                    }).catch(err => reject("Error could save chatRoom: " + err));
+                            }).catch(err => reject("Error could find chatRoom: " + err));
+                    }).catch(err => reject("Error could find group: " + err));
+            });
+        },
+
         deleteCustomCategoryMark: (groupId, id) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
@@ -630,6 +823,99 @@ module.exports = () => {
             });
         },
 
+        deleteChatRoom: (groupId, chatRoomId) => {
+            return new Promise((resolve, reject) => {
+
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChatData => {
+                                groupChatData.groupChatRooms.pull(chatRoomId);
+
+                                groupChatData.save()
+                                    .then(groupChat => {
+                                        resolve(groupChat)
+                                    }).catch(err => reject("Error could save chatRoom: " + err));
+
+                            }).catch(err => reject("Error could find chatRoom: " + err));
+                    }).catch(err => reject("Error could not find group" + err));
+            });
+        },
+
+        deleteGroupMemberFromChatRoom: (groupId, chatRoomId, groupMemberId) => {
+            return new Promise((resolve, reject) => {
+
+                GroupMember.findById(groupMemberId)
+                    .them(groupMember => {
+                        Group.findById(groupId)
+                            .then(groupData => {
+                                if (!groupData) {
+                                    reject("Group doesn't exist");
+                                    return;
+                                }
+
+                                GroupChat.findById(groupData.groupChat)
+                                    .then(groupChat => {
+                                        var index = -1;
+                                        for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
+                                            if (groupChat.groupChatRooms[i]._id == chatRoomId) {
+                                                groupChat.groupChatRooms[i].chatRoomMembers.pull(groupMemberId);
+                                                index = i;
+                                                break;
+                                            }
+                                        }
+
+                                        groupMember.groupMemberChatRooms.pull(chatRoomId)
+
+                                        groupMember.save()
+                                            .then(groupMember => {
+                                                groupChat.save()
+                                                    .then(groupChat => {
+                                                        resolve(groupChat.groupChatRooms[index])
+                                                    }).catch(err => reject("Error could save chatRoom: " + err));
+                                            }).catch(err => reject("Error could save groupMember: " + err));
+
+                                    }).catch(err => reject("Error could find chatRoom: " + err));
+                            }).catch(err => reject("Error could not find group" + err));
+                    }).catch(err => reject("Error could not find groupMember" + err));
+            });
+        },
+
+        deleteChatMessage: (groupId, chatRoomId, chatMessageId) => {
+            return new Promise((resolve, reject) => {
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+
+                        GroupChat.findById(groupData.groupChat)
+                            .then(groupChat => {
+                                var index = -1;
+                                for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
+                                    if (groupChat.groupChatRooms[i]._id == chatRoomId) {
+                                        groupChat.groupChatRooms[i].chatRoomMessage.pull(chatMessageId);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                groupChat.save()
+                                    .then(groupChat => {
+                                        resolve({
+                                            groupChat: groupChat.groupChatRooms[index],
+                                            messages: groupChat.groupChatRooms[index].chatRoomMessage
+                                        });
+                                    }).catch(err => reject("Error could save chatRoom: " + err));
+                            }).catch(err => reject("Error could find chatRoom: " + err));
+                    }).catch(err => reject(err));
+            });
+        },
+
         deleteGroupById: (GroupId) => {
             return new Promise((resolve, reject) => {
                 Group.findById(GroupId)
@@ -639,7 +925,34 @@ module.exports = () => {
                             return;
                         }
 
-                        // Remove User Refence to Group
+                        // Remove Group Chat References to the GroupMember table 
+                        GroupChat.findOne({ group: groupData._id }).exec(function (err, data) {
+                            if (data) {
+                                data.groupChatRooms.forEach(chatRoom => {
+                                    chatRoom.chatRoomMembers.forEach(member => {
+                                        GroupMember.findById(member)
+                                            .then(memberData => {
+                                                if (!memberData) {
+                                                    reject("Member doesn't exist");
+                                                    return;
+                                                }
+                                                memberData.groupMemberChatRooms.pull(chatRoom._id);
+                                                memberData.save()
+                                                    .then(data => { })
+                                                    .catch(err => reject(err));
+                                            });
+                                    });
+                                });
+                            }
+                        });
+
+                        // Delete Group Chat Referencing to the Group being deleted
+                        GroupChat.deleteOne({ group: groupData._id })
+                            .then(data => { })
+                            .catch(err => reject(err));
+
+
+                        // Remove User Reference to Group
                         GroupMember.find({ group: groupData._id }).exec(function (err, data) {
                             data.forEach(element => {
                                 User.findOneAndUpdate(

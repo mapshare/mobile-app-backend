@@ -18,6 +18,9 @@ describe('Test the /Groups route :', () => {
     var testGroupMember3Id = 0;
     var testTestCustomMarkCategory = 0;
     var testPostId = 0;
+    var testChatRoomId = 0;
+    var testgroupChatId = 0;
+    var testMessageId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -103,6 +106,17 @@ describe('Test the /Groups route :', () => {
 
     after((done) => {
         chai.request(process.env.Test_URL)
+            .delete('/users/' + testUserId3)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                done();
+            });
+    });
+
+    after((done) => {
+        chai.request(process.env.Test_URL)
             .delete('/groupRoles/' + testGroupRoleId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -141,6 +155,7 @@ describe('Test the /Groups route :', () => {
                 expect(res.body).to.be.a('array');
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
+                    'groupChat',
                     'groupDefaultCategory',
                     'groupCustomMarkCategory',
                     'groupMembers',
@@ -373,6 +388,66 @@ describe('Test the /Groups route :', () => {
             });
     });
 
+    it('Should Add a group ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .post('/groups/' + testGroupId + '/chat')
+            .send({
+                "chatRoomName": "TestGroupChatName",
+                "chatRoomMembers": [testGroupMemberId],
+                "chatRoomCreatedBy": testGroupMemberId
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupChat.group, testGroupId);
+                assert.equal(res.body.addedChatRoom.chatRoomName, "TestGroupChatName");
+                assert.equal(res.body.addedChatRoom.chatRoomMembers[0], testGroupMemberId);
+                assert.equal(res.body.addedChatRoom.chatRoomCreatedBy, testGroupMemberId);
+
+                testgroupChatId = res.body.groupChat._id;
+                testChatRoomId = res.body.addedChatRoom._id;
+
+                done();
+            });
+    });
+
+    it('Should Add a group member to ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .post('/groups/' + testGroupId + '/chat/' + testChatRoomId + "/" + testGroupMember2Id)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupMember._id, testGroupMember2Id);
+                assert.equal(res.body.groupChat.chatRoomName, "TestGroupChatName");
+                assert.equal(res.body.groupChat.chatRoomMembers[1], testGroupMember2Id);
+                assert.equal(res.body.groupChat.chatRoomCreatedBy, testGroupMemberId);
+
+                done();
+            });
+    });
+
+    it('Should Add a message to ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .post('/groups/' + testGroupId + '/chat/' + testChatRoomId)
+            .send({
+                "messageBody": "TestGroupChatMessage",
+                "messageCreatedBy": testGroupMemberId
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body[0].messageBody, "TestGroupChatMessage");
+                assert.equal(res.body[0].messageCreatedBy, testGroupMemberId);
+
+                testMessageId = res.body[0]._id;
+
+                done();
+            });
+    });
+
     it('Should GET a Mark on /groups POST', (done) => {
         chai.request(process.env.Test_URL)
             .get('/groups/' + testGroupId + '/mark/' + testGroupMarkId)
@@ -440,6 +515,23 @@ describe('Test the /Groups route :', () => {
                 assert.equal(res.body.post.postTitle, "TestGroupPostTitle");
                 assert.equal(res.body.post.postContent, "TestGroupPostContent");
                 assert.equal(res.body.post.postCreatedBy, testUserId);
+
+                done();
+            });
+    });
+
+    it('Should GET a ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .get('/groups/' + testGroupId + '/chat/' + testChatRoomId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body.chatRoomMembers).to.be.a('array');
+                expect(res.body.chatRoomMessage).to.be.a('array');
+
+                assert.equal(res.body._id, testChatRoomId);
+                assert.equal(res.body.chatRoomName, "TestGroupChatName");
+                assert.equal(res.body.chatRoomCreatedBy, testGroupMemberId);
 
                 done();
             });
@@ -543,22 +635,81 @@ describe('Test the /Groups route :', () => {
             });
     });
 
-    it('Should DELETE a Third Group member on /groups POST', (done) => {
+    it('Should UPDATE a group ChatRoom on /groups POST', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groups/' + testGroupId + '/member')
+            .put('/groups/' + testGroupId + '/chat/' + testChatRoomId)
             .send({
-                "newGroupMember": testUserId3,
-                "groupRole": testGroupRoleId
+                "chatRoomName": "TestUpdateGroupChatName",
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
-                assert.equal(res.body.user, testUserId3);
-                assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupMemberRole, testGroupRoleId);
+                assert.equal(res.body.groupChat.group, testGroupId);
+                assert.equal(res.body.updatedChatRoom._id, testChatRoomId);
+                assert.equal(res.body.updatedChatRoom.chatRoomName, "TestUpdateGroupChatName");
+                assert.equal(res.body.updatedChatRoom.chatRoomMembers[0], testGroupMemberId);
+                assert.equal(res.body.updatedChatRoom.chatRoomCreatedBy, testGroupMemberId);
 
-                testGroupMember3Id = res.body._id;
+                done();
+            });
+    });
+
+    it('Should UPDATE a message in a ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .put('/groups/' + testGroupId + '/chat/' + testChatRoomId + '/' + testMessageId)
+            .send({
+                "messageBody": "TestUpdateGroupChatMessage"
+            })
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body._id, testMessageId);
+                assert.equal(res.body.messageBody, "TestUpdateGroupChatMessage");
+                assert.equal(res.body.messageCreatedBy, testGroupMemberId);
+
+                done();
+            });
+    });
+
+    it('Should DELETE a message in a ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groups/' + testGroupId + '/chat/' + testChatRoomId + '/' + testMessageId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.groupChat._id, testChatRoomId);
+                assert.deepEqual(res.body.messages, []);
+
+                done();
+            });
+    });
+
+    it('Should DELETE a group ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groups/' + testGroupId + '/chat/' + testChatRoomId)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body._id, testgroupChatId);
+                assert.equal(res.body.group, testGroupId);
+                assert.deepEqual(res.body.groupChatRooms, []);
+
+                done();
+            });
+    });
+    // not done
+    it('Should DELETE a Third Group member on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groups/' + testGroupId + '/member/' + testGroupMember3Id)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body.success, true);
 
                 done();
             });
@@ -624,7 +775,6 @@ describe('Test the /Groups route :', () => {
                 done();
             });
     });
-
 
     it('Should DELETE the group post from database DELETE', (done) => {
         chai.request(process.env.Test_URL)

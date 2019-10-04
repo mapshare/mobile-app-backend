@@ -5,11 +5,11 @@ const ChatRoom = require("./groupChatSubDocs/chatRoom");
 // create group Chat Schema & model
 const GroupChatSchema = new Schema({
     group: { type: Schema.Types.ObjectId, ref: "group" },
-    groupRooms: [
+    groupChatRooms: [
         ChatRoom
     ],
 });
 
 
-const GroupChat = mongoose.model('GroupChat', GroupChatSchema);
+const GroupChat = mongoose.model('groupChat', GroupChatSchema);
 module.exports = GroupChat;
