@@ -675,13 +675,28 @@ describe('Test the /Groups route :', () => {
 
     it('Should DELETE a message in a ChatRoom on /groups POST', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groups/' + testGroupId + '/chat/' + testChatRoomId + '/' + testMessageId)
+            .delete('/groups/' + testGroupId + '/chat/' + testChatRoomId + '/message/' + testMessageId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
                 assert.equal(res.body.groupChat._id, testChatRoomId);
                 assert.deepEqual(res.body.messages, []);
+
+                done();
+            });
+    });
+
+    it('Should DELETE a member from the ChatRoom on /groups POST', (done) => {
+        chai.request(process.env.Test_URL)
+            .delete('/groups/' + testGroupId + '/chat/' + testChatRoomId + '/' + testGroupMember2Id)
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                assert.equal(res.body._id, testChatRoomId);
+                assert.equal(res.body.chatRoomMembers.length, 1);
+                assert.equal(res.body.chatRoomName, 'TestUpdateGroupChatName');
 
                 done();
             });
@@ -701,7 +716,7 @@ describe('Test the /Groups route :', () => {
                 done();
             });
     });
-    // not done
+    
     it('Should DELETE a Third Group member on /groups POST', (done) => {
         chai.request(process.env.Test_URL)
             .delete('/groups/' + testGroupId + '/member/' + testGroupMember3Id)

@@ -848,18 +848,24 @@ module.exports = () => {
 
         deleteGroupMemberFromChatRoom: (groupId, chatRoomId, groupMemberId) => {
             return new Promise((resolve, reject) => {
-
-                GroupMember.findById(groupMemberId)
-                    .them(groupMember => {
-                        Group.findById(groupId)
-                            .then(groupData => {
-                                if (!groupData) {
-                                    reject("Group doesn't exist");
+                Group.findById(groupId)
+                    .then(groupData => {
+                        if (!groupData) {
+                            reject("Group doesn't exist");
+                            return;
+                        }
+                        GroupMember.findById(groupMemberId)
+                            .then(groupMember => {
+                                if (!groupMember) {
+                                    reject("Group Member doesn't exist");
                                     return;
                                 }
-
                                 GroupChat.findById(groupData.groupChat)
                                     .then(groupChat => {
+                                        if (!groupChat) {
+                                            reject("Group Chat doesn't exist");
+                                            return;
+                                        }
                                         var index = -1;
                                         for (var i = 0; i < groupChat.groupChatRooms.length; i++) {
                                             if (groupChat.groupChatRooms[i]._id == chatRoomId) {
@@ -878,7 +884,6 @@ module.exports = () => {
                                                         resolve(groupChat.groupChatRooms[index])
                                                     }).catch(err => reject("Error could save chatRoom: " + err));
                                             }).catch(err => reject("Error could save groupMember: " + err));
-
                                     }).catch(err => reject("Error could find chatRoom: " + err));
                             }).catch(err => reject("Error could not find group" + err));
                     }).catch(err => reject("Error could not find groupMember" + err));

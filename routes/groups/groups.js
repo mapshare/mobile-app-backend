@@ -296,7 +296,7 @@ router.delete('/groups/:groupId/chat/:chatRoomId', (req, res, next) => {
 });
 
 // delete Chat Messages
-router.delete('/groups/:groupId/chat/:chatRoomId/:chatMessageId', (req, res, next) => {
+router.delete('/groups/:groupId/chat/:chatRoomId/message/:chatMessageId', (req, res, next) => {
     data.deleteChatMessage(req.params.groupId, req.params.chatRoomId, req.params.chatMessageId).then(data => {
         res.status(200).json(data)
     }).catch(err => {
