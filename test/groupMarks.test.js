@@ -5,11 +5,11 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /groupFeed route :', () => {
+describe('Test the /groupMark route :', () => {
     var testUserId = 0;
     var testGroupId = 0;
     var testGroupId2 = 0;
-    var testGroupFeedId = 0;
+    var testGroupMarkId = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -104,36 +104,50 @@ describe('Test the /groupFeed route :', () => {
     });
 
 
-    it('should CREATE a GroupFeed to the database PUT', (done) => {
+    it('should CREATE a GroupMark to the database PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupFeed')
+            .post('/groups/' + testGroupId + '/mark')
             .send({
-                "group": testGroupId,
-                "groupPosts": [{
-                    "postTitle": "TestTitle",
-                    "postContent": "TestContent",
-                    "postCreatedBy": testUserId
-                }]
+                markName: "TestGroupMarkName",
+                markLocations: {
+                    locationAddress: "TestGroupMarkAddress",
+                    loactionPriceRange: 2,
+                    additionalInformation: "TestInfo",
+                    locationImageSet: [
+                        {
+                            locationImageData: "test",
+                            locationImageContentType: "png"
+                        }
+                    ]
+                }
+                ,
+                geometry: { "coordinates": [0.5, 0.5] },
+                groupMarkCreatedBy: testUserId
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupPosts[0].postTitle, "TestTitle");
-                assert.equal(res.body.groupPosts[0].postContent, "TestContent");
-                assert.equal(res.body.groupPosts[0].postCreatedBy, testUserId);
-                
-                testGroupFeedId = res.body._id;
+                assert.equal(res.body.groupMarks.group, testGroupId);
+                assert.equal(res.body.addedMark.markName, "TestGroupMarkName");
+                assert.equal(res.body.addedMark.markLocations.locationAddress, "TestGroupMarkAddress");
+                assert.equal(res.body.addedMark.markLocations.loactionPriceRange, 2);
+                assert.equal(res.body.addedMark.markLocations.additionalInformation, "TestInfo");
+                assert.equal(res.body.addedMark.markLocations.locationImageSet[0].locationImageContentType, "png");
+                assert.equal(res.body.addedMark.geometry.coordinates[0], 0.5);
+                assert.equal(res.body.addedMark.geometry.coordinates[1], 0.5);
+                assert.equal(res.body.addedMark.groupMarkCreatedBy, testUserId);
+
+                testGroupMarkId = res.body.groupMarks._id;
 
                 done();
             });
     });
 
 
-    it('Should READ ALL GroupFeed on /groupFeed GET', (done) => {
+    it('Should READ ALL GroupMark on /groupMark GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed')
+            .get('/groupMark')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -141,7 +155,7 @@ describe('Test the /groupFeed route :', () => {
 
                 expect(res.body[0]).to.have.all.keys(
                     '_id',
-                    'groupPosts',
+                    'groupMarks',
                     'group',
                     '__v');
 
@@ -149,9 +163,9 @@ describe('Test the /groupFeed route :', () => {
             });
     });
 
-    it('Should READ GroupFeed with the requested id on /groupFeed GET', (done) => {
+    it('Should READ GroupMark with the requested id on /groupMark GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed/' + testGroupFeedId)
+            .get('/groupMark/' + testGroupMarkId)
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
@@ -162,33 +176,49 @@ describe('Test the /groupFeed route :', () => {
             });
     });
 
-    it('Should UPDATE GroupFeed on /groupFeed PUT', (done) => {
+    it('Should UPDATE GroupMark on /groupMark PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .put('/groupFeed/' + testGroupFeedId)
+            .put('/groupMark/' + testGroupMarkId)
             .send({
-                "group": testGroupId2,
-                "groupPosts": [{
-                    "postTitle": "TestTitle1",
-                    "postContent": "TestContent1",
-                    "postCreatedBy": testUserId
+                "group": testGroupId,
+                "groupMarks": [{
+                    markName: "TestMarkName1",
+                    markLocations: {
+                        locationAddress: "TestMarkAddress1",
+                        loactionPriceRange: 3,
+                        additionalInformation: "TestInfo1",
+                        locationImageSet: [
+                            {
+                                locationImageData: "test1",
+                                locationImageContentType: "jpg"
+                            }
+                        ]
+                    },
+                    geometry: { "coordinates": [0.7, 0.7] },
+                    groupMarkCreatedBy: testUserId
                 }]
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
-
-                assert.equal(res.body.success.group, testGroupId2);
-                assert.equal(res.body.success.groupPosts[0].postTitle, "TestTitle1");
-                assert.equal(res.body.success.groupPosts[0].postContent, "TestContent1");
-                assert.equal(res.body.success.groupPosts[0].postCreatedBy, testUserId);
+                
+                assert.equal(res.body.success.group, testGroupId);
+                assert.equal(res.body.success.groupMarks[0].markName, "TestMarkName1");
+                assert.equal(res.body.success.groupMarks[0].markLocations.locationAddress, "TestMarkAddress1");
+                assert.equal(res.body.success.groupMarks[0].markLocations.loactionPriceRange, 3);
+                assert.equal(res.body.success.groupMarks[0].markLocations.additionalInformation, "TestInfo1");
+                assert.equal(res.body.success.groupMarks[0].markLocations.locationImageSet[0].locationImageContentType, "jpg");
+                assert.equal(res.body.success.groupMarks[0].geometry.coordinates[0], 0.7);
+                assert.equal(res.body.success.groupMarks[0].geometry.coordinates[1], 0.7);
+                assert.equal(res.body.success.groupMarks[0].groupMarkCreatedBy, testUserId);
 
                 done();
             });
     });
 
-    it('Should DELETE the groupFeed with the requested id on /groupFeed DELETE', (done) => {
+    it('Should DELETE the GroupMark with the requested id on /groupMark DELETE', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groupFeed/' + testGroupFeedId)
+            .delete('/groupMark/' + testGroupMarkId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;

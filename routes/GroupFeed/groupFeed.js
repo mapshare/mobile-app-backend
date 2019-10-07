@@ -3,6 +3,17 @@ const router = express.Router();
 const dataService = require("./groupFeedService");
 const data = dataService();
 
+/*
+Group Feed ROUTES:
+------------------------------------------------------------
+GET     /groupFeed      = list all groupFeed
+GET     /groupFeed/:id  = list groupFeed by id
+POST    /groupFeed      = add groupFeed
+PUT     /groupFeed/:id  = update groupFeed by id
+DELETE  /groupFeed/:id  = Delete groupFeed by id
+*/
+
+
 // get list of GroupFeed 
 router.get('/groupFeed', (req, res, next) => {
     data.getGroupFeed().then(data => {

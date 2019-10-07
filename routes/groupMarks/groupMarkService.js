@@ -1,22 +1,22 @@
 const mongoose = require("mongoose");
-const GroupFeed = require('../../models/groupFeed');
+const GroupMark = require('../../models/groupMarks');
 const Group = require('../../models/group');
 
 module.exports = () => {
     return {
-        getGroupFeed: () => {
+        getGroupMark: () => {
             return new Promise((resolve, reject) => {
-                GroupFeed.find()
+                GroupMark.find()
                     .then(data => resolve(data))
                     .catch(err => reject(err));
             });
         },
-        getGroupFeedById: (id) => {
+        getGroupMarkById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupFeed.findById(id)
+                GroupMark.findById(id)
                     .then(data => {
                         if (data) resolve(data)
-                        else reject('no GroupFeed with specified id')
+                        else reject('no GroupMark with specified id')
                     })
                     .catch(err => {
                         reject(err)
@@ -24,16 +24,16 @@ module.exports = () => {
 
             });
         },
-        addGroupFeed: (groupFeedData) => {
+        addGroupMark: (groupMarkData) => {
             return new Promise((resolve, reject) => {
-                let { group, groupPosts } = groupFeedData;
+                let { group, groupMarks } = groupMarkData;
 
                 if (!mongoose.Types.ObjectId.isValid(group)) {
-                    reject({ "error": "groupId cannot be converted to valid ObjectId" });
+                    reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
-                if (!mongoose.Types.Array === groupPosts) {
-                    reject({ "error": "GroupPosts must be an array" });
+                if (!mongoose.Types.Array === groupMarks) {
+                    reject({ "error": "groupMarks must be an array" });
                     return;
                 }
 
@@ -41,11 +41,11 @@ module.exports = () => {
                     if (!groupData) {
                         reject({ "error": "group doesn't exist" })
                     } else {
-                        GroupFeed.create({
-                            ...groupFeedData
+                        GroupMark.create({
+                            ...groupMarkData
                         })
                             .then(data => {
-                                groupData.groupFeed = data._id;
+                                groupData.groupMark = data._id;
                                 groupData.save()
                                     .then(d => {
                                         resolve(data)
@@ -61,38 +61,38 @@ module.exports = () => {
                     .catch(err => reject(err));
             });
         },
-        updateGroupFeedById: (id, newData) => {
+        updateGroupMarkById: (id, newData) => {
             return new Promise((resolve, reject) => {
-                let { group, groupPosts } = newData;
+                let { group, groupMarks } = newData;
                 if (!mongoose.Types.ObjectId.isValid(group)) {
                     reject({ "error": "group cannot be converted to valid ObjectId" });
                     return;
                 }
-                
-                GroupFeed.findById(id)
-                    .then(groupFeed => {
-                        if (!groupFeed) {
-                            reject("GroupFeed doesn't exist");
+
+                GroupMark.findById(id)
+                    .then(groupMark => {
+                        if (!groupMark) {
+                            reject("GroupMark doesn't exist");
                             return;
                         }
-                        groupFeed.group = group ? group : groupFeed.group;
-                        groupFeed.groupPosts = groupPosts ? groupPosts : groupFeed.groupPosts;
-                        groupFeed.save()
+                        groupMark.group = group ? group : groupMark.group;
+                        groupMark.groupMarks = groupMarks ? groupMarks : groupMark.groupMarks;
+                        groupMark.save()
                             .then(data => { resolve({ "success": data }) })
                             .catch(err => reject(err))
                     })
                     .catch(err => reject(err));
             });
         },
-        deleteGroupFeedById: (id) => {
+        deleteGroupMarkById: (id) => {
             return new Promise((resolve, reject) => {
-                GroupFeed.findById(id)
-                    .then(groupFeed => {
-                        if (!groupFeed) {
-                            reject("GroupFeed doesn't exist");
+                GroupMark.findById(id)
+                    .then(groupMark => {
+                        if (!groupMark) {
+                            reject("GroupMark doesn't exist");
                             return;
                         }
-                        groupFeed.remove()
+                        groupMark.remove()
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     })

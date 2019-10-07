@@ -5,11 +5,12 @@ chai.use(chaiHttp);
 let expect = chai.expect;
 let assert = chai.assert;
 
-describe('Test the /groupFeed route :', () => {
-    var testUserId = 0;
-    var testGroupId = 0;
-    var testGroupId2 = 0;
-    var testGroupFeedId = 0;
+describe('Test the /groupMember route :', () => {
+    var testGroupMemberId = 0;
+    var testUserId = 0
+    var testGroupId = 0
+    var testGroupRoleId = 0;
+    var testGroupRoleId2 = 0;
 
     before((done) => {
         chai.request(process.env.Test_URL)
@@ -43,14 +44,13 @@ describe('Test the /groupFeed route :', () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post('/groups')
+            .post('/groupRoles')
             .send({
-                "userId": testUserId,
-                "groupName": "User Group Test Group",
-                "groupRole": testGroupRoleId
+                "groupRoleName": "Member",
+                "groupRolePermisionLevel": 0
             })
             .end(function (err, res) {
-                testGroupId = res.body._id;
+                testGroupRoleId2 = res.body._id;
 
                 done();
             });
@@ -65,7 +65,7 @@ describe('Test the /groupFeed route :', () => {
                 "groupRole": testGroupRoleId
             })
             .end(function (err, res) {
-                testGroupId2 = res.body._id;
+                testGroupId = res.body._id;
 
                 done();
             });
@@ -89,106 +89,108 @@ describe('Test the /groupFeed route :', () => {
 
     after((done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groups/' + testGroupId2)
+            .delete('/groupRoles/' + testGroupRoleId)
             .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
                 done();
             });
     });
 
     after((done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groupRoles/' + testGroupRoleId)
+            .delete('/groupRoles/' + testGroupRoleId2)
             .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
                 done();
             });
     });
 
 
-    it('should CREATE a GroupFeed to the database PUT', (done) => {
+    it('should CREATE a groupMember - POST', (done) => {
         chai.request(process.env.Test_URL)
-            .post('/groupFeed')
+            .post('/groupMember')
             .send({
-                "group": testGroupId,
-                "groupPosts": [{
-                    "postTitle": "TestTitle",
-                    "postContent": "TestContent",
-                    "postCreatedBy": testUserId
-                }]
+                user: testUserId,
+                group: testGroupId,
+                groupMemberRole: testGroupRoleId2
             })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
+                assert.equal(res.body.user, testUserId);
                 assert.equal(res.body.group, testGroupId);
-                assert.equal(res.body.groupPosts[0].postTitle, "TestTitle");
-                assert.equal(res.body.groupPosts[0].postContent, "TestContent");
-                assert.equal(res.body.groupPosts[0].postCreatedBy, testUserId);
-                
-                testGroupFeedId = res.body._id;
+                assert.equal(res.body.groupMemberRole, testGroupRoleId2);
 
+                testGroupMemberId = res.body._id;
                 done();
             });
     });
 
-
-    it('Should READ ALL GroupFeed on /groupFeed GET', (done) => {
+    it('Should READ ALL groupMember on /groupMember - GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed')
+            .get('/groupMember')
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.a('array');
 
                 expect(res.body[0]).to.have.all.keys(
-                    '_id',
-                    'groupPosts',
-                    'group',
-                    '__v');
+                    "_id",
+                    "group",
+                    "user",
+                    "groupMemberChatRooms",
+                    "groupMemberEvent",
+                    "groupMemberMarks",
+                    "groupMemberPosts",
+                    "groupMemberReviews",
+                    "groupMemberRole",
+                    "__v");
 
                 done();
             });
     });
 
-    it('Should READ GroupFeed with the requested id on /groupFeed GET', (done) => {
+    it('Should READ groupMember with the requested id on /groupMember GET', (done) => {
         chai.request(process.env.Test_URL)
-            .get('/groupFeed/' + testGroupFeedId)
+            .get('/groupMember/' + testGroupMemberId)
             .end(function (err, res) {
                 assert.equal(res.status, 200);
                 assert.equal(res.type, 'application/json', "Response should be json");
 
-                assert.equal(res.body.group, testGroupId);
+                assert.equal(res.body._id, testGroupMemberId);
 
                 done();
             });
     });
 
-    it('Should UPDATE GroupFeed on /groupFeed PUT', (done) => {
+    it('Should UPDATE groupMember on /groupMember PUT', (done) => {
         chai.request(process.env.Test_URL)
-            .put('/groupFeed/' + testGroupFeedId)
+            .put('/groupMember/' + testGroupMemberId)
             .send({
-                "group": testGroupId2,
-                "groupPosts": [{
-                    "postTitle": "TestTitle1",
-                    "postContent": "TestContent1",
-                    "postCreatedBy": testUserId
-                }]
+                user: testUserId,
+                group: testGroupId,
+                groupMemberRole: testGroupRoleId
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
-                assert.equal(res.body.success.group, testGroupId2);
-                assert.equal(res.body.success.groupPosts[0].postTitle, "TestTitle1");
-                assert.equal(res.body.success.groupPosts[0].postContent, "TestContent1");
-                assert.equal(res.body.success.groupPosts[0].postCreatedBy, testUserId);
+                assert.equal(res.body.success.user, testUserId);
+                assert.equal(res.body.success.group, testGroupId);
+                assert.equal(res.body.success.groupMemberRole, testGroupRoleId);
 
                 done();
             });
     });
 
-    it('Should DELETE the groupFeed with the requested id on /groupFeed DELETE', (done) => {
+    it('Should DELETE the groupMember from database DELETE', (done) => {
         chai.request(process.env.Test_URL)
-            .delete('/groupFeed/' + testGroupFeedId)
+            .delete('/groupMember/' + testGroupMemberId)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -196,4 +198,5 @@ describe('Test the /groupFeed route :', () => {
                 done();
             });
     });
+
 });

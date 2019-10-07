@@ -1,10 +1,12 @@
-var GroupFeed = require('./GroupFeed/groupFeed');
-var Post = require('./Post/post');
-var groups = require('./groups/groups');
-var marks = require('./marks/marks');
-var restaurants = require('./restaurants/restaurants');
-var review = require('./reviews/reviews');
-var users = require('./users/users');
+var GroupFeed = require('./groupFeed/groupFeed');
+var GroupMarks = require('./groupMarks/groupMarks');
+var GroupRoles = require('./groupRoles/groupRoles');
+var Groups = require('./groups/groups');
+var GroupMember = require('./groupMember/groupMember');
+var GroupEvents = require('./groupEvents/groupEvents');
+var Users = require('./users/users');
+var DefaultCategory = require('./defaultCategory/defaultCategory');
+
 
 const express = require("express");
 const router = express.Router();
@@ -15,11 +17,12 @@ router.get('/*', function (req, res, next) {
 });
 
 router.use('/', GroupFeed);
-router.use('/', groups);
-router.use('/', marks);
-router.use('/', Post);
-router.use('/', restaurants);
-router.use('/', review);
-router.use('/', users);
+router.use('/', GroupMarks);
+router.use('/', Groups);
+router.use('/', GroupRoles);
+router.use('/', GroupMember);
+router.use('/', GroupEvents);
+router.use('/', Users);
+router.use('/', DefaultCategory);
 
 module.exports = router;

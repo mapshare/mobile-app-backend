@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const UserImages = require("./userSubDocs/userImages");
 
 // create user Schema & model
 const UserSchema = new Schema({
@@ -16,32 +17,32 @@ const UserSchema = new Schema({
     type: String,
     required: [true, 'user lastName is required']
   },
-  userGroups: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'group'
-    }
-  ],
-  userPicture: {
-    type: String,
-  },
   googleId: {
     type: String,
     required: [true, 'must provide googleId field'],
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^\d+$/.test(v);
       },
       message: props => `${props.value} is not a valid google id!`
     }
   },
-  postsId:[{
+  userProfilePic: {
     type: Schema.Types.ObjectId,
-    ref: 'post'
-  }]
-})
+    ref: 'userImages'
+  },
+  userImages: [
+    UserImages
+  ],
+  userGroups: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'groupMember'
+    }
+  ]
+});
 
-UserSchema.virtual('userId').get(function() { return this._id; });
+UserSchema.virtual('userId').get(function () { return this._id; });
 
 const User = mongoose.model('user', UserSchema);
 
