@@ -58,7 +58,7 @@ router.post('/groups/:groupId/member', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add member to this group" })
     }
 });
 
@@ -72,7 +72,7 @@ router.post('/groups/:groupId/event/:eventId', verifyLoginToken, (req, res, next
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add member to this event" })
     }
 });
 
@@ -86,7 +86,7 @@ router.post('/groups/:id/mark', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add mark to this group" })
     }
 });
 
@@ -99,7 +99,7 @@ router.post('/groups/:id/post', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add post to this group" })
     }
 });
 
@@ -112,7 +112,7 @@ router.post('/groups/:id/event', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add event to this group" })
     }
 });
 
@@ -125,7 +125,7 @@ router.post('/groups/:groupId/customCategory', verifyLoginToken, (req, res, next
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add mark category to this group" })
     }
 });
 
@@ -138,7 +138,7 @@ router.post('/groups/:groupId/chat', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add chat room to this group" })
     }
 });
 
@@ -151,7 +151,7 @@ router.post('/groups/:groupId/chat/:chatRoomId/:groupMemberId', verifyLoginToken
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add Group Member to this Chat Room" })
     }
 });
 
@@ -164,7 +164,7 @@ router.post('/groups/:groupId/chat/:chatRoomId', verifyLoginToken, (req, res, ne
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to add Chat Message to this chatRoom" })
     }
 });
 
@@ -177,7 +177,7 @@ router.get('/groups/:id/mark/:markId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to get marks for this group" })
     }
 });
 
@@ -190,7 +190,7 @@ router.get('/groups/:id/post/:postId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to get posts for this group" })
     }
 });
 
@@ -203,11 +203,11 @@ router.get('/groups/:id/event/:eventId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to get events for this group" })
     }
 });
 
-// get custom mark category to event
+// get custom mark category 
 router.get('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, (req, res, next) => {
     if (verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
         data.getCustomCategoryMark(req.params.groupId, req.params.categoryId).then(data => {
@@ -216,7 +216,7 @@ router.get('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, (req
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to get mark categories for this group" })
     }
 });
 
@@ -229,7 +229,7 @@ router.get('/groups/:groupId/chat/:chatRoomId', verifyLoginToken, (req, res, nex
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to get chat room for this group" })
     }
 });
 
@@ -242,7 +242,7 @@ router.put('/groups/:id/mark/:markId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update marks for this group" })
     }
 });
 
@@ -255,7 +255,7 @@ router.put('/groups/:id/post/:postId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update posts for this group" })
     }
 });
 
@@ -268,7 +268,7 @@ router.put('/groups/:id/event/:eventId', verifyLoginToken, (req, res, next) => {
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update events for this group" })
     }
 });
 
@@ -281,7 +281,7 @@ router.put('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, (req
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update mark categories for this group" })
     }
 });
 
@@ -294,7 +294,7 @@ router.put('/groups/:groupId/chat/:chatRoomId', verifyLoginToken, (req, res, nex
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update chat rooms for this group" })
     }
 });
 
@@ -307,7 +307,7 @@ router.put('/groups/:groupId/chat/:chatRoomId/:chatMessageId', verifyLoginToken,
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to update chat messages this group" })
     }
 });
 
@@ -320,7 +320,7 @@ router.delete('/groups/:groupId/member/:id', verifyLoginToken, (req, res, next) 
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete group member from this group" })
     }
 });
 
@@ -333,7 +333,7 @@ router.delete('/groups/:groupId/event/:eventId/:memberId', verifyLoginToken, (re
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete group member from this event" })
     }
 });
 
@@ -346,7 +346,7 @@ router.delete('/groups/:groupId/customCategory/:id', verifyLoginToken, (req, res
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete mark categories from this group" })
     }
 });
 
@@ -360,7 +360,7 @@ router.delete('/groups/:groupId/mark/:id', verifyLoginToken, (req, res, next) =>
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete marks from this group" })
     }
 });
 
@@ -373,7 +373,7 @@ router.delete('/groups/:groupId/post/:id', verifyLoginToken, (req, res, next) =>
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete posts from this group" })
     }
 });
 
@@ -386,7 +386,7 @@ router.delete('/groups/:groupId/event/:id', verifyLoginToken, (req, res, next) =
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete events from this group" })
     }
 });
 
@@ -400,7 +400,7 @@ router.delete('/groups/:groupId/chat/:chatRoomId', verifyLoginToken, (req, res, 
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete chat rooms from this group" })
     }
 });
 
@@ -413,7 +413,7 @@ router.delete('/groups/:groupId/chat/:chatRoomId/message/:chatMessageId', verify
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete chat messages from this group" })
     }
 });
 
@@ -426,7 +426,7 @@ router.delete('/groups/:groupId/chat/:chatRoomId/:memberId', verifyLoginToken, (
             res.status(400).send({ "error": err })
         })
     } else {
-        res.status(400).send({ "error": "Insufficient permissions to update this group" })
+        res.status(400).send({ "error": "Insufficient permissions to delete group member from this chatroom" })
     }
 });
 
