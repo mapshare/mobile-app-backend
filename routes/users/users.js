@@ -2,17 +2,17 @@ const express = require("express");
 const router = express.Router();
 const dataService = require("./userService");
 const data = dataService();
+const { verifyLoginToken } = require("../auth/verifyToken");
 
 /*
 Users ROUTES:
 ------------------------------------------------------------
-GET     /users      = list all users
-GET     /users/:id  = list users by id
-POST    /users      = add users
-PUT     /users/:id  = update users by id
-DELETE  /users/:id  = Delete users by id
+GET     /user  = get user
+PUT     /user  = update user using JWT
+DELETE  /user  = delete user using JWT
 */
 
+/*
 // get all users // remove in production!
 router.get("/users", (req, res, next) => {
   data
@@ -38,11 +38,11 @@ router.post("/users", (req, res, next) => {
       res.status(400).send(err);
     });
 });
+*/
 
-// get user by id
-router.get("/users/:id", (req, res, next) => {
-  data
-    .getUserById(req.params.id)
+// get user using JWT
+router.get("/user", verifyLoginToken, (req, res, next) => {
+  data.getUserById(req.user)
     .then(data => {
       res.status(200).json(data);
     })
@@ -51,10 +51,9 @@ router.get("/users/:id", (req, res, next) => {
     });
 });
 
-// update user by id
-router.put("/users/:id", (req, res, next) => {
-  data
-    .updateUserById(req.params.id, req.body)
+// update user using JWT
+router.put("/user", verifyLoginToken, (req, res, next) => {
+  data.updateUserById(req.user, req.body)
     .then(data => {
       res.status(200).json(data);
     })
@@ -63,10 +62,9 @@ router.put("/users/:id", (req, res, next) => {
     });
 });
 
-// delete users by id
-router.delete("/users/:id", (req, res, next) => {
-  data
-    .deleteUserbyId(req.params.id)
+// delete users using JWT
+router.delete("/user", verifyLoginToken, (req, res, next) => {
+  data.deleteUserbyId(req.user)
     .then(data => {
       res.status(200).json(data);
     })

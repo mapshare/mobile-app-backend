@@ -6,6 +6,7 @@ const GroupChat = require('../../models/groupChat');
 const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
 const GroupMark = require('../../models/groupMarks');
+const GroupRole = require('../../models/groupRoles');
 
 module.exports = () => {
     return {
@@ -26,14 +27,9 @@ module.exports = () => {
             })
         },
 
-        addGroup: (newData) => {
+        addGroup: (user, newData) => {
             return new Promise((resolve, reject) => {
-                if (!newData.userId) {
-                    reject("need userId field");
-                    return;
-                }
-
-                User.findById(newData.userId)
+                User.findById(user)
                     .then(userData => {
                         if (!userData) {
                             reject("user doesn't exist");
@@ -44,53 +40,55 @@ module.exports = () => {
                             groupName: newData.groupName
                         });
 
-                        GroupMember.create({
-                            user: newData.userId,
-                            group: groupData._id,
-                            groupMemberRole: newData.groupRole
-                        }).then(data => {
-                            groupData.groupMembers.push(data.id);
-                            userData.userGroups.push(data.id);
+                        GroupRole.findOne({ "groupRoleName": "Admin" })
+                            .then(groupRole => {
+                                GroupMember.create({
+                                    user: user,
+                                    group: groupData._id,
+                                    groupMemberRole: groupRole._id
+                                }).then(data => {
+                                    groupData.groupMembers.push(data.id);
+                                    userData.userGroups.push(data.id);
 
 
-                            const groupFeedData = new GroupFeed({
-                                "group": groupData._id,
-                                "groupPosts": []
-                            });
-                            groupFeedData.save();
-                            groupData.groupFeed = groupFeedData._id;
+                                    const groupFeedData = new GroupFeed({
+                                        "group": groupData._id,
+                                        "groupPosts": []
+                                    });
+                                    groupFeedData.save();
+                                    groupData.groupFeed = groupFeedData._id;
 
-                            const groupEventData = new GroupEvent({
-                                "group": groupData._id,
-                                "groupEvents": []
-                            });
-                            groupData.groupEvents = groupEventData._id;
-                            groupEventData.save();
+                                    const groupEventData = new GroupEvent({
+                                        "group": groupData._id,
+                                        "groupEvents": []
+                                    });
+                                    groupData.groupEvents = groupEventData._id;
+                                    groupEventData.save();
 
-                            const groupMarkData = new GroupMark({
-                                "group": groupData._id,
-                                "groupMarks": []
-                            });
-                            groupData.groupMarks = groupMarkData._id;
-                            groupMarkData.save();
+                                    const groupMarkData = new GroupMark({
+                                        "group": groupData._id,
+                                        "groupMarks": []
+                                    });
+                                    groupData.groupMarks = groupMarkData._id;
+                                    groupMarkData.save();
 
 
-                            const groupChatData = new GroupChat({
-                                "group": groupData._id,
-                                "groupChatRooms": []
-                            });
-                            groupData.groupChat = groupChatData._id;
-                            groupChatData.save();
+                                    const groupChatData = new GroupChat({
+                                        "group": groupData._id,
+                                        "groupChatRooms": []
+                                    });
+                                    groupData.groupChat = groupChatData._id;
+                                    groupChatData.save();
 
-                            groupData.save()
-                                .then(group => {
-                                    userData.save()
-                                        .then(user => {
-                                            resolve(group)
-                                        });
+                                    groupData.save()
+                                        .then(group => {
+                                            userData.save()
+                                                .then(user => {
+                                                    resolve(group)
+                                                });
+                                        }).catch(err => reject(err));
                                 }).catch(err => reject(err));
-
-                        }).catch(err => reject(err));
+                            }).catch(err => reject("GroupRole Not Found: " + err));
                     }).catch(err => reject(err));
             });
         },
@@ -117,7 +115,7 @@ module.exports = () => {
 
         addGroupMember: (GroupId, newData) => {
             return new Promise((resolve, reject) => {
-                let { newGroupMember, groupRole } = newData;
+                let { newGroupMember } = newData;
 
                 Group.findById(GroupId)
                     .then(groupData => {
@@ -131,24 +129,27 @@ module.exports = () => {
                                     reject("User doesn't exist");
                                     return;
                                 }
-                                GroupMember.create({
-                                    user: userData._id,
-                                    group: groupData._id,
-                                    groupMemberRole: groupRole
-                                }).then(data => {
-                                    groupData.groupMembers.push(data.id);
-                                    userData.userGroups.push(data.id);
+                                GroupRole.findOne({ "groupRoleName": "Member" })
+                                    .then(groupRole => {
+                                        GroupMember.create({
+                                            user: userData._id,
+                                            group: groupData._id,
+                                            groupMemberRole: groupRole._id
+                                        }).then(data => {
+                                            groupData.groupMembers.push(data.id);
+                                            userData.userGroups.push(data.id);
 
-                                    groupData.save()
-                                        .then(group => {
-                                            userData.save()
-                                                .then(user => {
-                                                    resolve(data)
+                                            groupData.save()
+                                                .then(group => {
+                                                    userData.save()
+                                                        .then(user => {
+                                                            resolve(data)
+                                                        });
                                                 });
-                                        });
-                                }).catch(err => reject(err));
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
+                                        }).catch(err => reject("Error could not create groupMember: " + err));
+                                    }).catch(err => reject("Error could not find groupRole: " + err));
+                            }).catch(err => reject("Error could not find User: " + err));
+                    }).catch(err => reject("Error could not find Group: " + err));
             });
         },
 
