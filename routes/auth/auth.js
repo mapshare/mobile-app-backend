@@ -22,7 +22,7 @@ router.post("/register", async (req, res, next) => {
 
 	try {
 		const savedUser = await newUser.save();
-		res.send(savedUser);
+		res.send({ success: true });
 	} catch (err) {
 		res.status(400).send(err);
 	}
@@ -40,9 +40,9 @@ router.post("/login", async (req, res, next) => {
 	);
 	if (!validPassword) return res.status(400).send("Email or Password is Wrong");
 
-	//Create an user logged in token and its header name tag
+	//Create an user logged in token and its header name tag. Add a expiry if needed by adding { expiresIn: '1h' }
 	const token = jwt.sign({ _id: user._id }, process.env.LOGIN_TOKEN);
-	res.header("auth-token", token).send(token);
+	res.setHeader("authentication", token);
 
 	res.send("Logged In!");
 });

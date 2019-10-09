@@ -9,20 +9,44 @@ describe('Test the /groupFeed route :', () => {
     var testUserId = 0;
     var testGroupId = 0;
     var testGroupId2 = 0;
+    var testUsertoken1 = "";
     var testGroupFeedId = 0;
+
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post('/users')
+            .post("/register")
             .send({
                 "userEmail": "groupTest@test123.com",
                 "userFirstName": "Group Test First Name",
                 "userLastName": "Group Test Last Name",
-                "googleId": "423423424234"
+                "userPassword": "myTestPassword1"
             })
             .end(function (err, res) {
-                testUserId = res.body._id;
 
+                done();
+            });
+    });
+
+    before((done) => {
+        chai.request(process.env.Test_URL)
+            .post("/login")
+            .send({
+                "userEmail": "groupTest@test123.com",
+                "userPassword": "myTestPassword1"
+            })
+            .end(function (err, res) {
+                testUsertoken1 = res.header.authentication;
+                done();
+            });
+    });
+
+    before((done) => {
+        chai.request(process.env.Test_URL)
+            .get("/user")
+            .set("authentication", testUsertoken1)
+            .end(function (err, res) {
+                testUserId = res.body._id;
                 done();
             });
     });
@@ -44,14 +68,13 @@ describe('Test the /groupFeed route :', () => {
     before((done) => {
         chai.request(process.env.Test_URL)
             .post('/groups')
+            .set("authentication", testUsertoken1)
             .send({
-                "userId": testUserId,
-                "groupName": "User Group Test Group",
-                "groupRole": testGroupRoleId
+                "groupName": "Test Group for Events One"
             })
             .end(function (err, res) {
                 testGroupId = res.body._id;
-
+                testGroupMemberId = res.body.groupMembers[0];
                 done();
             });
     });
@@ -59,21 +82,21 @@ describe('Test the /groupFeed route :', () => {
     before((done) => {
         chai.request(process.env.Test_URL)
             .post('/groups')
+            .set("authentication", testUsertoken1)
             .send({
-                "userId": testUserId,
-                "groupName": "User Group Test Group",
-                "groupRole": testGroupRoleId
+                "groupName": "Test Group for Events Two"
             })
             .end(function (err, res) {
                 testGroupId2 = res.body._id;
-
+                testGroup2MemberId = res.body.groupMembers[0];
                 done();
             });
     });
 
     after((done) => {
         chai.request(process.env.Test_URL)
-            .delete('/users/' + testUserId)
+            .delete('/user')
+            .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 done();
             });
@@ -82,6 +105,7 @@ describe('Test the /groupFeed route :', () => {
     after((done) => {
         chai.request(process.env.Test_URL)
             .delete('/groups/' + testGroupId)
+            .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 done();
             });
@@ -90,6 +114,7 @@ describe('Test the /groupFeed route :', () => {
     after((done) => {
         chai.request(process.env.Test_URL)
             .delete('/groups/' + testGroupId2)
+            .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 done();
             });
@@ -123,7 +148,7 @@ describe('Test the /groupFeed route :', () => {
                 assert.equal(res.body.groupPosts[0].postTitle, "TestTitle");
                 assert.equal(res.body.groupPosts[0].postContent, "TestContent");
                 assert.equal(res.body.groupPosts[0].postCreatedBy, testUserId);
-                
+
                 testGroupFeedId = res.body._id;
 
                 done();

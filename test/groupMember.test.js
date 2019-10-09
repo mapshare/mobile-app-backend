@@ -14,16 +14,38 @@ describe('Test the /groupMember route :', () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post('/users')
+            .post("/register")
             .send({
                 "userEmail": "groupTest@test123.com",
                 "userFirstName": "Group Test First Name",
                 "userLastName": "Group Test Last Name",
-                "googleId": "423423424234"
+                "userPassword": "myTestPassword1"
             })
             .end(function (err, res) {
-                testUserId = res.body._id;
 
+                done();
+            });
+    });
+
+    before((done) => {
+        chai.request(process.env.Test_URL)
+            .post("/login")
+            .send({
+                "userEmail": "groupTest@test123.com",
+                "userPassword": "myTestPassword1"
+            })
+            .end(function (err, res) {
+                testUsertoken1 = res.header.authentication;
+                done();
+            });
+    });
+
+    before((done) => {
+        chai.request(process.env.Test_URL)
+            .get("/user")
+            .set("authentication", testUsertoken1)
+            .end(function (err, res) {
+                testUserId = res.body._id;
                 done();
             });
     });
@@ -59,21 +81,21 @@ describe('Test the /groupMember route :', () => {
     before((done) => {
         chai.request(process.env.Test_URL)
             .post('/groups')
+            .set("authentication", testUsertoken1)
             .send({
-                "userId": testUserId,
-                "groupName": "User Group Test Group",
-                "groupRole": testGroupRoleId
+                "groupName": "Test Group for Events One"
             })
             .end(function (err, res) {
                 testGroupId = res.body._id;
-
+                testGroupMemberId = res.body.groupMembers[0];
                 done();
             });
     });
 
     after((done) => {
         chai.request(process.env.Test_URL)
-            .delete('/users/' + testUserId)
+            .delete('/user')
+            .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 done();
             });
@@ -82,6 +104,7 @@ describe('Test the /groupMember route :', () => {
     after((done) => {
         chai.request(process.env.Test_URL)
             .delete('/groups/' + testGroupId)
+            .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 done();
             });
