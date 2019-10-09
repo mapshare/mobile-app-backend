@@ -3,6 +3,17 @@ const router = express.Router();
 const dataService = require("./groupEventService");
 const data = dataService();
 
+
+/*
+Group Events ROUTES:
+------------------------------------------------------------
+GET     /groupEvent      = list all groupEvent
+GET     /groupEvent/:id  = list groupEvent by id
+POST    /groupEvent      = add groupEvent
+PUT     /groupEvent/:id  = update groupEvent by id
+DELETE  /groupEvent/:id  = Delete groupEvent by id
+*/
+
 // get list of GroupEvent 
 router.get('/groupEvent', (req, res, next) => {
     data.getGroupEvent().then(data => {

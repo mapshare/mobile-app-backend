@@ -3,6 +3,16 @@ const router = express.Router();
 const dataService = require("./userService");
 const data = dataService();
 
+/*
+Users ROUTES:
+------------------------------------------------------------
+GET     /users      = list all users
+GET     /users/:id  = list users by id
+POST    /users      = add users
+PUT     /users/:id  = update users by id
+DELETE  /users/:id  = Delete users by id
+*/
+
 // get all users // remove in production!
 router.get("/users", (req, res, next) => {
   data

@@ -3,6 +3,16 @@ const router = express.Router();
 const dataService = require("./groupMemberService");
 const data = dataService();
 
+/*
+Group Members ROUTES:
+------------------------------------------------------------
+GET     /groupMember      = list all groupMember
+GET     /groupMember/:id  = list groupMember by id
+POST    /groupMember      = add groupMember
+PUT     /groupMember/:id  = update groupMember by id
+DELETE  /groupMember/:id  = Delete groupMember by id
+*/
+
 // get list of GroupMember 
 router.get('/groupMember', (req, res, next) => {
     data.getGroupMember().then(data => {

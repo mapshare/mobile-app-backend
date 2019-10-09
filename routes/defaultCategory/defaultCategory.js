@@ -3,6 +3,16 @@ const router = express.Router();
 const dataService = require("./defaultCategoryService");
 const data = dataService();
 
+/*
+Group Default Category ROUTES:
+------------------------------------------------------------
+GET     /defaultCategory      = list all defaultCategory
+GET     /defaultCategory/:id  = list defaultCategory by id
+POST    /defaultCategory      = add defaultCategory
+PUT     /defaultCategory/:id  = update defaultCategory by id
+DELETE  /defaultCategory/:id  = Delete defaultCategory by id
+*/
+
 // get list of defaultCategory 
 router.get('/defaultCategory', (req, res, next) => {
     data.getDefaultCategory().then(data => {
