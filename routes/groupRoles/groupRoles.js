@@ -3,6 +3,16 @@ const router = express.Router();
 const dataService = require("./groupRolesServices");
 const data = dataService();
 
+/*
+Group Roles ROUTES:
+------------------------------------------------------------
+GET     /groupRoles      = list all groupRoles
+GET     /groupRoles/:id  = list groupRoles by id
+POST    /groupRoles      = add groupRoles
+PUT     /groupRoles/:id  = update groupRoles by id
+DELETE  /groupRoles/:id  = Delete groupRoles by id
+*/
+
 // get list of GroupRoles 
 router.get('/groupRoles', (req, res, next) => {
     data.getGroupRoles().then(data => {
