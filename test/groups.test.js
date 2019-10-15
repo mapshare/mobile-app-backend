@@ -28,7 +28,7 @@ describe("Test the /Groups route :", () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post("/register")
+            .post("/testregister")
             .send({
                 "userEmail": "groupTest@test123.com",
                 "userFirstName": "Group Test First Name",
@@ -66,7 +66,7 @@ describe("Test the /Groups route :", () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post("/register")
+            .post("/testregister")
             .send({
                 "userEmail": "groupTest2@test123.com",
                 "userFirstName": "Group Test First Name2",
@@ -104,7 +104,7 @@ describe("Test the /Groups route :", () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post("/register")
+            .post("/testregister")
             .send({
                 "userEmail": "groupTest3@test123.com",
                 "userFirstName": "Group Test First Name3",

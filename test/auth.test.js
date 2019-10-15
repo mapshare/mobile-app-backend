@@ -10,7 +10,7 @@ describe("Test the authentication:", () => {
 
     it("should Register a User - POST", (done) => {
         chai.request(process.env.Test_URL)
-            .post("/register")
+            .post("/testregister")
             .send({
                 "userEmail": "testEmail@TestEmail.com",
                 "userFirstName": "TestName",
