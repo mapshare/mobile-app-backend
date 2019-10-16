@@ -15,7 +15,12 @@ const UnverifiedUserSchema = new Schema({
   unverifiedUserLastName: {
     type: String,
     required: [true, 'Unverified user lastName is required']
-  }
+  },
+  unverifiedUserPassword: {
+    type: String,
+    max: 1024,
+    min: 6
+  },
 });
 
 const UnverifiedUser = mongoose.model('unverifiedUser', UnverifiedUserSchema);

@@ -13,7 +13,7 @@ describe('Test the /groupMark route :', () => {
 
     before((done) => {
         chai.request(process.env.Test_URL)
-            .post("/register")
+            .post("/testregister")
             .send({
                 "userEmail": "groupTest@test123.com",
                 "userFirstName": "Group Test First Name",
