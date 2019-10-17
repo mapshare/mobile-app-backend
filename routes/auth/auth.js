@@ -94,7 +94,7 @@ router.post("/register", async (req, res, next) => {
 		};
 
 		const status = await transporter.sendMail(mail);
-
+		
 		res.send({ success: true });
 	} catch (err) {
 		res.status(400).send(err);
@@ -160,7 +160,7 @@ router.post("/login", async (req, res, next) => {
 	const token = jwt.sign({ _id: user._id }, process.env.LOGIN_TOKEN);
 	res.setHeader("authentication", token);
 
-	res.send("Logged In!");
+	res.send(user);
 });
 
 module.exports = router;
