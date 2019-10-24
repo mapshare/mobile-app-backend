@@ -42,11 +42,11 @@ router.post("/register", async (req, res, next) => {
 	try {
 		// Verify if a user already exists.
 		const emailExist = await User.findOne({ userEmail: req.body.userEmail });
-		if (emailExist) return res.status(400).send("An account with this email already exists!!");
+		if (emailExist) { throw ("An account with this email already exists!!"); }
 
 		// Verify if a Unverified User already exists.
 		const UnverifiedUserEmailExist = await UnverifiedUser.findOne({ unverifiedUserEmail: req.body.userEmail });
-		if (UnverifiedUserEmailExist) return res.status(400).send("An account with this email already exists!");
+		if (UnverifiedUserEmailExist) { throw ("An account with this email already exists!"); }
 
 		// Hashing passwords
 		const salt = await bcrypt.genSalt(10);
