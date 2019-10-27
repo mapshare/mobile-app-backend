@@ -248,7 +248,6 @@ describe("Test the /Groups route :", () => {
             });
     });
 
-
     it("Should READ ALL Groups on /groups GET", (done) => {
         chai.request(process.env.Test_URL)
             .get("/groups")
@@ -287,6 +286,20 @@ describe("Test the /Groups route :", () => {
             });
     });
 
+    it("should search for a Group POST", (done) => {
+        chai.request(process.env.Test_URL)
+            .get("/groups/search/test")
+            .set("authentication", testUsertoken1)
+            .end(function (err, res) {
+                assert.equal(res.status, 200);
+                assert.equal(res.type, "application/json", "Response should be json");
+
+                assert.equal(res.body[0].groupName, "Test Group");
+
+                done();
+            });
+    });
+
     it("Should UPDATE Group on /groups PUT", (done) => {
         chai.request(process.env.Test_URL)
             .put("/groups/" + testGroupId)
@@ -298,7 +311,7 @@ describe("Test the /Groups route :", () => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
 
-                assert.equal(res.body.success.groupName, "New Test Group Name");
+                assert.equal(res.body.groupName, "New Test Group Name");
 
                 done();
             });
@@ -318,7 +331,7 @@ describe("Test the /Groups route :", () => {
                 assert.equal(res.body.user, testUserId2);
                 assert.equal(res.body.group, testGroupId);
 
-                testGroupMemberId = res.body._id;
+                testGroupMember2Id = res.body._id;
 
                 done();
             });
@@ -338,7 +351,7 @@ describe("Test the /Groups route :", () => {
                 assert.equal(res.body.user, testUserId3);
                 assert.equal(res.body.group, testGroupId);
 
-                testGroupMember2Id = res.body._id;
+                testGroupMember3Id = res.body._id;
 
                 done();
             });
@@ -391,7 +404,6 @@ describe("Test the /Groups route :", () => {
             .send({
                 eventName: "testGroupEventName",
                 eventDescription: "testGroupEventDescription",
-                eventMembers: [testGroupMemberId],
                 eventMark: testGroupMarkId
             })
             .end(function (err, res) {
@@ -413,10 +425,7 @@ describe("Test the /Groups route :", () => {
     it("Should Add a Group member to event on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
             .post("/groups/" + testGroupId + "/event/" + testGroupEventId)
-            .set("authentication", testUsertoken1)
-            .send({
-                "newGroupMember": testGroupMember2Id
-            })
+            .set("authentication", testUsertoken2)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -458,8 +467,7 @@ describe("Test the /Groups route :", () => {
             .set("authentication", testUsertoken1)
             .send({
                 "postTitle": "TestGroupPostTitle",
-                "postContent": "TestGroupPostContent",
-                "postCreatedBy": testGroupMemberId
+                "postContent": "TestGroupPostContent"
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -482,8 +490,6 @@ describe("Test the /Groups route :", () => {
             .set("authentication", testUsertoken1)
             .send({
                 "chatRoomName": "TestGroupChatName",
-                "chatRoomMembers": [testGroupMemberId],
-                "chatRoomCreatedBy": testGroupMemberId
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -503,8 +509,8 @@ describe("Test the /Groups route :", () => {
 
     it("Should Add a group member to ChatRoom on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
-            .post("/groups/" + testGroupId + "/chat/" + testChatRoomId + "/" + testGroupMember2Id)
-            .set("authentication", testUsertoken1)
+            .post("/groups/" + testGroupId + "/chat/" + testChatRoomId)
+            .set("authentication", testUsertoken2)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -520,11 +526,10 @@ describe("Test the /Groups route :", () => {
 
     it("Should Add a message to ChatRoom on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
-            .post("/groups/" + testGroupId + "/chat/" + testChatRoomId)
+            .post("/groups/" + testGroupId + "/chat/" + testChatRoomId + "/message")
             .set("authentication", testUsertoken1)
             .send({
-                "messageBody": "TestGroupChatMessage",
-                "messageCreatedBy": testGroupMemberId
+                "messageBody": "TestGroupChatMessage"
             })
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -670,6 +675,7 @@ describe("Test the /Groups route :", () => {
                 done();
             });
     });
+    
     it("Should UPDATE a Event on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
             .put("/groups/" + testGroupId + "/event/" + testGroupEventId)
@@ -792,7 +798,7 @@ describe("Test the /Groups route :", () => {
 
     it("Should DELETE a member from the ChatRoom on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
-            .delete("/groups/" + testGroupId + "/chat/" + testChatRoomId + "/" + testGroupMember2Id)
+            .delete("/groups/" + testGroupId + "/chat/" + testChatRoomId + "/leave")
             .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -824,7 +830,7 @@ describe("Test the /Groups route :", () => {
 
     it("Should DELETE a Group member from event on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
-            .delete("/groups/" + testGroupId + "/event/" + testGroupEventId + "/" + testGroupMember2Id)
+            .delete("/groups/" + testGroupId + "/event/" + testGroupEventId + "/leave")
             .set("authentication", testUsertoken1)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
@@ -833,7 +839,6 @@ describe("Test the /Groups route :", () => {
                 assert.equal(res.body.group, testGroupId);
                 assert.equal(res.body.groupEvents[0].eventName, "testUPDATEGroupEventName");
                 assert.equal(res.body.groupEvents[0].eventDescription, "testUPDATEGroupEventDescription");
-                assert.equal(res.body.groupEvents[0].eventMembers[0], testGroupMemberId);
                 assert.equal(res.body.groupEvents[0].eventMembers.length, 1);
                 assert.equal(res.body.groupEvents[0].eventMark, testGroupMarkId);
 
@@ -904,8 +909,8 @@ describe("Test the /Groups route :", () => {
 
     it("Should DELETE a Second Group member on /groups POST", (done) => {
         chai.request(process.env.Test_URL)
-            .delete("/groups/" + testGroupId + "/member/" + testGroupMember2Id)
-            .set("authentication", testUsertoken1)
+            .delete("/groups/" + testGroupId + "/member")
+            .set("authentication", testUsertoken2)
             .end(function (err, res) {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;

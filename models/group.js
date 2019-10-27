@@ -19,6 +19,7 @@ const GroupSchema = new Schema({
 
 GroupSchema.virtual('groupId').get(function () { return this._id; });
 
+GroupSchema.index({groupName: 'text'});
 
 const Group = mongoose.model('group', GroupSchema);
 module.exports = Group;
