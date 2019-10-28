@@ -12,13 +12,15 @@ const verifyRole = async (userId, groupId, requiredPermissionLevel) => {
 
     user.userGroups.forEach(async (groupMemberId) => {
         const member = await GroupMember.findById(groupMemberId);
-        if (member.group == groupId) {
-            const role = await GroupRoles.findById(member.groupMemberRole);
-            role;
-            if(role.groupRolePermisionLevel >= requiredPermissionLevel){
-                ret = true;
+        if (member) {
+            if (member.group == groupId) {
+                const role = await GroupRoles.findById(member.groupMemberRole);
+                role;
+                if (role.groupRolePermisionLevel >= requiredPermissionLevel) {
+                    ret = true;
+                }
+                return;
             }
-            return;
         }
     });
 

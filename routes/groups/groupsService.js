@@ -8,7 +8,10 @@ const GroupEvent = require('../../models/groupEvent');
 const GroupMark = require('../../models/groupMarks');
 const GroupRole = require('../../models/groupRoles');
 
-module.exports = () => {
+const dataService = require("../groups/chatRoomService");
+const ChatData = dataService();
+
+module.exports = (io) => {
     return {
         getGroups: () => {
             return new Promise((resolve, reject) => {
@@ -29,78 +32,129 @@ module.exports = () => {
 
         searchGroups: async (searchArg) => {
             try {
-                const index = await Group.createIndexes();
-                const results = await Group.find({ $text: { $search: searchArg } });
+                let results;
+                if (!searchArg.groupName) {
+                    results = await Group.find({});
+                } else {
+                    const index = await Group.createIndexes();
+                    results = await Group.find({ $text: { $search: searchArg.groupName } });
+                }
                 return results;
             } catch (error) {
                 throw ("searchGroups: " + error);
             }
         },
 
-        addGroup: (user, newData) => {
-            return new Promise((resolve, reject) => {
-                User.findById(user)
-                    .then(userData => {
-                        if (!userData) {
-                            reject("user doesn't exist");
-                            return;
+
+        searchGroupChatRooms: async (groupId, searchArg) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                let results = []
+
+                const groupChatData = await GroupChat.findOne({ group: groupData._id })
+
+                if (searchArg.chatRoomName) {
+                    for (let chatRoom of groupChatData.groupChatRooms) {
+                        let isMatch = chatRoom.chatRoomName.search('/' + searchArg.chatRoomName + '/i');
+                        if (isMatch != -1) {
+                            const room = {
+                                chatRoomName: chatRoom.chatRoomName,
+                                _id: chatRoom._id
+                            }
+                            results.push(room);
                         }
+                    }
+                } else {
+                    for (let chatRoom of groupChatData.groupChatRooms) {
+                        const room = {
+                            chatRoomName: chatRoom.chatRoomName,
+                            _id: chatRoom._id
+                        }
+                        results.push(room);
+                    }
+                }
 
-                        const groupData = new Group({
-                            groupName: newData.groupName
-                        });
+                return results;
+            } catch (error) {
+                throw ("searchGroups: " + error);
+            }
+        },
 
-                        GroupRole.findOne({ "groupRoleName": "Admin" })
-                            .then(groupRole => {
-                                GroupMember.create({
-                                    user: user,
-                                    group: groupData._id,
-                                    groupMemberRole: groupRole._id
-                                }).then(data => {
-                                    groupData.groupMembers.push(data.id);
-                                    userData.userGroups.push(data.id);
+        getListOfChatRooms: async (groupId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const groupChatData = await GroupChat.findById(groupData.groupChat);
+                if (!groupData) throw ("Could not find Group Chat");
+
+                return groupChatData.groupChatRooms;
+
+            } catch (error) {
+                throw ("getListOfChatRooms " + error);
+            }
+        },
+
+        addGroup: async (userId, newData) => {
+            try {
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User")
+
+                const groupData = new Group({
+                    groupName: newData.groupName
+                });
+
+                const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_ADMIN });
+
+                const newGroupMember = await GroupMember.create({
+                    user: user._id,
+                    group: groupData._id,
+                    groupMemberRole: groupRole._id
+                });
+
+                groupData.groupMembers.push(newGroupMember.id);
+                user.userGroups.push(newGroupMember.id);
+
+                const groupFeedData = new GroupFeed({
+                    "group": groupData._id,
+                    "groupPosts": []
+                });
+                groupFeedData.save();
+                groupData.groupFeed = groupFeedData._id;
+
+                const groupEventData = new GroupEvent({
+                    "group": groupData._id,
+                    "groupEvents": []
+                });
+                groupData.groupEvents = groupEventData._id;
+                groupEventData.save();
+
+                const groupMarkData = new GroupMark({
+                    "group": groupData._id,
+                    "groupMarks": []
+                });
+                groupData.groupMarks = groupMarkData._id;
+                groupMarkData.save();
 
 
-                                    const groupFeedData = new GroupFeed({
-                                        "group": groupData._id,
-                                        "groupPosts": []
-                                    });
-                                    groupFeedData.save();
-                                    groupData.groupFeed = groupFeedData._id;
+                const groupChatData = new GroupChat({
+                    "group": groupData._id,
+                    "groupChatRooms": []
+                });
+                groupData.groupChat = groupChatData._id;
+                groupChatData.save();
 
-                                    const groupEventData = new GroupEvent({
-                                        "group": groupData._id,
-                                        "groupEvents": []
-                                    });
-                                    groupData.groupEvents = groupEventData._id;
-                                    groupEventData.save();
+                const savedGroup = await groupData.save();
+                const savedUser = await user.save();
 
-                                    const groupMarkData = new GroupMark({
-                                        "group": groupData._id,
-                                        "groupMarks": []
-                                    });
-                                    groupData.groupMarks = groupMarkData._id;
-                                    groupMarkData.save();
+                const setupNamespace = await ChatData.setupGroupNamespace(savedGroup._id, io);
 
-
-                                    const groupChatData = new GroupChat({
-                                        "group": groupData._id,
-                                        "groupChatRooms": []
-                                    });
-                                    groupData.groupChat = groupChatData._id;
-                                    groupChatData.save();
-
-                                    groupData.save()
-                                        .then(group => {
-                                            userData.save()
-                                                .then(user => {
-                                                    resolve(group)
-                                                });
-                                        }).catch(err => reject(err));
-                                }).catch(err => reject(err));
-                            }).catch(err => reject("GroupRole Not Found: " + err));
-                    }).catch(err => reject(err));
-            });
+                return savedGroup;
+            } catch (error) {
+                throw ("addGroup " + error)
+            }
         },
 
         updateGroupById: async (groupId, newData) => {
@@ -157,6 +211,32 @@ module.exports = () => {
                             }).catch(err => reject("Error could not find User: " + err));
                     }).catch(err => reject("Error could not find Group: " + err));
             });
+        },
+
+        getGroupMember: async (groupId, userId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                return member;
+            } catch (error) {
+                throw ("getGroupMember: " + error);
+            }
         },
 
         deleteGroupMember: async (groupId, userId) => {
@@ -633,24 +713,24 @@ module.exports = () => {
             });
         },
 
-        getChatRoom: (groupId, chatRoomId) => {
-            return new Promise((resolve, reject) => {
-                Group.findById(groupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
-                        }
-                        GroupChat.findById(groupData.groupChat)
-                            .then(groupChatData => {
-                                groupChatData.groupChatRooms.forEach(chatRoom => {
-                                    if (chatRoom._id == chatRoomId) {
-                                        resolve(chatRoom);
-                                    }
-                                });
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-            });
+        getChatRoom: async (groupId, chatRoomId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const groupChatData = await GroupChat.findOne({ group: groupData._id })
+
+                let chatRoom;
+                for (let room of groupChatData.groupChatRooms) {
+                    if (room._id == chatRoomId) {
+                        chatRoom = room;
+                    }
+                }
+                return chatRoom;
+
+            } catch (error) {
+                throw ("getChatRoom " + error);
+            }
         },
 
         updateGroupMark: (GroupId, markId, newData) => {
