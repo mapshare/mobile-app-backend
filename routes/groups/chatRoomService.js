@@ -112,16 +112,16 @@ const addChatMessage = async (groupId, user, member, chatRoomId, message) => {
         if (!chatRoom) throw ("Could not find Chat Room");
 
         let newMessage = {
-            messageBody: message.messageBody,
+            messageBody: message,
             messageCreatedByName: user.userFirstName,
             messageCreatedBy: member._id,
         }
-        chatRoom.chatRoomMessage.push(newMessage);
+        chatRoom.chatRoomMessage.unshift(newMessage);
 
         const savedGroupChat = await groupChatData.save();
         if (!savedGroupChat) throw ("Could not save chat");
 
-        return savedGroupChat;
+        return chatRoom.chatRoomMessage;
 
     } catch (error) {
         throw ("addChatMessage " + error);
@@ -159,7 +159,15 @@ const updateChatMessage = async (groupId, user, member, chatRoomId, messageId, u
         const savedGroupChat = await groupChatData.save();
         if (!savedGroupChat) throw ("Could not save chat");
 
-        return savedGroupChat;
+        let savedChatroom;
+        for (let groupChatRoom of savedGroupChat.groupChatRooms) {
+            if (groupChatRoom._id == chatRoomId) {
+                savedChatroom = groupChatRoom;
+            }
+        }
+        if (!savedChatroom) throw ("Could not find Chat Room");
+
+        return savedChatroom.chatRoomMessage;
 
     } catch (error) {
         throw ("updateChatMessage " + error);
@@ -223,6 +231,7 @@ module.exports = () => {
 
                         socket.on('join room', async (data) => {
                             try {
+                                console.log('join room')
                                 let groupId = data.groupId;
                                 chatRoomId = data.chatRoomId;
                                 group = groupId;
@@ -236,7 +245,8 @@ module.exports = () => {
                                 //console.log(user)
                                 //console.log(chatLog)
                                 const chatLog = await getChatLog(group, member, chatRoomId);
-                                socket.to(chatRoom.chatRoomName).emit('join room', chatLog);
+                                console.log("Sending room")
+                                nsp.to(chatRoom.chatRoomName).emit('join room', chatLog);
                             } catch (error) {
                                 throw (error);
                             }
@@ -245,8 +255,8 @@ module.exports = () => {
                         socket.on('new message', async (message) => {
                             try {
                                 console.log('new message')
-                                const newMessage = await addChatMessage(group, user, member, chatRoomId, message);
-                                nsp.to(chatRoom.chatRoomName).emit('new message', newMessage);
+                                const chatLog = await addChatMessage(group, user, member, chatRoomId, message);
+                                nsp.to(chatRoom.chatRoomName).emit('new message', chatLog);
                             } catch (error) {
                                 throw (error);
                             }

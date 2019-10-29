@@ -207,7 +207,7 @@ module.exports = (io) => {
     });
 
     // get Group Member
-    router.get('/groups/:groupId', verifyLoginToken, async (req, res, next) => {
+    router.get('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
         try {
             if (verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.getGroupMember(req.params.groupId, req.user);
