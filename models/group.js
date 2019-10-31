@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const CustomMarkCategory = require("./groupSubDocs/customMarkCategory");
+const PendingMember = require("./groupSubDocs/pendingMember");
 
 // create group Schema & model
 const GroupSchema = new Schema({
@@ -14,7 +15,8 @@ const GroupSchema = new Schema({
   groupEvents: { type: Schema.Types.ObjectId, ref: "groupEvents" },
   groupChat: { type: Schema.Types.ObjectId, ref: "groupChat" },
   groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultCategory" }],
-  groupCustomMarkCategory: [CustomMarkCategory]
+  groupCustomMarkCategory: [CustomMarkCategory],
+  groupPendingMembers: [PendingMember]
 });
 
 GroupSchema.virtual('groupId').get(function () { return this._id; });

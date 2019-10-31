@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 // create event Schema & model
 const EventSchema = new Schema({
     messageBody: "",
+    messageCreatedByName: "",
     messageCreatedBy: { type: Schema.Types.ObjectId, ref: "groupMember" },
     messageCreatedAt: {
         type: Date,
