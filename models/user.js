@@ -25,6 +25,7 @@ const UserSchema = new Schema({
   googleId: {
     type: String,
     unique: true,
+    sparse:true,
     validate: {
       validator: function(v) {
         return /^\d+$/.test(v);

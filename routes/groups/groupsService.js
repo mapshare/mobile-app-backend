@@ -239,6 +239,92 @@ module.exports = (io) => {
             }
         },
 
+
+        requestToJoinGroup: async (groupId, userId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                const pendingUser = {
+                    userId: user._id,
+                    userEmail: user.userEmail,
+                    userFirstName: user.userFirstName,
+                    userLastName: user.userLastName,
+                }
+
+                let foundPendingUser;
+                for (let pendingUser of groupData.groupPendingMembers) {
+                    if (pendingUser._id == pendingMemberId) {
+                        foundPendingUser = pendingUser;
+                    }
+                }
+
+                if (!foundPendingUser) {
+                    groupData.groupPendingMembers.push(pendingUser);
+
+                    const savedGroup = await groupData.save()
+                }
+                return { success: true };
+            } catch (error) {
+                throw ("requestToJoinGroup: " + error);
+            }
+        },
+
+        reviewRequests: async (groupId, pendingMemberData) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                let foundPendingUser;
+                for (let pendingUser of groupData.groupPendingMembers) {
+                    if (pendingUser._id == pendingMemberData.pendingUserId) {
+                        foundPendingUser = pendingUser;
+                    }
+                }
+                if (!foundPendingUser) throw ("Could not find pending user");
+
+                groupData.groupPendingMembers.pull(pendingMemberData.pendingUserId);
+
+                if (pendingMemberData.status) {
+                    const user = await User.findById(foundPendingUser.userId);
+                    if (!user) throw ("Could not find User");
+
+                    const groupRole = await GroupRole.findOne({ "groupRoleName": "Member" });
+                    if (!groupRole) throw ("Could not find group role");
+
+                    const groupMember = await GroupMember.create({
+                        user: user._id,
+                        group: groupData._id,
+                        groupMemberRole: groupRole._id
+                    });
+
+                    groupData.groupMembers.push(groupMember.id);
+                    user.userGroups.push(groupMember.id);
+
+                    const savedUser = await user.save();
+                }
+
+                const savedGroup = await groupData.save();
+                return { success: true };
+            } catch (error) {
+                throw ("reviewRequests: " + error);
+            }
+        },
+
+        getPendingRequests: async (groupId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                return groupData.groupPendingMembers;
+            } catch (error) {
+                throw ("getPendingRequests: " + error);
+            }
+        },
+
         deleteGroupMember: async (groupId, userId) => {
             try {
                 const groupData = await Group.findById(groupId);

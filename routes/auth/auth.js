@@ -128,7 +128,7 @@ router.get("/verify/:token", verifyTokenEmail, async (req, res, next) => {
 			firstName = savedUser.userFirstName;
 			success = true;
 		} else {
-			success = true; 4
+			success = true; 
 			error = false;
 			firstName = userExists.userFirstName;
 		}
