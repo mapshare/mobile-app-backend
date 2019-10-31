@@ -7,6 +7,7 @@ const PendingMemberSchema = new Schema({
     userEmail: {
         type: String,
         unique: true,
+        sparse:true,
         required: [true, "user email is required"]
     },
     userFirstName: {

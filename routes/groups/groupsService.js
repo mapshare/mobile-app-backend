@@ -114,8 +114,8 @@ module.exports = (io) => {
                     groupMemberRole: groupRole._id
                 });
 
-                groupData.groupMembers.push(newGroupMember.id);
-                user.userGroups.push(newGroupMember.id);
+                groupData.groupMembers.push(newGroupMember._id);
+                user.userGroups.push(newGroupMember._id);
 
                 const groupFeedData = new GroupFeed({
                     "group": groupData._id,
@@ -145,6 +145,8 @@ module.exports = (io) => {
                 });
                 groupData.groupChat = groupChatData._id;
                 groupChatData.save();
+                
+console.log("HERE")
 
                 const savedGroup = await groupData.save();
                 const savedUser = await user.save();

@@ -25,7 +25,6 @@ module.exports = (io) => {
         }
     });
 
-
     // Search for group chat room
     router.post('/groups/:groupId/chat/search', verifyLoginToken, async (req, res, next) => {
         try {
