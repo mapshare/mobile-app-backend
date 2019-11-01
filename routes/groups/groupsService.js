@@ -98,17 +98,25 @@ module.exports = (io) => {
         },
 
         addGroup: async (userId, newData) => {
+            let user;
+            let groupData;
+            let newGroupMember;
+            let groupFeedData;
+            let groupEventData;
+            let groupMarkData;
+            let groupChatData;
+
             try {
-                const user = await User.findById(userId);
+                user = await User.findById(userId);
                 if (!user) throw ("Could not find User")
 
-                const groupData = new Group({
+                groupData = new Group({
                     groupName: newData.groupName
                 });
 
                 const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_ADMIN });
 
-                const newGroupMember = await GroupMember.create({
+                newGroupMember = await GroupMember.create({
                     user: user._id,
                     group: groupData._id,
                     groupMemberRole: groupRole._id
@@ -117,21 +125,21 @@ module.exports = (io) => {
                 groupData.groupMembers.push(newGroupMember._id);
                 user.userGroups.push(newGroupMember._id);
 
-                const groupFeedData = new GroupFeed({
+                groupFeedData = new GroupFeed({
                     "group": groupData._id,
                     "groupPosts": []
                 });
                 groupFeedData.save();
                 groupData.groupFeed = groupFeedData._id;
 
-                const groupEventData = new GroupEvent({
+                groupEventData = new GroupEvent({
                     "group": groupData._id,
                     "groupEvents": []
                 });
                 groupData.groupEvents = groupEventData._id;
                 groupEventData.save();
 
-                const groupMarkData = new GroupMark({
+                groupMarkData = new GroupMark({
                     "group": groupData._id,
                     "groupMarks": []
                 });
@@ -139,22 +147,31 @@ module.exports = (io) => {
                 groupMarkData.save();
 
 
-                const groupChatData = new GroupChat({
+                groupChatData = new GroupChat({
                     "group": groupData._id,
                     "groupChatRooms": []
                 });
                 groupData.groupChat = groupChatData._id;
                 groupChatData.save();
-                
-console.log("HERE")
+
 
                 const savedGroup = await groupData.save();
                 const savedUser = await user.save();
 
                 const setupNamespace = await ChatData.setupGroupNamespace(savedGroup._id, io);
-
+            
                 return savedGroup;
             } catch (error) {
+                // If there is a problem remove data that was created
+                const removeGroupData = await Group.deleteOne({ _id: groupData._id });
+                user.userGroups.pull(newGroupMember._id);
+                const savedUser = await user.save();
+                const removeNewGroupMember = await GroupMember.deleteOne({ _id: newGroupMember._id });
+                const removeGroupFeedData = await GroupFeed.deleteOne({ _id: groupFeedData._id });
+                const removeGroupEventData = await GroupEvent.deleteOne({ _id: groupEventData._id });
+                const removeGroupMarkData = await GroupMark.deleteOne({ _id: groupMarkData._id });
+                const removeGroupChatData = await GroupChat.deleteOne({ _id: groupChatData._id });
+
                 throw ("addGroup " + error)
             }
         },
