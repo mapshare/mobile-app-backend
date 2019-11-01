@@ -111,7 +111,8 @@ module.exports = (io) => {
                 if (!user) throw ("Could not find User")
 
                 groupData = new Group({
-                    groupName: newData.groupName
+                    groupName: newData.groupName,
+                    groupCreatedBy: user._id,
                 });
 
                 const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_ADMIN });
@@ -351,6 +352,12 @@ module.exports = (io) => {
 
                 const user = await User.findById(userId);
                 if (!user) throw ("Could not find User");
+
+                // throw error if the owner of the group tries to leave. 
+                // if the owner wants to leave he must delete the group
+                if(user._id.toString() == groupData.groupCreatedBy.toString()){
+                    throw ("Owner of the group cannot leave the group");
+                } 
 
                 var member;
                 for (let groupMemberId of user.userGroups) {

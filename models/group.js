@@ -16,12 +16,13 @@ const GroupSchema = new Schema({
   groupChat: { type: Schema.Types.ObjectId, ref: "groupChat" },
   groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultCategory" }],
   groupCustomMarkCategory: [CustomMarkCategory],
-  groupPendingMembers: [PendingMember]
+  groupPendingMembers: [PendingMember],
+  groupCreatedBy: { type: Schema.Types.ObjectId, ref: "user", required: [true, 'user field is required'] },
 });
 
 GroupSchema.virtual('groupId').get(function () { return this._id; });
 
-GroupSchema.index({groupName: 'text'});
+GroupSchema.index({ groupName: 'text' });
 
 const Group = mongoose.model('group', GroupSchema);
 module.exports = Group;
