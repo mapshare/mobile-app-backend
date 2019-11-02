@@ -423,10 +423,10 @@ module.exports = (io) => {
         }
     });
 
-    // delete Group member
+    // Leave Group
     router.delete('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.deleteGroupMember(req.params.groupId, req.user, req.params.id);
                 res.status(200).json(results);
             } else {
