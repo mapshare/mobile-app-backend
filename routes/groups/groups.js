@@ -15,10 +15,20 @@ module.exports = (io) => {
         })
     });
 
+    // get list of groups that the user is a member
+    router.get('/groups/user', verifyLoginToken, async (req, res, next) => {
+        try {
+            const results = await data.getUserGroups(req.user);
+            res.status(200).json(results);
+        } catch (error) {
+            res.status(400).send({ 'error': error });
+        }
+    });
+
     // Search for group
     router.post('/groups/search', verifyLoginToken, async (req, res, next) => {
         try {
-            const results = await data.searchGroups(req.body);
+            const results = await data.searchGroups(req.user, req.body);
             res.status(200).json(results);
         } catch (error) {
             res.status(400).send({ 'error': error });
@@ -103,7 +113,7 @@ module.exports = (io) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
                 console.log("HERE")
-                console.log( req.body)
+                console.log(req.params.groupId)
                 const results = await data.reviewRequests(req.params.groupId, req.body);
                 console.log(results)
                 res.status(200).json(results);
@@ -147,7 +157,7 @@ module.exports = (io) => {
 
 
     // add Group Mark
-    router.post('/groups/:id/mark', verifyLoginToken, async(req, res, next) => {
+    router.post('/groups/:id/mark', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
             data.addGroupMark(req.params.id, req.body).then(data => {
                 res.status(200).json(data)
@@ -189,7 +199,7 @@ module.exports = (io) => {
     });
 
     // add custom mark category
-    router.post('/groups/:groupId/customCategory', verifyLoginToken,async (req, res, next) => {
+    router.post('/groups/:groupId/customCategory', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
                 data.addCustomCategoryMark(req.params.groupId, req.body).then(data => {
@@ -265,7 +275,7 @@ module.exports = (io) => {
     });
 
     // get Group Mark
-    router.get('/groups/:groupId/mark/:markId', verifyLoginToken, async(req, res, next) => {
+    router.get('/groups/:groupId/mark/:markId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
             data.getGroupMark(req.params.groupId, req.params.markId).then(data => {
                 res.status(200).json(data)
@@ -278,7 +288,7 @@ module.exports = (io) => {
     });
 
     // get Group Post
-    router.get('/groups/:groupId/post/:postId', verifyLoginToken, async(req, res, next) => {
+    router.get('/groups/:groupId/post/:postId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
             data.getGroupPost(req.params.groupId, req.params.postId).then(data => {
                 res.status(200).json(data)
@@ -291,7 +301,7 @@ module.exports = (io) => {
     });
 
     // get Group Event
-    router.get('/groups/:groupId/event/:eventId', verifyLoginToken,async (req, res, next) => {
+    router.get('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
             data.getGroupEvent(req.params.groupId, req.params.eventId).then(data => {
                 res.status(200).json(data)
@@ -304,7 +314,7 @@ module.exports = (io) => {
     });
 
     // get custom mark category 
-    router.get('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, async(req, res, next) => {
+    router.get('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
             data.getCustomCategoryMark(req.params.groupId, req.params.categoryId).then(data => {
                 res.status(200).json(data)
