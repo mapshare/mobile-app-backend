@@ -55,10 +55,8 @@ const getChatRoom = async (groupId, member, chatRoomId) => {
         const groupData = await Group.findById(groupId);
         if (!groupData) throw ("Could not find Group");
 
-        //console.log(groupData)
-        //console.log(member)
-        //console.log(chatRoomId)
         const groupChatData = await GroupChat.findOne({ _id: groupData.groupChat });
+        let chatRoom = "";
         for (let groupChatRoom of groupChatData.groupChatRooms) {
             if (groupChatRoom) {
                 if (chatRoomId == groupChatRoom._id) {
@@ -83,6 +81,43 @@ const getChatRoom = async (groupId, member, chatRoomId) => {
 
     } catch (error) {
         throw ("getChatRoom " + error);
+    }
+}
+
+
+const getChatRoomByName = async (groupId, member, chatRoomName) => {
+    try {
+        const groupData = await Group.findById(groupId);
+        if (!groupData) throw ("Could not find Group");
+
+        const groupChatData = await GroupChat.findOne({ _id: groupData.groupChat });
+        if (!groupChatData) throw ("Could not find Group chatRoom");
+        
+        let chatRoom = "";
+        for (let groupChatRoom of groupChatData.groupChatRooms) {
+            if (groupChatRoom) {
+                if (chatRoomName == groupChatRoom.chatRoomName) {
+                    chatRoom = groupChatRoom;
+                    break;
+                }
+            }
+        }
+        if (!chatRoom) throw ("Could not find Chat Room");
+
+        let isMember = true;
+        for (let chatMember of chatRoom.chatRoomMembers) {
+            if (chatMember) {
+                if (chatMember == member._id) {
+                    chatRoom = groupChatRoom;
+                }
+            }
+        }
+        if (!isMember) throw ("Member is not part of this chatroom");
+
+        return chatRoom;
+
+    } catch (error) {
+        throw ("getChatRoomByName " + error);
     }
 }
 
@@ -212,6 +247,7 @@ module.exports = () => {
                     .on('connection', async (socket) => {
                         var userId;
                         var chatRoomId;
+                        var chatRoomName;
                         var user;
                         var member;
                         var chatRoom;
@@ -233,20 +269,21 @@ module.exports = () => {
                             try {
                                 console.log('join room')
                                 let groupId = data.groupId;
-                                chatRoomId = data.chatRoomId;
+                                chatRoomName = data.chatRoomName;
                                 group = groupId;
                                 user = await getUser(userId);
                                 member = await getMember(group, user);
-                                chatRoom = await getChatRoom(group, member, chatRoomId);
+                                chatRoom = await getChatRoomByName(group, member, chatRoomName);
+                                chatRoomId = chatRoom._id.toString();
                                 socket.join(chatRoom.chatRoomName);
                                 member = await getMember(group, user);
-                                //console.log(member)
-                                //console.log(group)
-                                //console.log(user)
-                                //console.log(chatLog)
+
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
-                                nsp.to(chatRoom.chatRoomName).emit('join room', chatLog);
+                                nsp.to(chatRoom.chatRoomName).emit('join room', {
+                                    chatRoomId: chatRoomId,
+                                    data: chatLog
+                                });
                             } catch (error) {
                                 throw (error);
                             }

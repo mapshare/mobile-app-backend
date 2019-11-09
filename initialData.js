@@ -24,6 +24,13 @@ module.exports = (io) => {
                     groupRolePermisionLevel: process.env.ROLE_MEMBER
                 });
             }
+            const OwnerRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_OWNER });
+            if (!OwnerRole) {
+                const OwnerRole = await GroupRole.create({
+                    groupRoleName: "Owner",
+                    groupRolePermisionLevel: process.env.ROLE_OWNER
+                });
+            }
 
             // Re-Initialize group namespaces
             const groups = await Group.find();

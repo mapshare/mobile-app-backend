@@ -25,6 +25,20 @@ module.exports = (io) => {
         }
     });
 
+    // Check if group exists
+    router.get('/groups/:groupId/exists', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.groupExists(req.params.groupId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to check on this group");
+            }
+        } catch (error) {
+            res.status(400).send({ 'error': error });
+        }
+    });
+
     // Search for group
     router.post('/groups/search', verifyLoginToken, async (req, res, next) => {
         try {
@@ -58,7 +72,7 @@ module.exports = (io) => {
     router.get('/groups/:groupId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
-                const results = await data.getGroup(req.params.groupId);
+                const results = await data.getGroup(req.params.groupId, req.user);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to access this group");
@@ -84,19 +98,37 @@ module.exports = (io) => {
 
     });
 
-    // add Group member
-    router.post('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.addGroupMember(req.params.groupId, req.body).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to add member to this group" })
+    // update Group Member
+    router.put('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.updateGroupMemberById(req.body);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to update this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
         }
+
     });
 
+    /*
+        OLD REPLACED WITH Review Join Group Request
+        // add Group member
+        router.post('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
+            try {
+                if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                    const results = await data.addGroupMember(req.params.groupId, req.user);
+                    res.status(200).json(results);
+                } else {
+                    throw ("Insufficient permissions to update this group");
+                }
+            } catch (error) {
+                res.status(400).send({ "error": error });
+            }
+        });
+    */
     // Request To Join Group
     router.post('/groups/:groupId/join', verifyLoginToken, async (req, res, next) => {
         try {
@@ -112,10 +144,8 @@ module.exports = (io) => {
     router.post('/groups/:groupId/reviewPending', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-                console.log("HERE")
                 console.log(req.params.groupId)
                 const results = await data.reviewRequests(req.params.groupId, req.body);
-                console.log(results)
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to add member to this event");
@@ -265,6 +295,20 @@ module.exports = (io) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.getGroupMember(req.params.groupId, req.user);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to get member for this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+
+    // get all Group Member
+    router.get('/groups/:groupId/allmembers', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.getAllGroupMember(req.params.groupId, req.user);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to get member for this group");
@@ -433,11 +477,26 @@ module.exports = (io) => {
         }
     });
 
-    // Leave Group
+    // Leave Group / Delete group Member
     router.delete('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.deleteGroupMember(req.params.groupId, req.user, req.params.id);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to delete group member from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+
+    });
+
+     // Leave Group / Delete group Member by id
+     router.delete('/groups/:groupId/member/:memberId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.deleteGroupMemberById(req.params.groupId, req.params.memberId);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to delete group member from this group");
@@ -560,14 +619,16 @@ module.exports = (io) => {
 
     // delete Group 
     router.delete('/groups/:groupId', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.deleteGroupById(req.params.groupId).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to delete this group" })
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const result = await data.deleteGroupById(req.params.groupId);
+                res.status(200).json(result)
+            } else {
+                throw ("Insufficient permissions to delete this group")
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(400).send({ "error": error })
         }
     });
 
