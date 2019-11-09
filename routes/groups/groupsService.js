@@ -112,7 +112,7 @@ module.exports = (io) => {
                 // Find Group Creator
                 for (let group of results) {
                     user = await User.findById(group.groupCreatedBy);
-                    if (!user) {
+                    if (user) {
                         group = { ...group, createdBy: user };
                     }
                 }
