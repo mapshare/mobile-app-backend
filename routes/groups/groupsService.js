@@ -109,6 +109,14 @@ module.exports = (io) => {
                     results = await Group.find({ $text: { $search: searchArg.groupName } });
                 }
 
+                // Find Group Creator
+                for (let group of results) {
+                    user = await User.findById(group.groupCreatedBy);
+                    if (!user) {
+                        group = { ...group, createdBy: user };
+                    }
+                }
+
                 let finalResults = [];
                 for (let group of results) {
                     for (let memberId of group.groupMembers) {
@@ -121,15 +129,15 @@ module.exports = (io) => {
                         }
                     }
 
-                    for(let groupPending of group.groupPendingMembers){
+                    for (let groupPending of group.groupPendingMembers) {
                         if (groupPending.userId.toString() == user._id.toString()) {
                             group._doc = { ...group._doc, isPending: true };
-                        } 
+                        }
                     }
-                    
+
                     finalResults.push(group._doc);
                 }
-                
+
                 return finalResults;
             } catch (error) {
                 throw ("searchGroups: " + error);
@@ -461,7 +469,7 @@ module.exports = (io) => {
                 }
 
                 const savedMember = await mbr.save();
-                
+
                 return { success: true };
             } catch (error) {
                 console.log(error)

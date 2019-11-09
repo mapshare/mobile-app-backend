@@ -1,5 +1,5 @@
 module.exports = (io) => {
-	var GroupFeed = require("./groupFeed/groupFeed");
+	var GroupFeed = require("./GroupFeed/groupFeed");
 	var GroupMarks = require("./groupMarks/groupMarks");
 	var GroupRoles = require("./groupRoles/groupRoles");
 	var Groups = require("./groups/groups")(io);
