@@ -108,17 +108,20 @@ module.exports = (io) => {
                     const index = await Group.createIndexes();
                     results = await Group.find({ $text: { $search: searchArg.groupName } });
                 }
-
+                
+                let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
-                    user = await User.findById(group.groupCreatedBy);
+                    user = await User.findById(group._doc.groupCreatedBy);
                     if (user) {
-                        group = { ...group, createdBy: user };
+                        group._doc = { ...group._doc, createdBy: user };
                     }
+                    addCreator.push(group)
                 }
+                console.log(addCreator);
 
                 let finalResults = [];
-                for (let group of results) {
+                for (let group of addCreator) {
                     for (let memberId of group.groupMembers) {
                         for (let mbr of myMemberships) {
                             if (mbr._id.toString() == memberId.toString()) {
