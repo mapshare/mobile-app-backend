@@ -22,16 +22,85 @@ module.exports = (io) => {
             });
         },
 
-        getGroup: (groupId) => {
-            return new Promise((resolve, reject) => {
-                Group.findById(groupId)
-                    .then(data => resolve(data))
-                    .catch(err => reject(err))
-            })
+        getGroup: async (groupId, userId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                const groupMemberRole = await GroupRole.findById(member.groupMemberRole);
+                if (!groupMemberRole) throw ("Could not find group Member Role");
+
+                let image;
+                if (groupData.groupImg.data) {
+                    image = groupData.groupImg.data.toString('base64');
+                } else {
+                    image = '';
+                }
+
+
+                return ({
+                    _id: groupData._id,
+                    groupRole: groupMemberRole,
+                    groupName: groupData.groupName,
+                    groupDescription: groupData.groupDescription,
+                    groupImg: image,
+                    groupMarks: groupData.groupMarks,
+                    groupMembers: groupData.groupMembers,
+                    groupFeed: groupData.groupFeed,
+                    groupEvents: groupData.groupEvents,
+                    groupChat: groupData.groupChat,
+                    groupDefaultCategory: groupData.groupDefaultCategory,
+                    groupCustomMarkCategory: groupData.groupCustomMarkCategory,
+                    groupPendingMembers: groupData.groupPendingMembers,
+                    groupCreatedBy: groupData.groupCreatedBy,
+                });
+            } catch (error) {
+                console.log(error)
+                throw ("getGroup: " + error);
+            }
         },
 
-        searchGroups: async (searchArg) => {
+        groupExists: async (groupId) => {
             try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+                return { success: true };
+            } catch (error) {
+                throw ("searchGroups: " + error);
+            }
+        },
+
+        searchGroups: async (userId, searchArg) => {
+            try {
+                user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var myMemberships = [];
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        myMemberships.push({
+                            _id: mbr._id,
+                            group: mbr.group
+                        });
+                    }
+                }
+
                 let results;
                 if (!searchArg.groupName) {
                     results = await Group.find({});
@@ -39,9 +108,76 @@ module.exports = (io) => {
                     const index = await Group.createIndexes();
                     results = await Group.find({ $text: { $search: searchArg.groupName } });
                 }
-                return results;
+                
+                let addCreator = [];
+                // Find Group Creator
+                for (let group of results) {
+                    user = await User.findById(group._doc.groupCreatedBy);
+                    if (user) {
+                        group._doc = { ...group._doc, createdBy: user };
+                    }
+                    addCreator.push(group)
+                }
+                console.log(addCreator);
+
+                let finalResults = [];
+                for (let group of addCreator) {
+                    for (let memberId of group.groupMembers) {
+                        for (let mbr of myMemberships) {
+                            if (mbr._id.toString() == memberId.toString()) {
+                                group._doc = { ...group._doc, isMember: true };
+                            } else if (!group._doc.isMember) {
+                                group._doc = { ...group._doc, isMember: false };
+                            }
+                        }
+                    }
+
+                    for (let groupPending of group.groupPendingMembers) {
+                        if (groupPending.userId.toString() == user._id.toString()) {
+                            group._doc = { ...group._doc, isPending: true };
+                        }
+                    }
+
+                    finalResults.push(group._doc);
+                }
+
+                return finalResults;
             } catch (error) {
                 throw ("searchGroups: " + error);
+            }
+        },
+
+
+        getUserGroups: async (userId) => {
+            try {
+
+                user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var myMemberships = [];
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        myMemberships.push({
+                            _id: mbr._id,
+                            group: mbr.group
+                        });
+                    }
+                }
+
+                let myGroups = [];
+                for (let mbr of myMemberships) {
+                    const groupData = await Group.findById(mbr.group);
+                    if (groupData) {
+                        myGroups.push({
+                            _id: groupData._id,
+                            groupName: groupData.groupName
+                        });
+                    }
+                }
+                return myGroups;
+            } catch (error) {
+                throw ("getUserGroups: " + error);
             }
         },
 
@@ -115,7 +251,7 @@ module.exports = (io) => {
                     groupCreatedBy: user._id,
                 });
 
-                const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_ADMIN });
+                const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_OWNER });
 
                 newGroupMember = await GroupMember.create({
                     user: user._id,
@@ -150,7 +286,12 @@ module.exports = (io) => {
 
                 groupChatData = new GroupChat({
                     "group": groupData._id,
-                    "groupChatRooms": []
+                    "groupChatRooms": [{
+                        chatRoomName: "General",
+                        chatRoomMembers: [newGroupMember._id],
+                        chatRoomMessage: [],
+                        chatRoomCreatedBy: newGroupMember._id,
+                    }]
                 });
                 groupData.groupChat = groupChatData._id;
                 groupChatData.save();
@@ -160,7 +301,7 @@ module.exports = (io) => {
                 const savedUser = await user.save();
 
                 const setupNamespace = await ChatData.setupGroupNamespace(savedGroup._id, io);
-            
+
                 return savedGroup;
             } catch (error) {
                 // If there is a problem remove data that was created
@@ -182,55 +323,114 @@ module.exports = (io) => {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
-                groupData.groupName = newData.groupName ? newData.groupName : groupData.groupName;
 
+                groupData.groupName = newData.groupName ? newData.groupName : groupData.groupName;
+                groupData.groupDescription = newData.groupDescription ? newData.groupDescription : groupData.groupDescription;
+                if (newData.groupImg) {
+                    let contentType = 'image/png';
+                    let buffer = Buffer.from(newData.groupImg, 'base64');
+                    groupData.groupImg.data = buffer ? buffer : groupData.groupImg.data;
+                    groupData.groupImg.contentType = contentType ? contentType : groupData.groupImg.contentType;
+                }
                 const savedGroup = await groupData.save();
                 if (!savedGroup) throw ("Could not save Group");
 
                 return savedGroup;
             } catch (error) {
+                console.log(error)
                 throw ("updateGroupById: " + error);
             }
         },
+        /* REPLACED WITH reviewRequests
+                addGroupMember: async (GroupId, newData) => {
+                    let newGroupMember;
+                    let groupData;
+                    let user;
+                    let groupChat;
+                    try {
+                        groupData = await Group.findById(groupId);
+                        if (!groupData) throw ("Could not find Group");
+        
+                        user = await User.findById(userId);
+                        if (!user) throw ("Could not find User");
+        
+                        const groupRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_MEMBER });
+                        if (!groupRole) throw ("Could not find group role");
+        
+                        newGroupMember = await GroupMember.create({
+                            user: user._id,
+                            group: groupData._id,
+                            groupMemberRole: groupRole._id
+                        });
+        
+                        groupData.groupMembers.push(newGroupMember._id);
+                        user.userGroups.push(newGroupMember._id);
+        
+                        const groupChatData = await GroupChat.findOneAndUpdate(
+                            { "groupChatRooms.chatRoomName": "General" },
+                            { $addToSet: { "groupChatRooms.$.chatRoomMembers": newGroupMember._id } },
+                            { new: true }).exec();
+                        if (!groupChatData) throw ("Could not find GroupChat");
+        
+                        console.log(groupChatData)
+                        throw ("test");
+                        const updatedChatRoom = groupChatData.groupChatRooms[groupChatData.groupChatRooms.length - 1];
+        
+                        member.groupMemberChatRooms.push(updatedChatRoom._id);
+        
+                        const savedUser = await user.save();
+                        if (!savedUser) throw ("Could not save User");
+        
+                        const savedGroup = await groupData.save();
+                        if (!savedGroup) throw ("Could not save Group");
+        
+                        return newGroupMember;
+                    } catch (error) {
+                        // If error delete added group member data 
+                        const groupChatData = await GroupChat.findOneAndUpdate(
+                            { "groupChatRooms.chatRoomName": "General" },
+                            { $pull: { "groupChatRooms.$.chatRoomMembers": newGroupMember._id } },
+                            { new: true }).exec();
+                        groupData.groupMembers.pull(newGroupMember._id);
+                        user.userGroups.pull(newGroupMember._id);
+                        const savedUser = await user.save();
+                        const savedGroup = await groupData.save();
+                        const removeNewGroupMember = await GroupMember.deleteOne({ _id: newGroupMember._id });
+                        throw ("addGroupMember: " + error);
+                    }
+                },
+        */
+        getAllGroupMember: async (groupId, userId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
 
-        addGroupMember: (GroupId, newData) => {
-            return new Promise((resolve, reject) => {
-                let { newGroupMember } = newData;
+                var member = [];
+                for (let groupMemberId of groupData.groupMembers) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
 
-                Group.findById(GroupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
-                        }
-                        User.findById(newGroupMember)
-                            .then(userData => {
-                                if (!userData) {
-                                    reject("User doesn't exist");
-                                    return;
-                                }
-                                GroupRole.findOne({ "groupRoleName": "Member" })
-                                    .then(groupRole => {
-                                        GroupMember.create({
-                                            user: userData._id,
-                                            group: groupData._id,
-                                            groupMemberRole: groupRole._id
-                                        }).then(data => {
-                                            groupData.groupMembers.push(data.id);
-                                            userData.userGroups.push(data.id);
+                        const user = await User.findById(mbr.user);
+                        if (!user) throw ("Could not find User");
 
-                                            groupData.save()
-                                                .then(group => {
-                                                    userData.save()
-                                                        .then(user => {
-                                                            resolve(data)
-                                                        });
-                                                });
-                                        }).catch(err => reject("Error could not create groupMember: " + err));
-                                    }).catch(err => reject("Error could not find groupRole: " + err));
-                            }).catch(err => reject("Error could not find User: " + err));
-                    }).catch(err => reject("Error could not find Group: " + err));
-            });
+                        const groupMemberRole = await GroupRole.findById(mbr.groupMemberRole);
+                        if (!groupMemberRole) throw ("Could not find group Member Role");
+
+                        member.push({
+                            _id: mbr._id,
+                            userFirstName: user.userFirstName,
+                            userLastName: user.userLastName,
+                            user: mbr.user,
+                            groupMemberRole: groupMemberRole,
+                        });
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                return member;
+            } catch (error) {
+                throw ("getAllGroupMember: " + error);
+            }
         },
 
         getGroupMember: async (groupId, userId) => {
@@ -259,6 +459,26 @@ module.exports = (io) => {
             }
         },
 
+        updateGroupMemberById: async (newData) => {
+            try {
+                const mbr = await GroupMember.findById(newData.memberId);
+                if (!mbr) throw ("Could not find Member");
+
+                if (newData.groupRolePermisionLevel != undefined) {
+                    const Role = await GroupRole.findOne({ groupRolePermisionLevel: newData.groupRolePermisionLevel });
+                    if (!Role) throw ("Could not find Role");
+
+                    mbr.groupMemberRole = Role._id;
+                }
+
+                const savedMember = await mbr.save();
+
+                return { success: true };
+            } catch (error) {
+                console.log(error)
+                throw ("updateGroupMemberById: " + error);
+            }
+        },
 
         requestToJoinGroup: async (groupId, userId) => {
             try {
@@ -267,6 +487,18 @@ module.exports = (io) => {
 
                 const user = await User.findById(userId);
                 if (!user) throw ("Could not find User");
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (member) throw ("You are already a member of this group");
 
                 const pendingUser = {
                     userId: user._id,
@@ -294,8 +526,13 @@ module.exports = (io) => {
         },
 
         reviewRequests: async (groupId, pendingMemberData) => {
+            let groupMember;
+            let groupData;
+            let user;
+            let groupChat;
+
             try {
-                const groupData = await Group.findById(groupId);
+                groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
                 let foundPendingUser;
@@ -306,16 +543,14 @@ module.exports = (io) => {
                 }
                 if (!foundPendingUser) throw ("Could not find pending user");
 
-                groupData.groupPendingMembers.pull(pendingMemberData.pendingUserId);
-
                 if (pendingMemberData.status) {
-                    const user = await User.findById(foundPendingUser.userId);
+                    user = await User.findById(foundPendingUser.userId);
                     if (!user) throw ("Could not find User");
 
                     const groupRole = await GroupRole.findOne({ "groupRoleName": "Member" });
                     if (!groupRole) throw ("Could not find group role");
 
-                    const groupMember = await GroupMember.create({
+                    groupMember = await GroupMember.create({
                         user: user._id,
                         group: groupData._id,
                         groupMemberRole: groupRole._id
@@ -324,12 +559,37 @@ module.exports = (io) => {
                     groupData.groupMembers.push(groupMember.id);
                     user.userGroups.push(groupMember.id);
 
+                    groupChat = await GroupChat.findOneAndUpdate(
+                        { "groupChatRooms.chatRoomName": "General" },
+                        { $addToSet: { "groupChatRooms.$.chatRoomMembers": groupMember._id } },
+                        { new: true }).exec();
+                    if (!groupChat) throw ("Could not find GroupChat");
+
+
+                    const updatedChatRoom = groupChat.groupChatRooms[0];
+                    groupMember.groupMemberChatRooms.push(updatedChatRoom._id);
+
                     const savedUser = await user.save();
+                    const savedMember = await groupMember.save();
                 }
+
+                groupData.groupPendingMembers.pull(pendingMemberData.pendingUserId);
 
                 const savedGroup = await groupData.save();
                 return { success: true };
             } catch (error) {
+                // If error exists delete created group member data 
+                const groupChatData = await GroupChat.findOneAndUpdate(
+                    { "groupChatRooms.chatRoomName": "General" },
+                    { $pull: { "groupChatRooms.$.chatRoomMembers": groupMember._id } },
+                    { new: true }).exec();
+
+                groupData.groupMembers.pull(groupMember._id);
+                user.userGroups.pull(groupMember._id);
+                const savedUser = await user.save();
+                const savedGroup = await groupData.save();
+                const removeGroupMember = await GroupMember.deleteOne({ _id: groupMember._id });
+
                 throw ("reviewRequests: " + error);
             }
         },
@@ -355,9 +615,9 @@ module.exports = (io) => {
 
                 // throw error if the owner of the group tries to leave. 
                 // if the owner wants to leave he must delete the group
-                if(user._id.toString() == groupData.groupCreatedBy.toString()){
+                if (user._id.toString() == groupData.groupCreatedBy.toString()) {
                     throw ("Owner of the group cannot leave the group");
-                } 
+                }
 
                 var member;
                 for (let groupMemberId of user.userGroups) {
@@ -378,6 +638,35 @@ module.exports = (io) => {
 
                 return ({ success: true });
             } catch (error) {
+                throw ("deleteGroupMember: " + error);
+            }
+        },
+
+        deleteGroupMemberById: async (groupId, memberId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const mbr = await GroupMember.findById(memberId);
+                if (!mbr) throw ("Could not find mbr");
+
+                const user = await User.findById(mbr.user);
+                if (!user) throw ("Could not find User");
+
+                // throw error if the owner of the group tries to leave. 
+                // if the owner wants to leave he must delete the group
+                if (user._id.toString() == groupData.groupCreatedBy.toString()) {
+                    throw ("Owner of the group cannot leave the group");
+                }
+
+                user.userGroups.pull(mbr._id);
+                groupData.groupMembers.pull(mbr._id);
+
+                const deletedMember = await GroupMember.deleteOne({ _id: mbr._id });
+
+                return ({ success: true });
+            } catch (error) {
+                console.log(error)
                 throw ("deleteGroupMember: " + error);
             }
         },

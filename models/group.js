@@ -9,6 +9,10 @@ const GroupSchema = new Schema({
     type: String,
     required: [true, 'groupName field is required']
   },
+  groupDescription: {
+    type: String,
+  },
+  groupImg: { data: Buffer, contentType: String },
   groupMarks: { type: Schema.Types.ObjectId, ref: "groupMarks" },
   groupMembers: [{ type: Schema.Types.ObjectId, ref: "groupMember" }],
   groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },

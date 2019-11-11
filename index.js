@@ -9,10 +9,8 @@ const MONGO_URL = require('./mongoURL');
 //set up express app
 const app = express();
 
-
-
 // body parsing middleware
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '10MB'}))
 
 // allow CORS
 app.use(cors())
