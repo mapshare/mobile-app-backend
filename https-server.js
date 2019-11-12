@@ -1,4 +1,5 @@
 require('dotenv').config();
+const HTTPS_PORT = process.env.HTTPS_PORT
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -10,7 +11,6 @@ var https = require('https');
 var fs = require('fs');
 
 var hostname = '0.0.0.0'
-var port = 443;
 
 
 var https_options = {
@@ -32,7 +32,7 @@ const httpsServer = https.createServer(https_options, function (req, res) {
   
   });
   
-httpsServer.listen(port, hostname);
+httpsServer.listen(HTTPS_PORT, hostname);
 
 //set up express app
 const app = express();
