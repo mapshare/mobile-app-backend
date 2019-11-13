@@ -108,7 +108,7 @@ module.exports = (io) => {
                     const index = await Group.createIndexes();
                     results = await Group.find({ $text: { $search: searchArg.groupName } });
                 }
-                
+
                 let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
@@ -1007,6 +1007,17 @@ module.exports = (io) => {
                             .catch(err => reject(err));
 
                     }).catch(err => reject(err));
+            });
+        },
+
+        getGroupMarks: async (groupMarkId) => {
+            return new Promise((resolve, reject) => {
+                GroupMark.findById(groupMarkId)
+                    .then(data => {
+                        if (data) resolve(data);
+                        else reject("no group marks with specified id");
+                    })
+                    .catch(err => reject(err));
             });
         },
 
