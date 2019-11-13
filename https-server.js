@@ -1,5 +1,5 @@
 require('dotenv').config();
-const HTTPS_PORT = process.env.HTTPS_PORT
+const HTTPS_PORT = process.env.HTTPS_PORT;
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -7,42 +7,29 @@ const mongoose = require("mongoose");
 const MONGO_URL = require('./mongoURL');
 
 var https = require('https');
-
 var fs = require('fs');
-
 var hostname = '0.0.0.0'
 
-
+//Load HTTPS Certificates Paths
 var https_options = {
-
-  cert: fs.readFileSync("/root/cert/prj666-2021.crt"),
-
-  ca: fs.readFileSync('/root/cert/RapidSSL_RSA_CA_2018.crt'),
-
-  key: fs.readFileSync("/root/cert/prj666-2021.key"),
-
-
+  
+    cert: fs.readFileSync("/root/cert/prj666-2021.crt"),
+    
+    ca: fs.readFileSync('/root/cert/RapidSSL_RSA_CA_2018.crt'),
+    
+    key: fs.readFileSync("/root/cert/prj666-2021.key"),
+  
+  
 };
-
-// listen for requests 
-
-const httpsServer = https.createServer(https_options, function (req, res) {
-
-    console.log('Now listening for HTTPS requests')
-  
-  });
-  
-httpsServer.listen(HTTPS_PORT, hostname);
 
 //set up express app
 const app = express();
 
 // body parsing middleware
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '10MB'}))
 
 // allow CORS
 app.use(cors())
-
 
 // prevent 304 error
 app.use(express.static(__dirname + '/static'));
@@ -52,6 +39,13 @@ app.use((err, req, res, next) => {
   res.status(422).send({ error: err })
 });
 
+
+// listen for requests
+
+const httpsServer = https.createServer(https_options, app);
+
+httpsServer.listen(HTTPS_PORT, hostname);
+
 // setup socket io
 var io = require('socket.io')(httpsServer);
 
@@ -60,6 +54,7 @@ const routes = require('./routes/index.js')(io);
 
 // initialize routes
 app.use('/api', routes);
+
 
 // connect to mongodb and initialize data
 const initialData = require('./initialData')(io);
