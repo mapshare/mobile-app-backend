@@ -199,7 +199,6 @@ module.exports = (io) => {
                 res.status(400).send({ "error": "Insufficient permissions to add mark to this group" })
             }
         } catch (error) {
-            console.log('catch')
             res.status(400).send({ "error": error })
         }
     });
