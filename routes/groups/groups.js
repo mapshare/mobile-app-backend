@@ -187,15 +187,19 @@ module.exports = (io) => {
 
 
     // add Group Mark
-    router.post('/groups/:id/mark', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.addGroupMark(req.params.id, req.body).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to add mark to this group" })
+    router.post('/groups/:groupId/mark', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_OWNER)) {
+                data.addGroupMark(req.params.groupId, req.body).then(data => {
+                    res.status(200).json(data)
+                }).catch(err => {
+                    res.status(400).send({ "error": err })
+                })
+            } else {
+                res.status(400).send({ "error": "Insufficient permissions to add mark to this group" })
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error })
         }
     });
 
@@ -316,6 +320,17 @@ module.exports = (io) => {
         } catch (error) {
             res.status(400).send({ "error": error });
         }
+    });
+
+    // get all Group Marks
+    router.get('/groups/groupMarks/:groupMarkId', verifyLoginToken, async (req, res, next) => {
+        data.getGroupMarks(req.params.groupMarkId)
+            .then(data => {
+                res.status(200).json(data);
+            })
+            .catch(err => {
+                res.status(400).send({ error: err });
+            });
     });
 
     // get Group Mark
@@ -492,8 +507,8 @@ module.exports = (io) => {
 
     });
 
-     // Leave Group / Delete group Member by id
-     router.delete('/groups/:groupId/member/:memberId', verifyLoginToken, async (req, res, next) => {
+    // Leave Group / Delete group Member by id
+    router.delete('/groups/:groupId/member/:memberId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.deleteGroupMemberById(req.params.groupId, req.params.memberId);
