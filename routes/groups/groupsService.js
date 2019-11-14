@@ -11,6 +11,9 @@ const GroupRole = require('../../models/groupRoles');
 const dataService = require("../groups/chatRoomService");
 const ChatData = dataService();
 
+const groupFeedDataService = require("../groups/groupFeedService");
+const GroupFeedData = groupFeedDataService();
+
 module.exports = (io) => {
     return {
         getGroups: () => {
@@ -301,7 +304,8 @@ module.exports = (io) => {
                 const savedUser = await user.save();
 
                 const setupNamespace = await ChatData.setupGroupNamespace(savedGroup._id, io);
-
+                const setupGroupFeedNamespace = await GroupFeedData.setupGroupFeedNamespace(savedGroup._id, io);
+                
                 return savedGroup;
             } catch (error) {
                 // If there is a problem remove data that was created
