@@ -3,18 +3,19 @@ const Schema = mongoose.Schema;
 
 // create post Schema & model
 const PostSchema = new Schema({
-    postTitle: {
-        type: String,
-        required: [true, 'Post title field is required']
+    postImage: {
+        data: Buffer, 
+        contentType: String,
+        required: [true, 'Post Image field is required']
     },
-    postContent: {
+    postCaption: {
         type: String,
-        required: [true, 'Post content field is required']
+        required: [true, 'Post caption field is required']
     },
     postCreatedBy: {
         type: Schema.Types.ObjectId,
         ref: "groupMember",
-        required: [true, 'User field is required']
+        required: [true, 'Member field is required']
     }
 })
 
