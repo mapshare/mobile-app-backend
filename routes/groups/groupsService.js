@@ -111,7 +111,7 @@ module.exports = (io) => {
                     const index = await Group.createIndexes();
                     results = await Group.find({ $text: { $search: searchArg.groupName } });
                 }
-                
+
                 let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
@@ -121,7 +121,6 @@ module.exports = (io) => {
                     }
                     addCreator.push(group)
                 }
-                console.log(addCreator);
 
                 let finalResults = [];
                 for (let group of addCreator) {
@@ -150,10 +149,8 @@ module.exports = (io) => {
             }
         },
 
-
-        getUserGroups: async (userId) => {
+        getGroupsAlphabetically: async (userId) => {
             try {
-
                 user = await User.findById(userId);
                 if (!user) throw ("Could not find User");
 
@@ -168,13 +165,75 @@ module.exports = (io) => {
                     }
                 }
 
+                let results = await Group.find();
+
+                let addCreator = [];
+                // Find Group Creator
+                for (let group of results) {
+                    user = await User.findById(group._doc.groupCreatedBy);
+                    if (user) {
+                        group._doc = { ...group._doc, createdBy: user };
+                    }
+                    addCreator.push(group)
+                }
+
+                let finalResults = [];
+                for (let group of addCreator) {
+                    for (let memberId of group.groupMembers) {
+                        for (let mbr of myMemberships) {
+                            if (mbr._id.toString() == memberId.toString()) {
+                                group._doc = { ...group._doc, isMember: true };
+                            } else if (!group._doc.isMember) {
+                                group._doc = { ...group._doc, isMember: false };
+                            }
+                        }
+                    }
+
+                    for (let groupPending of group.groupPendingMembers) {
+                        if (groupPending.userId.toString() == user._id.toString()) {
+                            group._doc = { ...group._doc, isPending: true };
+                        }
+                    }
+
+                    finalResults.push(group._doc);
+                }
+
+                finalResults.sort((a, b) => a.groupName.localeCompare(b.groupName))
+
+
+                return finalResults;
+            } catch (error) {
+                throw ("getGroupsAlphabetically: " + error);
+            }
+        },
+
+        getUserGroups: async (userId) => {
+            try {
+
+                user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var myMemberships = [];
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        const groupMemberRole = await GroupRole.findById(mbr.groupMemberRole);
+                        myMemberships.push({
+                            _id: mbr._id,
+                            group: mbr.group,
+                            groupRolePermisionLevel: groupMemberRole.groupRolePermisionLevel,
+                        });
+                    }
+                }
+
                 let myGroups = [];
                 for (let mbr of myMemberships) {
                     const groupData = await Group.findById(mbr.group);
                     if (groupData) {
                         myGroups.push({
                             _id: groupData._id,
-                            groupName: groupData.groupName
+                            groupName: groupData.groupName,
+                            groupRolePermisionLevel: mbr.groupRolePermisionLevel
                         });
                     }
                 }
@@ -305,7 +364,7 @@ module.exports = (io) => {
 
                 const setupNamespace = await ChatData.setupGroupNamespace(savedGroup._id, io);
                 const setupGroupFeedNamespace = await GroupFeedData.setupGroupFeedNamespace(savedGroup._id, io);
-                
+
                 return savedGroup;
             } catch (error) {
                 // If there is a problem remove data that was created

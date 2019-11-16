@@ -54,30 +54,34 @@ const getMember = async (groupId, user) => {
 
 const getGroupFeed = async (groupId) => {
     try {
-        const groupData = await Group.findById(groupId);
+        const groupData = await Group.findOne({ _id: groupId });
         if (!groupData) throw ("Could not find Group");
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
         var allPosts = [];
-        for (let post in groupFeedData.groupPosts) {
+        if (groupFeedData.groupPosts.length > 0) {
+            for (let i = 0; i < groupFeedData.groupPosts.length; i++) {
 
-            const mbr = await GroupMember.findById(posts.postCreatedBy);
-            if (!mbr) throw ("Could not find Member");
+                const mbr = await GroupMember.findOne({ _id: groupFeedData.groupPosts[i].postCreatedBy });
+                if (!mbr) throw ("Could not find Member");
 
-            const user = await User.findById(userId);
-            if (!user) throw ("Could not find User")
+                const user = await User.findOne({ _id: mbr.user });
+                if (!user) throw ("Could not find User")
 
-            post = {
-                ...post,
-                userFirstName: user.userFirstName,
-                userLastName: user.userLastName,
-                userProfilePic: user.userProfilePic,
+                const post = {
+                    postImage: groupFeedData.groupPosts[i]._doc.postImage.data.toString('base64'),
+                    _id: groupFeedData.groupPosts[i]._doc._id,
+                    postCaption: groupFeedData.groupPosts[i]._doc.postCaption,
+                    postCreatedBy: groupFeedData.groupPosts[i]._doc.postCreatedBy,
+                    userFirstName: user.userFirstName,
+                    userLastName: user.userLastName,
+                    userProfilePic: user.userProfilePic,
+                }
+
+                allPosts.push(post);
             }
-
-            allPosts.push(post);
         }
-
 
         return allPosts;
     } catch (error) {
@@ -92,7 +96,9 @@ const addPost = async (groupId, user, member, post) => {
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        const postImageResized = await sharp(post.postImage)
+        let bufferedImage = Buffer.from(post.postImage, 'base64');
+
+        const postImageResized = await sharp(bufferedImage)
             .resize(1080, 1080)
             .png()
             .toBuffer();
@@ -196,23 +202,27 @@ module.exports = () => {
                         var member;
                         var group;
 
-                        socket.on('authenticate', async (token) => {
+                        socket.on('authenticate', async (data) => {
                             try {
-                                userId = await verifyLoginToken(token);
+                                console.log('authenticate')
+                                userId = await verifyLoginToken(data.token);
                                 if (!userId) {
                                     throw ("Could Not Verify Token");
                                 }
 
-                                console.log('join group feed')
                                 group = data.groupId;
                                 user = await getUser(userId);
+                                if (!user) { throw ("Could Not find user"); }
                                 member = await getMember(group, user);
+                                if (!user) { throw ("Could Not find member"); }
 
-                                const groupFeed = await getGroupFeed(group);
+                                const groupFeedData = await getGroupFeed(group);
 
-                                nsp.emit('authenticated', groupFeed);
+                                console.log('sending Data')
+                                nsp.emit('authenticated', groupFeedData);
                             } catch (error) {
-                                socket.emit('unauthorized', error);
+                                console.log(error)
+                                nsp.emit('unauthorized', error);
                             }
                         });
 
@@ -220,6 +230,8 @@ module.exports = () => {
                             try {
                                 console.log('new post')
                                 const groupFeed = await addPost(group, user, member, post);
+                                console.log('here4')
+
                                 nsp.emit('new post', groupFeed);
                             } catch (error) {
                                 throw (error);
@@ -244,6 +256,10 @@ module.exports = () => {
                             } catch (error) {
                                 throw (error);
                             }
+                        });
+
+                        socket.on('disconnect', async (postId) => {
+                            console.log('disconnect')
                         });
                     });
 

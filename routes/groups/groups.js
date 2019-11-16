@@ -8,11 +8,12 @@ module.exports = (io) => {
 
     // get list of groups
     router.get('/groups', verifyLoginToken, async (req, res, next) => {
-        data.getGroups().then(data => {
-            res.json(data);
-        }).catch(err => {
-            res.send({ 'error': err })
-        })
+        try {
+            const results = await data.getGroupsAlphabetically(req.user);
+            res.status(200).json(results);
+        } catch (error) {
+            res.status(400).send({ 'error': error });
+        }
     });
 
     // get list of groups that the user is a member
@@ -148,7 +149,7 @@ module.exports = (io) => {
                 const results = await data.reviewRequests(req.params.groupId, req.body);
                 res.status(200).json(results);
             } else {
-                throw ("Insufficient permissions to add member to this event");
+                throw ("Insufficient permissions to review join group request");
             }
         } catch (error) {
             console.log(error)
