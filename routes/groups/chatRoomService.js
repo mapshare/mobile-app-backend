@@ -92,7 +92,7 @@ const getChatRoomByName = async (groupId, member, chatRoomName) => {
 
         const groupChatData = await GroupChat.findOne({ _id: groupData.groupChat });
         if (!groupChatData) throw ("Could not find Group chatRoom");
-        
+
         let chatRoom = "";
         for (let groupChatRoom of groupChatData.groupChatRooms) {
             if (groupChatRoom) {
@@ -148,7 +148,7 @@ const addChatMessage = async (groupId, user, member, chatRoomId, message) => {
 
         let newMessage = {
             messageBody: message,
-            messageCreatedByName: user.userFirstName,
+            messageCreatedByName: user.userFirstName + " " + user.userLastName,
             messageCreatedBy: member._id,
         }
         chatRoom.chatRoomMessage.unshift(newMessage);
@@ -156,7 +156,15 @@ const addChatMessage = async (groupId, user, member, chatRoomId, message) => {
         const savedGroupChat = await groupChatData.save();
         if (!savedGroupChat) throw ("Could not save chat");
 
-        return chatRoom.chatRoomMessage;
+        let UpdatedChatRoom;
+        for (let groupChatRoom of savedGroupChat.groupChatRooms) {
+            if (groupChatRoom._id == chatRoomId) {
+                UpdatedChatRoom = groupChatRoom;
+            }
+        }
+        if (!UpdatedChatRoom) throw ("Could not find Updated Chat Room");
+
+        return UpdatedChatRoom.chatRoomMessage;
 
     } catch (error) {
         throw ("addChatMessage " + error);
@@ -293,7 +301,10 @@ module.exports = () => {
                             try {
                                 console.log('new message')
                                 const chatLog = await addChatMessage(group, user, member, chatRoomId, message);
-                                nsp.to(chatRoom.chatRoomName).emit('new message', chatLog);
+                                nsp.to(chatRoom.chatRoomName).emit('new message', {
+                                    chatRoomId: chatRoomId,
+                                    data: chatLog
+                                });
                             } catch (error) {
                                 throw (error);
                             }

@@ -8,6 +8,9 @@ module.exports = (io) => {
     const dataService = require("./routes/groups/chatRoomService");
     const ChatData = dataService();
 
+    const groupFeedDataService = require("./routes/groups/groupFeedService");
+    const GroupFeedData = groupFeedDataService();
+
     return {
         initialData: async () => {
             const AdminRole = await GroupRole.findOne({ "groupRolePermisionLevel": process.env.ROLE_ADMIN });
@@ -36,6 +39,7 @@ module.exports = (io) => {
             const groups = await Group.find();
             for (group of groups){
                 const setupNamespace = await ChatData.setupGroupNamespace(group._id, io);
+                const setupGroupFeedNamespace = await GroupFeedData.setupGroupFeedNamespace(group._id, io);
             }
         }
     }
