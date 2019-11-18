@@ -142,7 +142,7 @@ module.exports = (io) => {
 
                     finalResults.push(group._doc);
                 }
-                console.log(finalResults)
+                
                 return finalResults;
             } catch (error) {
                 throw ("searchGroups: " + error);
