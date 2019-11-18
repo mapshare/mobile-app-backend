@@ -142,7 +142,7 @@ module.exports = (io) => {
 
                     finalResults.push(group._doc);
                 }
-
+                console.log(finalResults)
                 return finalResults;
             } catch (error) {
                 throw ("searchGroups: " + error);
@@ -170,9 +170,15 @@ module.exports = (io) => {
                 let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
-                    user = await User.findById(group._doc.groupCreatedBy);
-                    if (user) {
-                        group._doc = { ...group._doc, createdBy: user };
+                    let creator = await User.findById(group._doc.groupCreatedBy);
+                    if (creator) {
+                        const createdBy = {
+                            _id: creator._id,
+                            userEmail: creator.userEmail,
+                            userFirstName: creator.userFirstName,
+                            userLastName: creator.userLastName,
+                        }
+                        group._doc = { ...group._doc, createdBy: createdBy };
                     }
                     addCreator.push(group)
                 }
@@ -190,6 +196,7 @@ module.exports = (io) => {
                     }
 
                     for (let groupPending of group.groupPendingMembers) {
+
                         if (groupPending.userId.toString() == user._id.toString()) {
                             group._doc = { ...group._doc, isPending: true };
                         }
@@ -199,9 +206,18 @@ module.exports = (io) => {
                 }
 
                 finalResults.sort((a, b) => a.groupName.localeCompare(b.groupName))
+                const trimResults = []
+                for (let grp of finalResults) {
+                    trimResults.push({
+                        _id: grp._id,
+                        groupName: grp.groupName,
+                        createdBy: grp.createdBy,
+                        isPending: grp.isPending,
+                        isMember: grp.isMember,
+                    });
+                }
 
-
-                return finalResults;
+                return trimResults;
             } catch (error) {
                 throw ("getGroupsAlphabetically: " + error);
             }
@@ -516,6 +532,11 @@ module.exports = (io) => {
                 }
                 if (!member) throw ("Could not find Member");
 
+                const memberRole = await GroupRole.findOne({ _id: member.groupMemberRole });
+                if (!memberRole) throw ("Could not find Role");
+
+                member = { ...member._doc, memberRole: memberRole };
+
                 return member;
             } catch (error) {
                 throw ("getGroupMember: " + error);
@@ -636,9 +657,13 @@ module.exports = (io) => {
                     const savedMember = await groupMember.save();
                 }
 
+                // Save group twice due to front end loading bug need
+                // to save member into group before deleteing pending member
+                const savedGroup = await groupData.save();
+
                 groupData.groupPendingMembers.pull(pendingMemberData.pendingUserId);
 
-                const savedGroup = await groupData.save();
+                const savedGroup2 = await groupData.save();
                 return { success: true };
             } catch (error) {
                 // If error exists delete created group member data 
