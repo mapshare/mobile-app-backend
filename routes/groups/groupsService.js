@@ -761,7 +761,6 @@ module.exports = (io) => {
 
         addGroupMark: (GroupId, newData) => {
             return new Promise((resolve, reject) => {
-
                 Group.findById(GroupId)
                     .then(groupData => {
                         if (!groupData) {
@@ -770,7 +769,27 @@ module.exports = (io) => {
                         }
                         GroupMark.findById(groupData.groupMarks)
                             .then(groupMarksData => {
-                                groupMarksData.groupMarks.push(newData);
+                                let image;
+
+                                if (newData.markLocations.locationImageSet.locationImageData) {
+                                    image = newData.markLocations.locationImageSet.locationImageData.toString('base64');
+                                } else {
+                                    image = '';
+                                }
+
+                                let data = {
+                                    ...newData,
+                                    markLocations: {
+                                        locationAddress: newData.markLocations.locationAddress,
+                                        loactionPriceRange: newData.markLocations.loactionPriceRange,
+                                        additionalInformation: newData.markLocations.additionalInformation,
+                                        locationImageSet: [{locationImageData: image}]
+                                    },
+                                }
+
+                                console.log('group mark add: ', data)
+                                
+                                groupMarksData.groupMarks.push(data);
                                 groupMarksData.save()
                                     .then(marks => {
                                         resolve({
