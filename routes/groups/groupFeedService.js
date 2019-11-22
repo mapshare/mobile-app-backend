@@ -147,8 +147,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
 
         let postImageResized;
         let updatePostData;
-        if (updatedPost.postImage.data) {
-            console.log(updatedPost)
+        if (updatedPost.postImage) {
             let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
 
             postImageResized = await sharp(bufferedImage)
@@ -160,6 +159,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
                 postImage: { data: postImageResized, contentType: "image/png" },
                 postCaption: updatedPost.postCaption,
             }
+            
             groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
             groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
         } else {
@@ -186,11 +186,13 @@ const deletePost = async (groupId, postId) => {
         if (!groupData) throw ("Could not find Group");
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
+        
+        groupFeedData.groupPosts =  groupFeedData.groupPosts.filter(function(post){
+            return post._id != postId;
+        });
 
-        groupFeedData.groupPosts.pull(postId);
-
-        const savedGroupChat = await groupChatData.save();
-        if (!savedGroupChat) throw ("Could not save chat");
+        const savedGroupFeedData = await groupFeedData.save();
+        if (!savedGroupFeedData) throw ("Could not save group feed");
 
         const groupFeed = await getGroupFeed(groupId);
         if (!groupFeed) throw ("Could not get group feed");
@@ -265,7 +267,7 @@ module.exports = () => {
                         socket.on('delete post', async (postId) => {
                             try {
                                 console.log('delete post')
-                                const chatLog = await deletePost(group, user, member, postId);
+                                const chatLog = await deletePost(group, postId);
                                 socket.broadcast.emit('delete post', chatLog);
                             } catch (error) {
                                 throw (error);
