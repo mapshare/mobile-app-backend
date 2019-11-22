@@ -246,7 +246,6 @@ module.exports = () => {
                             try {
                                 console.log('new post')
                                 const groupFeed = await addPost(group, user, member, post);
-                                console.log('here4')
 
                                 nsp.emit('new post', groupFeed);
                             } catch (error) {
@@ -258,7 +257,7 @@ module.exports = () => {
                             try {
                                 console.log('update post')
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
-                                socket.broadcast.emit('update post', groupFeed);
+                                nsp.emit('update post', groupFeed);
                             } catch (error) {
                                 throw (error);
                             }
@@ -268,7 +267,7 @@ module.exports = () => {
                             try {
                                 console.log('delete post')
                                 const chatLog = await deletePost(group, postId);
-                                socket.broadcast.emit('delete post', chatLog);
+                                nsp.emit('delete post', chatLog);
                             } catch (error) {
                                 throw (error);
                             }
