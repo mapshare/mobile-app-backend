@@ -74,6 +74,7 @@ const getGroupFeed = async (groupId) => {
                     _id: groupFeedData.groupPosts[i]._doc._id,
                     postCaption: groupFeedData.groupPosts[i]._doc.postCaption,
                     postCreatedBy: groupFeedData.groupPosts[i]._doc.postCreatedBy,
+                    postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
                     userProfilePic: user.userProfilePic,
@@ -159,7 +160,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
                 postImage: { data: postImageResized, contentType: "image/png" },
                 postCaption: updatedPost.postCaption,
             }
-            
+
             groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
             groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
         } else {
@@ -186,8 +187,8 @@ const deletePost = async (groupId, postId) => {
         if (!groupData) throw ("Could not find Group");
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
-        
-        groupFeedData.groupPosts =  groupFeedData.groupPosts.filter(function(post){
+
+        groupFeedData.groupPosts = groupFeedData.groupPosts.filter(function (post) {
             return post._id != postId;
         });
 
