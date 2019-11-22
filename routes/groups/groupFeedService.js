@@ -148,6 +148,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
         let postImageResized;
         let updatePostData;
         if (updatedPost.postImage.data) {
+            console.log(updatedPost)
             let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
 
             postImageResized = await sharp(bufferedImage)
