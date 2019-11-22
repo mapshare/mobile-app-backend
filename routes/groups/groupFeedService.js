@@ -136,7 +136,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
         if (!groupData) throw ("Could not find Group");
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
-
+        console.log(updatedPost);
         let bufferedImage = Buffer.from(updatedPost.postImage.data, 'base64');
 
         const postImageResized = await sharp(bufferedImage)
