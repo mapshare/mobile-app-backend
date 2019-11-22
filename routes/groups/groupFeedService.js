@@ -157,7 +157,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
             }
         }
 
-        groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
+        groupFeedData.groupPosts[postIndex].postImage.data = updatePostData.postImage.data ? updatePostData.postImage.data : groupFeedData.groupPosts[postIndex].postImage.data;
         groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
 
         const savedGroupFeed = await groupFeedData.save();
