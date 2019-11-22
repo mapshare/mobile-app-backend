@@ -99,7 +99,7 @@ const addPost = async (groupId, user, member, post) => {
         let bufferedImage = Buffer.from(post.postImage, 'base64');
 
         const postImageResized = await sharp(bufferedImage)
-            .resize(1080, 1080)
+            .resize(640, 640)
             .png()
             .toBuffer();
 
@@ -137,23 +137,31 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
+        let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
+
+        const postImageResized = await sharp(bufferedImage)
+            .resize(640, 640)
+            .png()
+            .toBuffer();
+
         let updatePostData = {
-            postContent: updatedPost,
-            postCreatedBy: member._id,
+            postImage: { data: postImageResized, contentType: "image/png" },
+            postCaption: updatedPost.postCaption,
         }
 
         var postIndex = -1;
-        for (var i = 0; i < chatRoom.groupPosts.length; i++) {
-            if (chatRoom.groupPosts[i]._id == postId) {
+        for (var i = 0; i < groupFeedData.groupPosts.length; i++) {
+            if (groupFeedData.groupPosts[i]._id == postId) {
                 postIndex = i;
                 break;
             }
         }
 
-        groupFeedData.groupPosts[postIndex] = updatePostData ? updatePostData : groupFeedData.groupPosts[postIndex];
+        groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
+        groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
 
         const savedGroupFeed = await groupFeedData.save();
-        if (!savedGroupFeed) throw ("Could not save chat");
+        if (!savedGroupFeed) throw ("Could not save group feed");
 
         const groupFeed = await getGroupFeed(groupId);
         if (!groupFeed) throw ("Could not get group feed");
