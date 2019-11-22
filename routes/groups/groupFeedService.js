@@ -148,7 +148,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
         let postImageResized;
         let updatePostData;
         if (updatedPost.postImage.data) {
-            let bufferedImage = Buffer.from(updatedPost.postImage.data, 'base64');
+            let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
 
             postImageResized = await sharp(bufferedImage)
                 .resize(640, 640)
@@ -279,7 +279,7 @@ module.exports = () => {
                 return;
 
             } catch (error) {
-                throw ("setupGroupFeed " + error)
+                console.log("setupGroupFeed " + error)
             }
         }
     }
