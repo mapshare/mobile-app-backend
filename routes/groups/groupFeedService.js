@@ -137,7 +137,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
+        let bufferedImage = Buffer.from(updatedPost.postImage.data, 'base64');
 
         const postImageResized = await sharp(bufferedImage)
             .resize(640, 640)
@@ -157,7 +157,7 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
             }
         }
 
-        groupFeedData.groupPosts[postIndex].postImage.data = updatePostData.postImage.data ? updatePostData.postImage.data : groupFeedData.groupPosts[postIndex].postImage.data;
+        groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
         groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
 
         const savedGroupFeed = await groupFeedData.save();
