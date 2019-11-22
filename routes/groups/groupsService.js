@@ -786,8 +786,6 @@ module.exports = (io) => {
                                         locationImageSet: [{locationImageData: image}]
                                     },
                                 }
-
-                                console.log('group mark add: ', data)
                                 
                                 groupMarksData.groupMarks.push(data);
                                 groupMarksData.save()
