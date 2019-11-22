@@ -136,18 +136,6 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
         if (!groupData) throw ("Could not find Group");
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
-        console.log(updatedPost);
-        let bufferedImage = Buffer.from(updatedPost.postImage.data, 'base64');
-
-        const postImageResized = await sharp(bufferedImage)
-            .resize(640, 640)
-            .png()
-            .toBuffer();
-
-        let updatePostData = {
-            postImage: { data: postImageResized, contentType: "image/png" },
-            postCaption: updatedPost.postCaption,
-        }
 
         var postIndex = -1;
         for (var i = 0; i < groupFeedData.groupPosts.length; i++) {
@@ -157,8 +145,25 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
             }
         }
 
-        groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
-        groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
+        let postImageResized;
+        let updatePostData;
+        if (updatedPost.postImage.data) {
+            let bufferedImage = Buffer.from(updatedPost.postImage.data, 'base64');
+
+            postImageResized = await sharp(bufferedImage)
+                .resize(640, 640)
+                .png()
+                .toBuffer();
+
+            updatePostData = {
+                postImage: { data: postImageResized, contentType: "image/png" },
+                postCaption: updatedPost.postCaption,
+            }
+            groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
+            groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
+        } else {
+            groupFeedData.groupPosts[postIndex].postCaption = updatedPost.postCaption ? updatedPost.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
+        }
 
         const savedGroupFeed = await groupFeedData.save();
         if (!savedGroupFeed) throw ("Could not save group feed");
