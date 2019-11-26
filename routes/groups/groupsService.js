@@ -248,22 +248,6 @@ module.exports = (io) => {
                     }
                 }
 
-                let addCreator = [];
-                // Find Group Creator
-                for (let group of results) {
-                    let creator = await User.findById(myMemberships._doc.groupCreatedBy);
-                    if (creator) {
-                        const createdBy = {
-                            _id: creator._id,
-                            userEmail: creator.userEmail,
-                            userFirstName: creator.userFirstName,
-                            userLastName: creator.userLastName,
-                        }
-                        group._doc = { ...group._doc, createdBy: createdBy };
-                    }
-                    addCreator.push(group)
-                }
-
                 let myGroups = [];
                 for (let mbr of myMemberships) {
                     const groupData = await Group.findById(mbr.group);
@@ -286,6 +270,7 @@ module.exports = (io) => {
                         });
                     }
                 }
+
                 return myGroups;
             } catch (error) {
                 throw ("getUserGroups: " + error);
