@@ -115,9 +115,15 @@ module.exports = (io) => {
                 let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
-                    user = await User.findById(group._doc.groupCreatedBy);
-                    if (user) {
-                        group._doc = { ...group._doc, createdBy: user };
+                    let creator = await User.findById(group._doc.groupCreatedBy);
+                    if (creator) {
+                        const createdBy = {
+                            _id: creator._id,
+                            userEmail: creator.userEmail,
+                            userFirstName: creator.userFirstName,
+                            userLastName: creator.userLastName,
+                        }
+                        group._doc = { ...group._doc, createdBy: createdBy };
                     }
                     addCreator.push(group)
                 }
@@ -142,7 +148,7 @@ module.exports = (io) => {
 
                     finalResults.push(group._doc);
                 }
-                
+
                 return finalResults;
             } catch (error) {
                 throw ("searchGroups: " + error);
@@ -242,14 +248,41 @@ module.exports = (io) => {
                     }
                 }
 
+                let addCreator = [];
+                // Find Group Creator
+                for (let group of results) {
+                    let creator = await User.findById(myMemberships._doc.groupCreatedBy);
+                    if (creator) {
+                        const createdBy = {
+                            _id: creator._id,
+                            userEmail: creator.userEmail,
+                            userFirstName: creator.userFirstName,
+                            userLastName: creator.userLastName,
+                        }
+                        group._doc = { ...group._doc, createdBy: createdBy };
+                    }
+                    addCreator.push(group)
+                }
+
                 let myGroups = [];
                 for (let mbr of myMemberships) {
                     const groupData = await Group.findById(mbr.group);
                     if (groupData) {
+                        let creator = await User.findById(groupData.groupCreatedBy);
+                        if (!creator) throw ("Could not find creator");
+
+                        const createdBy = {
+                            _id: creator._id,
+                            userEmail: creator.userEmail,
+                            userFirstName: creator.userFirstName,
+                            userLastName: creator.userLastName,
+                        }
+
                         myGroups.push({
                             _id: groupData._id,
                             groupName: groupData.groupName,
-                            groupRolePermisionLevel: mbr.groupRolePermisionLevel
+                            groupRolePermisionLevel: mbr.groupRolePermisionLevel,
+                            createdBy: createdBy
                         });
                     }
                 }
@@ -784,10 +817,10 @@ module.exports = (io) => {
                                         locationAddress: newData.markLocations.locationAddress,
                                         loactionPriceRange: newData.markLocations.loactionPriceRange,
                                         additionalInformation: newData.markLocations.additionalInformation,
-                                        locationImageSet: [{locationImageData: image}]
+                                        locationImageSet: [{ locationImageData: image }]
                                     },
                                 }
-                                
+
                                 groupMarksData.groupMarks.push(data);
                                 groupMarksData.save()
                                     .then(marks => {
