@@ -167,7 +167,8 @@ module.exports = (io) => {
                     if (mbr) {
                         myMemberships.push({
                             _id: mbr._id,
-                            group: mbr.group
+                            group: mbr.group,
+                            groupMemberRole: mbr.groupMemberRole
                         });
                     }
                 }
