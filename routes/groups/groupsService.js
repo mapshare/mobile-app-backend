@@ -155,6 +155,7 @@ module.exports = (io) => {
             }
         },
 
+        // Main Search Group Results
         getGroupsAlphabetically: async (userId) => {
             try {
                 user = await User.findById(userId);
@@ -194,7 +195,11 @@ module.exports = (io) => {
                     for (let memberId of group.groupMembers) {
                         for (let mbr of myMemberships) {
                             if (mbr._id.toString() == memberId.toString()) {
-                                group._doc = { ...group._doc, isMember: true };
+                                const groupMemberRole = await GroupRole.findById(mbr.groupMemberRole);
+                                group._doc = {
+                                    ...group._doc, isMember: true,
+                                    groupRolePermisionLevel: groupMemberRole.groupRolePermisionLevel
+                                };
                             } else if (!group._doc.isMember) {
                                 group._doc = { ...group._doc, isMember: false };
                             }
