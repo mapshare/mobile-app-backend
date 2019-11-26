@@ -226,6 +226,7 @@ module.exports = (io) => {
                         createdBy: grp.createdBy,
                         isPending: grp.isPending,
                         isMember: grp.isMember,
+                        groupRolePermisionLevel: grp.groupRolePermisionLevel ?  grp.groupRolePermisionLevel : 0, 
                     });
                 }
 
