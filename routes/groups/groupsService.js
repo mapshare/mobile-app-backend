@@ -762,7 +762,7 @@ module.exports = (io) => {
 
                 let bannedUsers = [];
 
-                for(userId in groupData.groupBanedUsers){                    
+                for(userId of groupData.groupBanedUsers){                    
                     user = await User.findById(userId.toString());
                     if (!user) throw ("Could not find User");
                     bannedUsers.push(user);
