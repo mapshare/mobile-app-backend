@@ -175,6 +175,18 @@ module.exports = (io) => {
 
                 let results = await Group.find();
 
+                // filter out banned groups
+                results.filter((value) => {
+                    let bannedFromGroup = false;
+                    for (let bannedUsers of value.groupBannedUsers) {
+                        if (bannedUsers.toString() == user._id.toString()) {
+                            bannedFromGroup = true;
+                            break;
+                        }
+                    }
+                    return !bannedFromGroup
+                });
+
                 let addCreator = [];
                 // Find Group Creator
                 for (let group of results) {
@@ -230,6 +242,7 @@ module.exports = (io) => {
                         groupRolePermisionLevel: grp.groupRolePermisionLevel ? grp.groupRolePermisionLevel : 0,
                     });
                 }
+
 
                 return trimResults;
             } catch (error) {
@@ -615,8 +628,6 @@ module.exports = (io) => {
 
                 let bannedFromGroup = false;
                 for (let bannedUsers of groupData.groupBannedUsers) {
-                    console.log(bannedUsers)
-                    console.log(user._id)
                     if (bannedUsers.toString() == user._id.toString()) {
                         bannedFromGroup = true;
                         break;
