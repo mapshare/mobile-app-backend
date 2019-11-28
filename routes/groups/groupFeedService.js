@@ -112,6 +112,10 @@ const addPost = async (groupId, user, member, post) => {
 
         const mbr = await GroupMember.findById(member._id);
         if (!mbr) throw ("Could not find Member");
+        
+        // refresh group Data before saving
+        const groupData = await Group.findById(groupId);
+        if (!groupData) throw ("Could not find Group");
 
         groupFeedData.groupPosts.unshift(newPost);
 

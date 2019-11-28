@@ -226,7 +226,7 @@ module.exports = (io) => {
                         createdBy: grp.createdBy,
                         isPending: grp.isPending,
                         isMember: grp.isMember,
-                        groupRolePermisionLevel: grp.groupRolePermisionLevel ?  grp.groupRolePermisionLevel : 0, 
+                        groupRolePermisionLevel: grp.groupRolePermisionLevel ? grp.groupRolePermisionLevel : 0,
                     });
                 }
 
@@ -427,15 +427,17 @@ module.exports = (io) => {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
-
                 groupData.groupName = newData.groupName ? newData.groupName : groupData.groupName;
                 groupData.groupDescription = newData.groupDescription ? newData.groupDescription : groupData.groupDescription;
+                groupData.groupIsPublic = newData.groupIsPublic ? newData.groupIsPublic : groupData.groupIsPublic;
+
                 if (newData.groupImg) {
                     let contentType = 'image/png';
                     let buffer = Buffer.from(newData.groupImg, 'base64');
                     groupData.groupImg.data = buffer ? buffer : groupData.groupImg.data;
                     groupData.groupImg.contentType = contentType ? contentType : groupData.groupImg.contentType;
                 }
+                
                 const savedGroup = await groupData.save();
                 if (!savedGroup) throw ("Could not save Group");
 
@@ -609,24 +611,56 @@ module.exports = (io) => {
                 }
                 if (member) throw ("You are already a member of this group");
 
-                const pendingUser = {
-                    userId: user._id,
-                    userEmail: user.userEmail,
-                    userFirstName: user.userFirstName,
-                    userLastName: user.userLastName,
-                }
+                // Check if Group is public
+                if (groupData.groupIsPublic) {
+                    // If group is public add new member
 
-                let foundPendingUser;
-                for (let pendingUser of groupData.groupPendingMembers) {
-                    if (pendingUser._id == pendingMemberId) {
-                        foundPendingUser = pendingUser;
-                    }
-                }
+                    const groupRole = await GroupRole.findOne({ "groupRoleName": "Member" });
+                    if (!groupRole) throw ("Could not find group role");
 
-                if (!foundPendingUser) {
-                    groupData.groupPendingMembers.push(pendingUser);
+                    groupMember = await GroupMember.create({
+                        user: user._id,
+                        group: groupData._id,
+                        groupMemberRole: groupRole._id
+                    });
 
+                    groupData.groupMembers.push(groupMember.id);
+                    user.userGroups.push(groupMember.id);
+
+                    groupChat = await GroupChat.findOneAndUpdate(
+                        { "groupChatRooms.chatRoomName": "General" },
+                        { $addToSet: { "groupChatRooms.$.chatRoomMembers": groupMember._id } },
+                        { new: true }).exec();
+                    if (!groupChat) throw ("Could not find GroupChat");
+
+
+                    const updatedChatRoom = groupChat.groupChatRooms[0];
+                    groupMember.groupMemberChatRooms.push(updatedChatRoom._id);
+
+                    const savedUser = await user.save();
+                    const savedMember = await groupMember.save();
                     const savedGroup = await groupData.save()
+                } else {
+                    // If group is not public create pending request
+                    const pendingUser = {
+                        userId: user._id,
+                        userEmail: user.userEmail,
+                        userFirstName: user.userFirstName,
+                        userLastName: user.userLastName,
+                    }
+
+                    let foundPendingUser;
+                    for (let pendingUser of groupData.groupPendingMembers) {
+                        if (pendingUser._id == pendingMemberId) {
+                            foundPendingUser = pendingUser;
+                        }
+                    }
+
+                    if (!foundPendingUser) {
+                        groupData.groupPendingMembers.push(pendingUser);
+
+                        const savedGroup = await groupData.save()
+                    }
                 }
                 return { success: true };
             } catch (error) {

@@ -22,6 +22,7 @@ const GroupSchema = new Schema({
   groupCustomMarkCategory: [CustomMarkCategory],
   groupPendingMembers: [PendingMember],
   groupCreatedBy: { type: Schema.Types.ObjectId, ref: "user", required: [true, 'user field is required'] },
+  groupIsPublic: { type: Boolean, default: false }
 });
 
 GroupSchema.virtual('groupId').get(function () { return this._id; });
