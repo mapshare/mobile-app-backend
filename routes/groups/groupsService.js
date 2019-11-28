@@ -814,9 +814,6 @@ module.exports = (io) => {
                 }
                 if (!member) throw ("Could not find Member");
 
-                user.userGroups.pull(member._id);
-                groupData.groupMembers.pull(member._id);
-
                 const deletedMember = await GroupMember.deleteOne({ _id: member._id });
 
                 const deletedMemberFromGroup = await Group.findByIdAndUpdate(
@@ -825,7 +822,7 @@ module.exports = (io) => {
                     { new: true }).exec();
 
                 const deletedMemberFromUser = await User.findByIdAndUpdate(
-                    { _id: user._id },
+                    { _id: member.user },
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
 
