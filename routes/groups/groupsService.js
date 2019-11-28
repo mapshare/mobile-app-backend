@@ -614,7 +614,7 @@ module.exports = (io) => {
                 if (member) throw ("You are already a member of this group");
 
                 let bannedFromGroup = false;
-                for (let bannedUsers of groupData.groupBanedUsers) {
+                for (let bannedUsers of groupData.groupBannedUsers) {
                         if (bannedUsers.toString() == userId.toString()) {
                             bannedFromGroup = true;
                             break;
@@ -772,7 +772,7 @@ module.exports = (io) => {
 
                 let bannedUsers = [];
 
-                for(userId of groupData.groupBanedUsers){                    
+                for(userId of groupData.groupBannedUsers){                    
                     user = await User.findById(userId.toString());
                     if (!user) throw ("Could not find User");
                     bannedUsers.push(user);
@@ -831,7 +831,7 @@ module.exports = (io) => {
 
                 const updatedGroupData = await Group.findByIdAndUpdate(
                     { _id: groupId },
-                    { $addToSet: { "groupBanedUsers": user._id } },
+                    { $addToSet: { "groupBannedUsers": user._id } },
                     { new: true }).exec();
 
                 if (!updatedGroupData) throw ("Could not update Group");
@@ -851,7 +851,7 @@ module.exports = (io) => {
 
                 const groupData = await Group.findByIdAndUpdate(
                     { _id: groupId },
-                    { $addToSet: { "groupBanedUsers": user._id } },
+                    { $addToSet: { "groupBannedUsers": user._id } },
                     { new: true }).exec();
                 if (!groupData) throw ("Could not find Group");
 
@@ -868,7 +868,7 @@ module.exports = (io) => {
 
                 const groupData = await Group.findByIdAndUpdate(
                     { _id: groupId },
-                    { $pull: { "groupBanedUsers": user._id } },
+                    { $pull: { "groupBannedUsers": user._id } },
                     { new: true }).exec();
                 if (!groupData) throw ("Could not find Group");
 
