@@ -175,18 +175,22 @@ module.exports = (io) => {
 
                 let results = await Group.find();
 
+                console.log(results);
                 // filter out banned groups
-                results = results.filter((value) => {
+                let updatedResults = results.filter((value) => {
                     return value._doc.groupBannedUsers.filter((value) => {
                         console.log(value);
                         console.log(user._id);
-                        return (value == user._id) ? true : false;
+                        return (value.toString() == user._id.toString()) ? false : true;
                     });
                 });
+                
+                console.log(updatedResults);
+
 
                 let addCreator = [];
                 // Find Group Creator
-                for (let group of results) {
+                for (let group of updatedResults) {
                     let creator = await User.findById(group._doc.groupCreatedBy);
                     if (creator) {
                         const createdBy = {
