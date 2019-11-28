@@ -754,12 +754,15 @@ module.exports = (io) => {
             }
         },
 
-        banMemberFromGroup: async (groupId, userId) => {
+        banMemberFromGroup: async (groupId, memberId) => {
             try {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
-                const user = await User.findById(userId);
+                const mbr = await GroupMember.findById(memberId);
+                if (!mbr) throw ("Could not find mbr");
+
+                const user = await User.findById(mbr.user);
                 if (!user) throw ("Could not find User");
 
                 // throw error if the owner of the group tries to leave. 
