@@ -95,8 +95,6 @@ const addPost = async (groupId, user, member, post) => {
         const groupData = await Group.findById(groupId);
         if (!groupData) throw ("Could not find Group");
 
-        const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
-
         let bufferedImage = Buffer.from(post.postImage, 'base64');
 
         const postImageResized = await sharp(bufferedImage)
@@ -112,14 +110,11 @@ const addPost = async (groupId, user, member, post) => {
 
         const mbr = await GroupMember.findById(member._id);
         if (!mbr) throw ("Could not find Member");
-        
-        // refresh group Data before saving
-        const groupFeedData2 = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        groupFeedData2.groupPosts.unshift(newPost);
-
-        const savedGroupFeed = await groupFeedData2.save();
-        if (!savedGroupFeed) throw ("Could not save chat");
+        const savedGroupFeed = await GroupFeed.findOneAndUpdate(
+            { _id: groupData.groupFeed },
+            { $push: { groupPosts: { $each: [newPost], $position: 0 } } },
+            { new: true }).exec();
 
         // add post reference to the member
         mbr.groupMemberPosts.push(savedGroupFeed.groupPosts[0]._id);
