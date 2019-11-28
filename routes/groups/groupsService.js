@@ -854,10 +854,20 @@ module.exports = (io) => {
             }
         },
 
-        banUserFromGroup: async (groupId, userId) => {
-            try {
-                console.log(userId);
-                const user = await User.findById(userId);
+        banUserFromGroup: async (groupId, pendingUserId) => {
+            try {                
+                groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                let foundPendingUser;
+                for (let pendingUser of groupData.groupPendingMembers) {
+                    if (pendingUser._id == pendingUserId) {
+                        foundPendingUser = pendingUser;
+                    }
+                }
+                if (!foundPendingUser) throw ("Could not find pending user");
+
+                const user = await User.findById(foundPendingUser.userId);
                 if (!user) throw ("Could not find User");
 
                 const groupData = await Group.findByIdAndUpdate(
