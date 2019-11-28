@@ -114,12 +114,11 @@ const addPost = async (groupId, user, member, post) => {
         if (!mbr) throw ("Could not find Member");
         
         // refresh group Data before saving
-        const groupData = await Group.findById(groupId);
-        if (!groupData) throw ("Could not find Group");
+        const groupFeedData2 = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        groupFeedData.groupPosts.unshift(newPost);
+        groupFeedData2.groupPosts.unshift(newPost);
 
-        const savedGroupFeed = await groupFeedData.save();
+        const savedGroupFeed = await groupFeedData2.save();
         if (!savedGroupFeed) throw ("Could not save chat");
 
         // add post reference to the member
