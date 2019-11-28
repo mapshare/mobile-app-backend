@@ -754,6 +754,27 @@ module.exports = (io) => {
             }
         },
 
+        
+        getBannedUsers: async (groupId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                let bannedUsers = [];
+
+                for(userId in groupData.groupBanedUsers){                    
+                    user = await User.findById(userId);
+                    if (!user) throw ("Could not find User");
+                    bannedUsers.push(user);
+                }
+
+                return bannedUsers;
+            } catch (error) {
+                throw ("getPendingRequests: " + error);
+            }
+        },
+
+
         banMemberFromGroup: async (groupId, memberId) => {
             try {
                 const groupData = await Group.findById(groupId);
@@ -793,7 +814,7 @@ module.exports = (io) => {
                     { $pull: { "groupMembers": member._id } },
                     { new: true }).exec();
 
-                const deletedMemberFromUser = await user.findByIdAndUpdate(
+                const deletedMemberFromUser = await User.findByIdAndUpdate(
                     { _id: groupId },
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
@@ -809,7 +830,7 @@ module.exports = (io) => {
             } catch (error) {
 
                 console.log(error)
-                throw ("getPendingRequests: " + error);
+                throw ("banMemberFromGroup: " + error);
             }
         },
 
@@ -826,7 +847,7 @@ module.exports = (io) => {
 
                 return { success: true };
             } catch (error) {
-                throw ("getPendingRequests: " + error);
+                throw ("banUserFromGroup: " + error);
             }
         },
 
@@ -843,7 +864,7 @@ module.exports = (io) => {
 
                 return groupData.groupPendingMembers;
             } catch (error) {
-                throw ("getPendingRequests: " + error);
+                throw ("unBanUserFromGroup: " + error);
             }
         },
 

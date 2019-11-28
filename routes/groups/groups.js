@@ -493,6 +493,20 @@ module.exports = (io) => {
         }
     });
 
+    // Get Banned Users From Group
+    router.get('/groups/:groupId/ban', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.getBannedUsers(req.params.groupId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to ban user from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+
     // Ban and remove Member From Group
     router.post('/groups/:groupId/banMember/:memberId', verifyLoginToken, async (req, res, next) => {
         try {
