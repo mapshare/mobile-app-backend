@@ -431,7 +431,7 @@ module.exports = (io) => {
 
                 groupData.groupName = newData.groupName ? newData.groupName : groupData.groupName;
                 groupData.groupDescription = newData.groupDescription ? newData.groupDescription : groupData.groupDescription;
-                groupData.groupIsPublic = newData.groupIsPublic ? newData.groupIsPublic : groupData.groupIsPublic;
+                groupData.groupIsPublic = newData.groupIsPublic !== undefined ? newData.groupIsPublic : groupData.groupIsPublic;
 
                 if (newData.groupImg) {
                     let contentType = 'image/png';
