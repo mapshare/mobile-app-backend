@@ -825,7 +825,7 @@ module.exports = (io) => {
                     { new: true }).exec();
 
                 const deletedMemberFromUser = await User.findByIdAndUpdate(
-                    { _id: groupId },
+                    { _id: user._id },
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
 
