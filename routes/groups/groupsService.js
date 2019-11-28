@@ -178,7 +178,9 @@ module.exports = (io) => {
                 // filter out banned groups
                 results.filter((value) => {
                     let bannedFromGroup = false;
-                    for (let bannedUsers of value.groupBannedUsers) {
+                    for (let bannedUsers of value._doc.groupBannedUsers) {
+                        console.log(bannedUsers);
+                        console.log(user._id);
                         if (bannedUsers.toString() == user._id.toString()) {
                             bannedFromGroup = true;
                             break;
