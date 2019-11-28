@@ -616,8 +616,8 @@ module.exports = (io) => {
                 let bannedFromGroup = false;
                 for (let bannedUsers of groupData.groupBannedUsers) {
                     console.log(bannedUsers)
-                    console.log(member._id)
-                    if (bannedUsers.toString() == member._id.toString()) {
+                    console.log(user._id)
+                    if (bannedUsers.toString() == user._id.toString()) {
                         bannedFromGroup = true;
                         break;
                     }
