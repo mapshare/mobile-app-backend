@@ -177,16 +177,11 @@ module.exports = (io) => {
 
                 // filter out banned groups
                 results.filter((value) => {
-                    let bannedFromGroup = false;
-                    for (let bannedUsers of value._doc.groupBannedUsers) {
-                        console.log(bannedUsers);
+                    return value._doc.groupBannedUsers.filter((value) => {
+                        console.log(value);
                         console.log(user._id);
-                        if (bannedUsers.toString() == user._id.toString()) {
-                            bannedFromGroup = true;
-                            break;
-                        }
-                    }
-                    return !bannedFromGroup
+                        return (value == user._id) ? true : false;
+                    });
                 });
 
                 let addCreator = [];
