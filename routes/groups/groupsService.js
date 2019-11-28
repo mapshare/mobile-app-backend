@@ -870,11 +870,11 @@ module.exports = (io) => {
                 const user = await User.findById(foundPendingUser.userId);
                 if (!user) throw ("Could not find User");
 
-                const groupData = await Group.findByIdAndUpdate(
+                const groupDataUpdated = await Group.findByIdAndUpdate(
                     { _id: groupId },
                     { $addToSet: { "groupBannedUsers": user._id } },
                     { new: true }).exec();
-                if (!groupData) throw ("Could not find Group");
+                if (!groupDataUpdated) throw ("Could not find Group");
 
                 return { success: true };
             } catch (error) {
