@@ -439,7 +439,7 @@ module.exports = (io) => {
                     groupData.groupImg.data = buffer ? buffer : groupData.groupImg.data;
                     groupData.groupImg.contentType = contentType ? contentType : groupData.groupImg.contentType;
                 }
-                
+
                 const savedGroup = await groupData.save();
                 if (!savedGroup) throw ("Could not save Group");
 
@@ -754,6 +754,94 @@ module.exports = (io) => {
             }
         },
 
+        banMemberFromGroup: async (groupId, userId) => {
+            try {               
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                // throw error if the owner of the group tries to leave. 
+                // if the owner wants to leave he must delete the group
+                if (user._id.toString() == groupData.groupCreatedBy.toString()) {
+                    throw ("Owner of the group cannot leave the group");
+                }
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                user.userGroups.pull(member._id);
+                groupData.groupMembers.pull(member._id);
+
+                const deletedMember = await GroupMember.deleteOne({ _id: member._id });
+                
+                const deletedMemberFromGroup = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $pull: { "groupMembers": member._id } },
+                    { new: true }).exec();
+
+                const deletedMemberFromUser = await user.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $pull: { "userGroups": member._id } },
+                    { new: true }).exec();
+
+                const updatedGroupData = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $addToSet: { "groupBanedUsers": user._id } },
+                    { new: true }).exec();
+
+                if (!updatedGroupData) throw ("Could not update Group");
+
+                return { success: true };
+            } catch (error) {
+                throw ("getPendingRequests: " + error);
+            }
+        },
+
+        banUserFromGroup: async (groupId, userId) => {
+            try {
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                const groupData = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $addToSet: { "groupBanedUsers": user._id } },
+                    { new: true }).exec();
+                if (!groupData) throw ("Could not find Group");
+
+                return { success: true };
+            } catch (error) {
+                throw ("getPendingRequests: " + error);
+            }
+        },
+
+        unBanUserFromGroup: async (groupId, userId) => {
+            try {
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                const groupData = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $pull: { "groupBanedUsers": user._id } },
+                    { new: true }).exec();
+                if (!groupData) throw ("Could not find Group");
+
+                return groupData.groupPendingMembers;
+            } catch (error) {
+                throw ("getPendingRequests: " + error);
+            }
+        },
+
         deleteGroupMember: async (groupId, userId) => {
             try {
                 const groupData = await Group.findById(groupId);
@@ -783,7 +871,16 @@ module.exports = (io) => {
                 user.userGroups.pull(member._id);
                 groupData.groupMembers.pull(member._id);
 
+
                 const deletedMember = await GroupMember.deleteOne({ _id: member._id });
+                const deletedMemberFromGroup = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $pull: { "groupMembers": member._id } },
+                    { new: true }).exec();
+                const deletedMemberFromUser = await user.deleteOne(
+                    { _id: groupId },
+                    { $pull: { "userGroups": member._id } },
+                    { new: true }).exec();
 
                 return ({ success: true });
             } catch (error) {
