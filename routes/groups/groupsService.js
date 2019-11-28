@@ -615,10 +615,12 @@ module.exports = (io) => {
 
                 let bannedFromGroup = false;
                 for (let bannedUsers of groupData.groupBannedUsers) {
-                        if (bannedUsers.toString() == userId.toString()) {
-                            bannedFromGroup = true;
-                            break;
-                        }
+                    console.log(bannedUsers)
+                    console.log(member._id)
+                    if (bannedUsers.toString() == member._id.toString()) {
+                        bannedFromGroup = true;
+                        break;
+                    }
                 }
                 if (bannedFromGroup) throw ("You are banned from joining this group");
 
@@ -764,7 +766,7 @@ module.exports = (io) => {
             }
         },
 
-        
+
         getBannedUsers: async (groupId) => {
             try {
                 const groupData = await Group.findById(groupId);
@@ -772,7 +774,7 @@ module.exports = (io) => {
 
                 let bannedUsers = [];
 
-                for(userId of groupData.groupBannedUsers){                    
+                for (userId of groupData.groupBannedUsers) {
                     user = await User.findById(userId.toString());
                     if (!user) throw ("Could not find User");
                     bannedUsers.push(user);
