@@ -913,8 +913,8 @@ module.exports = (io) => {
                     { _id: groupId },
                     { $pull: { "groupMembers": member._id } },
                     { new: true }).exec();
-                const deletedMemberFromUser = await user.deleteOne(
-                    { _id: groupId },
+                const deletedMemberFromUser = await User.findByIdAndUpdate(
+                    { _id: userId },
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
 
