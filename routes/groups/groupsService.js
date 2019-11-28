@@ -755,7 +755,7 @@ module.exports = (io) => {
         },
 
         banMemberFromGroup: async (groupId, userId) => {
-            try {               
+            try {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
@@ -784,7 +784,7 @@ module.exports = (io) => {
                 groupData.groupMembers.pull(member._id);
 
                 const deletedMember = await GroupMember.deleteOne({ _id: member._id });
-                
+
                 const deletedMemberFromGroup = await Group.findByIdAndUpdate(
                     { _id: groupId },
                     { $pull: { "groupMembers": member._id } },
@@ -804,6 +804,8 @@ module.exports = (io) => {
 
                 return { success: true };
             } catch (error) {
+
+                console.log(error)
                 throw ("getPendingRequests: " + error);
             }
         },
