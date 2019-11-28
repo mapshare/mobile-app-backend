@@ -452,7 +452,9 @@ module.exports = (io) => {
                     groupData.groupImg.data = buffer ? buffer : groupData.groupImg.data;
                     groupData.groupImg.contentType = contentType ? contentType : groupData.groupImg.contentType;
                 }
-
+                if (groupData.groupIsPublic) {
+                    groupData.groupPendingMembers = [];
+                }
                 const savedGroup = await groupData.save();
                 if (!savedGroup) throw ("Could not save Group");
 
@@ -855,7 +857,7 @@ module.exports = (io) => {
         },
 
         banUserFromGroup: async (groupId, pendingUserId) => {
-            try {                
+            try {
                 let groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
@@ -930,14 +932,18 @@ module.exports = (io) => {
 
 
                 const deletedMember = await GroupMember.deleteOne({ _id: member._id });
+
                 const deletedMemberFromGroup = await Group.findByIdAndUpdate(
                     { _id: groupId },
                     { $pull: { "groupMembers": member._id } },
                     { new: true }).exec();
+
                 const deletedMemberFromUser = await User.findByIdAndUpdate(
-                    { _id: userId },
+                    { _id: member.user },
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
+
+                if (!updatedGroupData) throw ("Could not update Group");
 
                 return ({ success: true });
             } catch (error) {
