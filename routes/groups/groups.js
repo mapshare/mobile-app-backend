@@ -536,7 +536,7 @@ module.exports = (io) => {
     });
     
     // Un-Ban User From Group
-    router.delete('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
+    router.delete('/groups/:groupId/ban', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
                 const results = await data.unBanUserFromGroup(req.params.groupId, req.params.userId);
