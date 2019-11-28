@@ -856,6 +856,7 @@ module.exports = (io) => {
 
         banUserFromGroup: async (groupId, userId) => {
             try {
+                console.log(userId);
                 const user = await User.findById(userId);
                 if (!user) throw ("Could not find User");
 

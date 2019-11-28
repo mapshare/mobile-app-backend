@@ -525,7 +525,7 @@ module.exports = (io) => {
     router.post('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-                const results = await data.banUserFromGroup(req.params.groupId, req.params.userId);
+                const results = await data.banUserFromGroup(req.params.groupId, req.body.userId);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to ban user from this group");
