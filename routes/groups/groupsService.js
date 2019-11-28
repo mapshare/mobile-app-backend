@@ -176,7 +176,7 @@ module.exports = (io) => {
                 let results = await Group.find();
 
                 // filter out banned groups
-                results.filter((value) => {
+                results = results.filter((value) => {
                     return value._doc.groupBannedUsers.filter((value) => {
                         console.log(value);
                         console.log(user._id);
