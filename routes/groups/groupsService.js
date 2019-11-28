@@ -226,6 +226,7 @@ module.exports = (io) => {
                         createdBy: grp.createdBy,
                         isPending: grp.isPending,
                         isMember: grp.isMember,
+                        groupIsPublic: grp.groupIsPublic,
                         groupRolePermisionLevel: grp.groupRolePermisionLevel ? grp.groupRolePermisionLevel : 0,
                     });
                 }
@@ -272,6 +273,7 @@ module.exports = (io) => {
                         myGroups.push({
                             _id: groupData._id,
                             groupName: groupData.groupName,
+                            groupIsPublic: groupData.groupIsPublic,
                             groupRolePermisionLevel: mbr.groupRolePermisionLevel,
                             createdBy: createdBy
                         });
