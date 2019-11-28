@@ -613,6 +613,16 @@ module.exports = (io) => {
                 }
                 if (member) throw ("You are already a member of this group");
 
+                let bannedFromGroup = false;
+                for (let bannedUsers of groupData.groupBanedUsers) {
+                        if (bannedUsers.toString() == userId.toString()) {
+                            bannedFromGroup = true;
+                            break;
+                        }
+                }
+                if (bannedFromGroup) throw ("You are banned from joining this group");
+
+
                 // Check if Group is public
                 if (groupData.groupIsPublic) {
                     // If group is public add new member
