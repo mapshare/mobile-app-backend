@@ -522,10 +522,10 @@ module.exports = (io) => {
     });
 
     // Ban User From Group
-    router.post('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
+    router.post('/groups/:groupId/ban/:pendingUserId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-                const results = await data.banUserFromGroup(req.params.groupId, req.body.userId);
+                const results = await data.banUserFromGroup(req.params.groupId, req.params.pendingUserId);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to ban user from this group");
@@ -536,7 +536,7 @@ module.exports = (io) => {
     });
     
     // Un-Ban User From Group
-    router.delete('/groups/:groupId/ban', verifyLoginToken, async (req, res, next) => {
+    router.delete('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
                 const results = await data.unBanUserFromGroup(req.params.groupId, req.params.userId);

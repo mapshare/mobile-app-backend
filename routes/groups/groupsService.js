@@ -856,7 +856,7 @@ module.exports = (io) => {
 
         banUserFromGroup: async (groupId, pendingUserId) => {
             try {                
-                groupData = await Group.findById(groupId);
+                let groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
                 let foundPendingUser;
