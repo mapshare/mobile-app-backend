@@ -11,6 +11,7 @@ var hbs = require('nodemailer-express-handlebars');
 const User = require("../../models/user");
 const UnverifiedUser = require("../../models/unverifiedUser");
 const { verifyTokenEmail } = require("./verifyTokenEmail");
+const { verifyLoginToken } = require("./verifyToken");
 const transporter = require("./html/email/transporter");
 // TESTING ONLY REGISTER
 
@@ -94,7 +95,7 @@ router.post("/register", async (req, res, next) => {
 		};
 
 		const status = await transporter.sendMail(mail);
-		
+
 		res.send({ success: true });
 	} catch (err) {
 		res.status(400).send(err);
@@ -128,7 +129,7 @@ router.get("/verify/:token", verifyTokenEmail, async (req, res, next) => {
 			firstName = savedUser.userFirstName;
 			success = true;
 		} else {
-			success = true; 
+			success = true;
 			error = false;
 			firstName = userExists.userFirstName;
 		}
@@ -161,6 +162,17 @@ router.post("/login", async (req, res, next) => {
 	res.setHeader("authentication", token);
 
 	res.send(user);
+});
+
+// login user With A token
+router.post("/loginWithToken", verifyLoginToken, async (req, res, next) => {
+	try {
+		user = await User.findById(req.user);
+		if (!user) throw ("Could not find User");
+		res.status(200).json(user);
+	} catch (error) {
+		res.status(400).send({ "error": error });
+	}
 });
 
 module.exports = router;
