@@ -190,7 +190,7 @@ module.exports = (io) => {
     // add Group Mark
     router.post('/groups/:groupId/mark', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_OWNER)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
                 data.addGroupMark(req.params.groupId, req.body).then(data => {
                     res.status(200).json(data)
                 }).catch(err => {
@@ -336,7 +336,7 @@ module.exports = (io) => {
 
     // get Group Mark
     router.get('/groups/:groupId/mark/:markId', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
             data.getGroupMark(req.params.groupId, req.params.markId).then(data => {
                 res.status(200).json(data)
             }).catch(err => {
@@ -371,6 +371,15 @@ module.exports = (io) => {
         } else {
             res.status(400).send({ "error": "Insufficient permissions to get events for this group" })
         }
+    });
+
+    // get all custom marks category 
+    router.get('/groups/:groupCategoryId/customCategory', verifyLoginToken, async (req, res, next) => {
+        data.getCustomCategoryMarks(req.params.groupCategoryId).then(data => {
+            res.status(200).json(data)
+        }).catch(err => {
+            res.status(400).send({ "error": err })
+        })
     });
 
     // get custom mark category 

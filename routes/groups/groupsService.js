@@ -7,12 +7,16 @@ const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
 const GroupMark = require('../../models/groupMarks');
 const GroupRole = require('../../models/groupRoles');
+const DefaultCategory = require('../../models/defaultCategory');
+const CustomCategory = require('../../models/groupCustomCategory')
 
 const dataService = require("../groups/chatRoomService");
 const ChatData = dataService();
 
 const groupFeedDataService = require("../groups/groupFeedService");
 const GroupFeedData = groupFeedDataService();
+
+const DEFAULT_CATEGORY_DATA = require ('../../data/defaultCategory');
 
 module.exports = (io) => {
     return {
@@ -319,6 +323,7 @@ module.exports = (io) => {
             let groupEventData;
             let groupMarkData;
             let groupChatData;
+            let groupCustomCategoryData;
 
             try {
                 user = await User.findById(userId);
@@ -374,6 +379,12 @@ module.exports = (io) => {
                 groupData.groupChat = groupChatData._id;
                 groupChatData.save();
 
+                groupCustomCategoryData = new CustomCategory({
+                    "group": groupData._id,
+                    "groupCustomCategories": []
+                })
+                groupData.groupCustomMarkCategory = groupCustomCategoryData._id;
+                groupCustomCategoryData.save();
 
                 const savedGroup = await groupData.save();
                 const savedUser = await user.save();
@@ -392,6 +403,7 @@ module.exports = (io) => {
                 const removeGroupEventData = await GroupEvent.deleteOne({ _id: groupEventData._id });
                 const removeGroupMarkData = await GroupMark.deleteOne({ _id: groupMarkData._id });
                 const removeGroupChatData = await GroupChat.deleteOne({ _id: groupChatData._id });
+                const removeGroupCustomCategoryData = await CustomCategory.deleteOne({ _id: groupCustomCategoryData._id });
 
                 throw ("addGroup " + error)
             }
@@ -1096,7 +1108,7 @@ module.exports = (io) => {
             }
         },
 
-        addCustomCategoryMark: (groupId, newData) => {
+        addCustomCategoryMark: async (groupId, newData) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
                     .then(groupData => {
@@ -1104,13 +1116,23 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
-
-                        groupData.groupCustomMarkCategory.push(newData);
-
-                        groupData.save()
-                            .then(data => { resolve(data) })
-                            .catch(err => reject(err));
-
+                        CustomCategory.findById(groupData.groupCustomMarkCategory)
+                            .then(customCategoryData => {
+                                const data = {
+                                    customMarkCategoryName: newData.customMarkCategoryName,
+                                    isSelected: true,
+                                    categoryColor: newData.categoryColor
+                                }
+                                
+                                customCategoryData.groupCustomCategories.push(data);
+                                customCategoryData.save()
+                                    .then(data => {
+                                        resolve({
+                                            group: data.group,
+                                            groupCustomCategories: data.groupCustomCategories
+                                        })
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
         },
@@ -1204,6 +1226,17 @@ module.exports = (io) => {
                                 });
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
+            });
+        },
+
+        getCustomCategoryMarks: async (groupCategoryId) => {
+            return new Promise((resolve, reject) => {
+                CustomCategory.findById(groupCategoryId)
+                    .then(data => {
+                        if (data) resolve(data);
+                        else reject("no group category marks with specified id");
+                    })
+                    .catch(err => reject(err));
             });
         },
 
@@ -1740,6 +1773,25 @@ module.exports = (io) => {
                             .catch(err => reject(err));
                     }).catch(err => reject(err));
             });
-        }
+        },
+
+        // Initialize group marks category
+        initializeGroupMarksCategory: async (groupId) => {
+            console.log('initializing group categories!')
+            try {
+                const defaultCategoryData = await DefaultCategory.find();
+                if (!defaultCategoryData.length) {
+                    for (categoryData of DEFAULT_CATEGORY_DATA) {
+                        const category = await DefaultCategory.create({
+                            defaultCategoryName: categoryData.defaultCategoryName,
+                            isSelected: categoryData.isSelected,
+                            categoryColor: categoryData.categoryColor
+                        });
+                    }
+                }
+            } catch (error) {
+                throw ("initialize group marks category: " + error);
+            }
+        },
     }
 }
