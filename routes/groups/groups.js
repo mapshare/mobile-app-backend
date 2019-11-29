@@ -493,6 +493,62 @@ module.exports = (io) => {
         }
     });
 
+    // Get Banned Users From Group
+    router.get('/groups/:groupId/ban', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.getBannedUsers(req.params.groupId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to ban user from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+
+    // Ban and remove Member From Group
+    router.post('/groups/:groupId/banMember/:memberId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.banMemberFromGroup(req.params.groupId, req.params.memberId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to ban user from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+
+    // Ban User From Group
+    router.post('/groups/:groupId/ban/:pendingUserId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.banUserFromGroup(req.params.groupId, req.params.pendingUserId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to ban user from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+    
+    // Un-Ban User From Group
+    router.delete('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.unBanUserFromGroup(req.params.groupId, req.params.userId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to un ban user from this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
+        }
+    });
+
     // Leave Group / Delete group Member
     router.delete('/groups/:groupId/member', verifyLoginToken, async (req, res, next) => {
         try {
