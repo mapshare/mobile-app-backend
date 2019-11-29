@@ -74,6 +74,7 @@ const getGroupFeed = async (groupId) => {
                     _id: groupFeedData.groupPosts[i]._doc._id,
                     postCaption: groupFeedData.groupPosts[i]._doc.postCaption,
                     postCreatedBy: groupFeedData.groupPosts[i]._doc.postCreatedBy,
+                    postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
                     userProfilePic: user.userProfilePic,
@@ -94,12 +95,10 @@ const addPost = async (groupId, user, member, post) => {
         const groupData = await Group.findById(groupId);
         if (!groupData) throw ("Could not find Group");
 
-        const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
-
         let bufferedImage = Buffer.from(post.postImage, 'base64');
 
         const postImageResized = await sharp(bufferedImage)
-            .resize(1080, 1080)
+            .resize(640, 640)
             .png()
             .toBuffer();
 
@@ -112,10 +111,10 @@ const addPost = async (groupId, user, member, post) => {
         const mbr = await GroupMember.findById(member._id);
         if (!mbr) throw ("Could not find Member");
 
-        groupFeedData.groupPosts.unshift(newPost);
-
-        const savedGroupFeed = await groupFeedData.save();
-        if (!savedGroupFeed) throw ("Could not save chat");
+        const savedGroupFeed = await GroupFeed.findOneAndUpdate(
+            { _id: groupData.groupFeed },
+            { $push: { groupPosts: { $each: [newPost], $position: 0 } } },
+            { new: true }).exec();
 
         // add post reference to the member
         mbr.groupMemberPosts.push(savedGroupFeed.groupPosts[0]._id);
@@ -137,23 +136,37 @@ const updatepost = async (groupId, user, member, postId, updatedPost) => {
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        let updatePostData = {
-            postContent: updatedPost,
-            postCreatedBy: member._id,
-        }
-
         var postIndex = -1;
-        for (var i = 0; i < chatRoom.groupPosts.length; i++) {
-            if (chatRoom.groupPosts[i]._id == postId) {
+        for (var i = 0; i < groupFeedData.groupPosts.length; i++) {
+            if (groupFeedData.groupPosts[i]._id == postId) {
                 postIndex = i;
                 break;
             }
         }
 
-        groupFeedData.groupPosts[postIndex] = updatePostData ? updatePostData : groupFeedData.groupPosts[postIndex];
+        let postImageResized;
+        let updatePostData;
+        if (updatedPost.postImage) {
+            let bufferedImage = Buffer.from(updatedPost.postImage, 'base64');
+
+            postImageResized = await sharp(bufferedImage)
+                .resize(640, 640)
+                .png()
+                .toBuffer();
+
+            updatePostData = {
+                postImage: { data: postImageResized, contentType: "image/png" },
+                postCaption: updatedPost.postCaption,
+            }
+
+            groupFeedData.groupPosts[postIndex].postImage = updatePostData.postImage ? updatePostData.postImage : groupFeedData.groupPosts[postIndex].postImage;
+            groupFeedData.groupPosts[postIndex].postCaption = updatePostData.postCaption ? updatePostData.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
+        } else {
+            groupFeedData.groupPosts[postIndex].postCaption = updatedPost.postCaption ? updatedPost.postCaption : groupFeedData.groupPosts[postIndex].postCaption;
+        }
 
         const savedGroupFeed = await groupFeedData.save();
-        if (!savedGroupFeed) throw ("Could not save chat");
+        if (!savedGroupFeed) throw ("Could not save group feed");
 
         const groupFeed = await getGroupFeed(groupId);
         if (!groupFeed) throw ("Could not get group feed");
@@ -173,10 +186,12 @@ const deletePost = async (groupId, postId) => {
 
         const groupFeedData = await GroupFeed.findOne({ _id: groupData.groupFeed });
 
-        groupFeedData.groupPosts.pull(postId);
+        groupFeedData.groupPosts = groupFeedData.groupPosts.filter(function (post) {
+            return post._id != postId;
+        });
 
-        const savedGroupChat = await groupChatData.save();
-        if (!savedGroupChat) throw ("Could not save chat");
+        const savedGroupFeedData = await groupFeedData.save();
+        if (!savedGroupFeedData) throw ("Could not save group feed");
 
         const groupFeed = await getGroupFeed(groupId);
         if (!groupFeed) throw ("Could not get group feed");
@@ -230,7 +245,6 @@ module.exports = () => {
                             try {
                                 console.log('new post')
                                 const groupFeed = await addPost(group, user, member, post);
-                                console.log('here4')
 
                                 nsp.emit('new post', groupFeed);
                             } catch (error) {
@@ -242,7 +256,7 @@ module.exports = () => {
                             try {
                                 console.log('update post')
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
-                                socket.broadcast.emit('update post', groupFeed);
+                                nsp.emit('update post', groupFeed);
                             } catch (error) {
                                 throw (error);
                             }
@@ -251,8 +265,8 @@ module.exports = () => {
                         socket.on('delete post', async (postId) => {
                             try {
                                 console.log('delete post')
-                                const chatLog = await deletePost(group, user, member, postId);
-                                socket.broadcast.emit('delete post', chatLog);
+                                const chatLog = await deletePost(group, postId);
+                                nsp.emit('delete post', chatLog);
                             } catch (error) {
                                 throw (error);
                             }
@@ -266,7 +280,7 @@ module.exports = () => {
                 return;
 
             } catch (error) {
-                throw ("setupGroupFeed " + error)
+                console.log("setupGroupFeed " + error)
             }
         }
     }

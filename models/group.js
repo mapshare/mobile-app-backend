@@ -29,7 +29,9 @@ const GroupSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'user',
     required: [true, 'user field is required']
-  }
+  },
+  groupIsPublic: { type: Boolean, default: false },
+  groupBannedUsers: [{ type: Schema.Types.ObjectId, ref: 'user' }]
 });
 
 GroupSchema.virtual('groupId').get(function() {

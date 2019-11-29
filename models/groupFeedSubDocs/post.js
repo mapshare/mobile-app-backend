@@ -13,6 +13,10 @@ const PostSchema = new Schema({
     postCreatedBy: {
         type: Schema.Types.ObjectId,
         ref: "groupMember",
+    },
+    postCreatedAt: {
+        type: Date,
+        default: Date.now
     }
 })
 
