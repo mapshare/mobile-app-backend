@@ -165,7 +165,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 // login user With A token
-router.post("/loginWithToken", verifyLoginToken, async (req, res, next) => {
+router.get("/loginWithToken", verifyLoginToken, async (req, res, next) => {
 	try {
 		user = await User.findById(req.user);
 		if (!user) throw ("Could not find User");
