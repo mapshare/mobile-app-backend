@@ -304,12 +304,12 @@ module.exports = () => {
                                         }
                                     }
                                     connenctionStatus = false;
-                                    nsp.to(chatRoom.chatRoomName).emit('Still Connected', { user: user.userFirstName });
+                                    socket.emit('Still Connected', { user: user.userFirstName });
                                 }, 5000)
 
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
-                                nsp.to(chatRoom.chatRoomName).emit('join room', {
+                                socket.emit('join room', {
                                     chatRoomId: chatRoomId,
                                     data: chatLog
                                 });
