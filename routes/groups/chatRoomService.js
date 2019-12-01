@@ -292,7 +292,7 @@ module.exports = () => {
 
                                 // Add User to Active Member List
                                 activeMembers.push({
-                                    ...user,
+                                    ...user._doc,
                                     memberId: member._id
                                 });
 
