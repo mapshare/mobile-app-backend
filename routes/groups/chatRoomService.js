@@ -291,7 +291,10 @@ module.exports = () => {
                                 member = await getMember(group, user);
 
                                 // Add User to Active Member List
-                                activeMembers.push(user)
+                                activeMembers.push({
+                                    ...user,
+                                    memberId: member._id
+                                });
 
                                 interval = setInterval(() => {
                                     if (connenctionStatus == false) {
