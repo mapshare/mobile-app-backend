@@ -305,7 +305,7 @@ module.exports = () => {
                                     }
                                     connenctionStatus = false;
                                     nsp.to(chatRoom.chatRoomName).emit('Still Connected', { user: user.userFirstName });
-                                })
+                                }, 5000)
 
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
