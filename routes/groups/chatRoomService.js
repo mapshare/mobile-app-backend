@@ -350,8 +350,9 @@ module.exports = () => {
                         });
 
                         socket.on('disconnect', async () => {
+                            console.log("disconnect")
                             for (var i = 0; i < activeMembers.length; i++) {
-                                if (activeMembers[i]._id === user._id) {
+                                if (activeMembers[i]._id == user._id) {
                                     arr.splice(i, 1);
                                     break;
                                 }
