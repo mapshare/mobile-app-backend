@@ -352,7 +352,6 @@ module.exports = () => {
                         socket.on('disconnect', async () => {
                             console.log("disconnect Chat")
                             for (var i = 0; i < activeMembers.length; i++) {
-                                console.log(activeMembers[i])
                                 if (activeMembers[i]._id == user._id) {
                                     activeMembers.splice(i, 1);
                                     break;
