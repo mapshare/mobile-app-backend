@@ -261,6 +261,8 @@ module.exports = () => {
                         var member;
                         var chatRoom;
                         var group;
+                        var interval;
+                        var connenctionStatus = false;
 
                         socket.on('authenticate', async (token) => {
                             try {
@@ -277,6 +279,7 @@ module.exports = () => {
                         socket.on('join room', async (data) => {
                             try {
                                 console.log('join room')
+                                connenctionStatus = true;
                                 let groupId = data.groupId;
                                 chatRoomName = data.chatRoomName;
                                 group = groupId;
@@ -289,6 +292,20 @@ module.exports = () => {
 
                                 // Add User to Active Member List
                                 activeMembers.push(user)
+
+                                interval = setInterval(() => {
+                                    if (connenctionStatus == false) {
+                                        // Remove deactivated users                       
+                                        for (var i = 0; i < activeMembers.length; i++) {
+                                            if (activeMembers[i]._id == user._id) {
+                                                activeMembers.splice(i, 1);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    connenctionStatus = false;
+                                    nsp.to(chatRoom.chatRoomName).emit('Still Connected', { user: user.userFirstName });
+                                })
 
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
@@ -349,15 +366,20 @@ module.exports = () => {
                             });
                         });
 
+                        socket.on('Still Connected', () => {
+                            connenctionStatus = true;
+                        });
+
                         socket.on('disconnect', async () => {
                             console.log("disconnect Chat")
+                            // Remove disconnected user
                             for (var i = 0; i < activeMembers.length; i++) {
                                 if (activeMembers[i]._id == user._id) {
                                     activeMembers.splice(i, 1);
                                     break;
                                 }
                             }
-                            
+
                             nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
                         });
 
