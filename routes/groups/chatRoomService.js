@@ -297,6 +297,8 @@ module.exports = () => {
                                 });
 
                                 interval = setInterval(() => {
+                                    console.log("interval: " + user.userFirstName);
+                                    
                                     if (connenctionStatus == false) {
                                         // Remove deactivated users                       
                                         for (var i = 0; i < activeMembers.length; i++) {
@@ -305,9 +307,11 @@ module.exports = () => {
                                                 break;
                                             }
                                         }
+                                        socket.disconnect();
+                                    } else {
+                                        connenctionStatus = false;
+                                        socket.emit('Still Connected', { user: user.userFirstName });
                                     }
-                                    connenctionStatus = false;
-                                    socket.emit('Still Connected', { user: user.userFirstName });
                                 }, 5000)
 
                                 const chatLog = await getChatLog(group, member, chatRoomId);
