@@ -249,6 +249,7 @@ module.exports = () => {
     return {
         setupGroupNamespace: async (groupId, io) => {
             try {
+                var activeMembers = [];
                 // Setup GroupChat NameSpace
                 const nsp = io
                     .of('/' + groupId)
@@ -286,12 +287,18 @@ module.exports = () => {
                                 socket.join(chatRoom.chatRoomName);
                                 member = await getMember(group, user);
 
+                                // Add User to Active Member List
+                                activeMembers.push(user)
+
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
                                 nsp.to(chatRoom.chatRoomName).emit('join room', {
                                     chatRoomId: chatRoomId,
                                     data: chatLog
                                 });
+
+                                nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
+
                             } catch (error) {
                                 throw (error);
                             }
@@ -341,6 +348,18 @@ module.exports = () => {
                                 userFirstName: user.userFirstName
                             });
                         });
+
+                        socket.on('disconnect', async () => {
+                            for (var i = 0; i < activeMembers.length; i++) {
+                                if (activeMembers[i]._id === user._id) {
+                                    arr.splice(i, 1);
+                                    break;
+                                }
+                            }
+                            
+                            nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
+                        });
+
                     });
 
                 return;
