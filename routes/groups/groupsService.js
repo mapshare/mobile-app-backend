@@ -1000,14 +1000,13 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
+
                         GroupMark.findById(groupData.groupMarks)
                             .then(groupMarksData => {
                                 let image;
 
                                 if (newData.markLocations.locationImageSet.locationImageData) {
                                     image = newData.markLocations.locationImageSet.locationImageData.toString('base64');
-                                } else {
-                                    image = '';
                                 }
 
                                 let data = {
@@ -1019,6 +1018,8 @@ module.exports = (io) => {
                                         locationImageSet: [{ locationImageData: image }]
                                     },
                                 }
+
+                                console.log('add mark: ', data);
 
                                 groupMarksData.groupMarks.push(data);
                                 groupMarksData.save()
@@ -1337,21 +1338,21 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
-                        CustomCategory.findById(groupData.groupCustomMarkCategory)
-                            .then(customCategoryData => {
-                                const data = {
-                                    customMarkCategoryName: newData.customMarkCategoryName,
-                                    isSelected: true,
-                                    categoryColor: newData.categoryColor
-                                }
-                                
-                                customCategoryData.groupCustomCategories.push(data);
-                                customCategoryData.save()
-                                    .then(data => {
-                                        resolve({
-                                            group: data.group,
-                                            groupCustomCategories: data.groupCustomCategories
-                                        })
+                            CustomCategory.findById(groupData.groupCustomMarkCategory)
+                                .then(customCategoryData => {
+                                    const data = {
+                                        customMarkCategoryName: newData.customMarkCategoryName,
+                                        isSelected: true,
+                                        categoryColor: newData.categoryColor
+                                    }
+                                    
+                                    customCategoryData.groupCustomCategories.push(data);
+                                    customCategoryData.save()
+                                        .then(data => {
+                                            resolve({
+                                                group: data.group,
+                                                groupCustomCategories: data.groupCustomCategories
+                                            })
                                     }).catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
@@ -1612,24 +1613,26 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
-                        var markCategoryIndex = -1;
-                        for (var i = 0; i < groupData.groupCustomMarkCategory.length; i++) {
-                            if (groupData.groupCustomMarkCategory[i]._id == categoryId) {
-                                markCategoryIndex = i;
-                            }
-                        }
 
-                        groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName;
+                        CustomCategory.findById(groupData.groupCustomMarkCategory)
+                            .then(customCategoryData => {
 
-                        groupData.save()
-                            .then(data => {
-                                resolve({
-                                    group: data,
-                                    updatedCategory: data.groupCustomMarkCategory[markCategoryIndex]
-                                })
-                            })
-                            .catch(err => reject(err));
+                                let markCategoryIndex = -1;
+                                for (let i = 0; i < customCategoryData.groupCustomCategories.length; i++) {
+                                    if (customCategoryData.groupCustomCategories[i]._id == categoryId) {
+                                        markCategoryIndex = i;
+                                    }
+                                }
 
+                                customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName;
+                                customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor = newData.categoryColor ? newData.categoryColor : customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor;
+                                customCategoryData.save()
+                                .then(data => {
+                                    resolve({
+                                        updatedCategory: data.groupCustomCategories[markCategoryIndex]
+                                    })
+                                }).catch(err => reject(err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
         },
@@ -1702,7 +1705,7 @@ module.exports = (io) => {
             });
         },
 
-        deleteCustomCategoryMark: (groupId, id) => {
+        deleteCustomCategoryMark: (groupId, categoryId) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
                     .then(groupData => {
@@ -1711,11 +1714,27 @@ module.exports = (io) => {
                             return;
                         }
 
-                        groupData.groupCustomMarkCategory.pull({ _id: id });
+                        GroupMark.findById(groupData.groupMarks)
+                        .then(groupMarksData => {
+                            for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                                if (groupMarksData.groupMarks[i].customMarkCategory == categoryId) {
+                                    groupMarksData.groupMarks.pull(groupMarksData.groupMarks[i]._id);
+                                }
+                            }
+                            groupMarksData.save()
 
-                        groupData.save()
-                            .then(data => { resolve(data) })
-                            .catch(err => reject(err));
+                            CustomCategory.findById(groupData.groupCustomMarkCategory)
+                                .then(customCategoryData => {
+
+                                customCategoryData.groupCustomCategories.pull(categoryId)
+                                customCategoryData.save()
+                                .then(deletedCategoryData => {
+                                    resolve({
+                                        deletedCategoryData: deletedCategoryData,
+                                    })
+                                }).catch(err => reject(err));
+                            }).catch(err => reject('delete all mark error: ' + err));
+                        }).catch(err => reject(err));
                     }).catch(err => reject("Error: " + err));
             });
         },
