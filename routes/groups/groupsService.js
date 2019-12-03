@@ -943,8 +943,6 @@ module.exports = (io) => {
                     { $pull: { "userGroups": member._id } },
                     { new: true }).exec();
 
-                if (!updatedGroupData) throw ("Could not update Group");
-
                 return ({ success: true });
             } catch (error) {
                 throw ("deleteGroupMember: " + error);
