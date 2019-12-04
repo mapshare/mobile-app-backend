@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const CustomMarkCategory = require("./groupSubDocs/customMarkCategory");
-const PendingMember = require("./groupSubDocs/pendingMember");
+const PendingMember = require('./groupSubDocs/pendingMember');
 
 // create group Schema & model
 const GroupSchema = new Schema({
@@ -10,23 +9,34 @@ const GroupSchema = new Schema({
     required: [true, 'groupName field is required']
   },
   groupDescription: {
-    type: String,
+    type: String
   },
   groupImg: { data: Buffer, contentType: String },
-  groupMarks: { type: Schema.Types.ObjectId, ref: "groupMarks" },
-  groupMembers: [{ type: Schema.Types.ObjectId, ref: "groupMember" }],
-  groupFeed: { type: Schema.Types.ObjectId, ref: "groupFeed" },
-  groupEvents: { type: Schema.Types.ObjectId, ref: "groupEvents" },
-  groupChat: { type: Schema.Types.ObjectId, ref: "groupChat" },
-  groupDefaultCategory: [{ type: Schema.Types.ObjectId, ref: "defaultCategory" }],
-  groupCustomMarkCategory: [CustomMarkCategory],
+  groupMarks: { type: Schema.Types.ObjectId, ref: 'groupMarks' },
+  groupMembers: [{ type: Schema.Types.ObjectId, ref: 'groupMember' }],
+  groupFeed: { type: Schema.Types.ObjectId, ref: 'groupFeed' },
+  groupEvents: { type: Schema.Types.ObjectId, ref: 'groupEvents' },
+  groupChat: { type: Schema.Types.ObjectId, ref: 'groupChat' },
+  groupDefaultCategory: [
+    { type: Schema.Types.ObjectId, ref: 'defaultCategory' }
+  ],
+  groupCustomMarkCategory: {
+    type: Schema.Types.ObjectId,
+    ref: 'groupCustomCategory'
+  },
   groupPendingMembers: [PendingMember],
-  groupCreatedBy: { type: Schema.Types.ObjectId, ref: "user", required: [true, 'user field is required'] },
+  groupCreatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    required: [true, 'user field is required']
+  },
   groupIsPublic: { type: Boolean, default: false },
-  groupBannedUsers: [{ type: Schema.Types.ObjectId, ref: "user" }]
+  groupBannedUsers: [{ type: Schema.Types.ObjectId, ref: 'user' }]
 });
 
-GroupSchema.virtual('groupId').get(function () { return this._id; });
+GroupSchema.virtual('groupId').get(function() {
+  return this._id;
+});
 
 GroupSchema.index({ groupName: 'text' });
 

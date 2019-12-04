@@ -1,13 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // create group Schema & model
 const LocationImageSchema = new Schema({
-  locationImageData: {
-    type: Buffer
-  },
-  locationImageContentType: {
-    type: String
+  locationImage: {
+    data: Buffer,
+    contentType: String
   },
   timeStamp: {
     type: Date,

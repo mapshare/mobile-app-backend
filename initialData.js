@@ -34,7 +34,7 @@ module.exports = (io) => {
                     groupRolePermisionLevel: process.env.ROLE_OWNER
                 });
             }
-
+            const initializeDefaultCategories = await GroupData.initializeGroupMarksCategory();
             // Re-Initialize group namespaces
             const groups = await Group.find();
             for (group of groups){

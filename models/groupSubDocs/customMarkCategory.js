@@ -1,12 +1,21 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // create Custom Mark Category Schema & model
 const CustomMarkCategorySchema = new Schema({
-    customMarkCategoryName: {
-        type: String
-    }
+  customMarkCategoryName: {
+    type: String
+  },
+  isSelected: {
+    type: Boolean
+  },
+  categoryColor: {
+    type: String
+  }
 });
 
-//const CustomMarkCategory = mongoose.model('customMarkCategory', CustomMarkCategorySchema);
+// const CustomMarkCategory = mongoose.model(
+//   'customMarkCategory',
+//   CustomMarkCategorySchema
+// );
 module.exports = CustomMarkCategorySchema;
