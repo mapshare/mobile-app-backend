@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Location = require("./location");
+const Location = require('./location');
 
 // create GeoSchema for mark location
 const GeoSchema = new Schema({
   type: {
     type: String,
-    default: "Point"
+    default: 'Point'
   },
   coordinates: {
     type: [Number, Number],
@@ -21,26 +21,28 @@ const MarkSchema = new Schema({
   markName: {
     type: String
   },
-  defaultMarkCategroy: {
-    type: Schema.Types.ObjectId, ref: "defaultCategory"
+  defaultMarkCategory: {
+    type: Schema.Types.ObjectId,
+    ref: 'defaultCategory'
   },
-  customMarkCategroy: {
-    type: Schema.Types.ObjectId, ref: "customMarkCategroy"
+  customMarkCategory: {
+    type: Schema.Types.ObjectId,
+    ref: 'customMarkCategory'
   },
   markLocations: Location,
   markCoordinates: {
     long: Number,
-    lat: Number,
+    lat: Number
   },
   geometry: {
     type: GeoSchema,
-    required: [true, "geoSchema required to save mark"]
+    required: [true, 'geoSchema required to save mark']
   },
-  groupMarkCreatedBy: { type: Schema.Types.ObjectId, ref: "groupMember" },
+  groupMarkCreatedBy: { type: Schema.Types.ObjectId, ref: 'groupMember' }
 });
 
 function checkCoordinates(array) {
-  return array.length === 2
+  return array.length === 2;
 }
 
 //const Mark = mongoose.model('mark', MarkSchema);

@@ -1,15 +1,15 @@
-
 const GroupRole = require('./models/groupRoles');
 const Group = require('./models/group');
 
+module.exports = io => {
+  const dataService = require('./routes/groups/chatRoomService');
+  const ChatData = dataService();
 
-module.exports = (io) => {
+  const groupFeedDataService = require('./routes/groups/groupFeedService');
+  const GroupFeedData = groupFeedDataService();
 
-    const dataService = require("./routes/groups/chatRoomService");
-    const ChatData = dataService();
-
-    const groupFeedDataService = require("./routes/groups/groupFeedService");
-    const GroupFeedData = groupFeedDataService();
+  const GourpsDataService = require('./routes/groups/groupsService');
+  const GroupData = GourpsDataService();
 
     return {
         initialData: async () => {
@@ -34,7 +34,7 @@ module.exports = (io) => {
                     groupRolePermisionLevel: process.env.ROLE_OWNER
                 });
             }
-
+            const initializeDefaultCategories = await GroupData.initializeGroupMarksCategory();
             // Re-Initialize group namespaces
             const groups = await Group.find();
             for (group of groups){
@@ -43,4 +43,4 @@ module.exports = (io) => {
             }
         }
     }
-}
+};

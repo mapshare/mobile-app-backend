@@ -7,6 +7,8 @@ const GroupFeed = require('../../models/groupFeed');
 const GroupEvent = require('../../models/groupEvent');
 const GroupMark = require('../../models/groupMarks');
 const GroupRole = require('../../models/groupRoles');
+const DefaultCategory = require('../../models/defaultCategory');
+const CustomCategory = require('../../models/groupCustomCategory')
 
 const dataService = require("../groups/chatRoomService");
 const sharp = require('sharp');
@@ -14,6 +16,8 @@ const ChatData = dataService();
 
 const groupFeedDataService = require("../groups/groupFeedService");
 const GroupFeedData = groupFeedDataService();
+
+const DEFAULT_CATEGORY_DATA = require('../../data/defaultCategory');
 
 module.exports = (io) => {
     return {
@@ -360,6 +364,7 @@ module.exports = (io) => {
             let groupEventData;
             let groupMarkData;
             let groupChatData;
+            let groupCustomCategoryData;
 
             try {
                 user = await User.findById(userId);
@@ -415,6 +420,12 @@ module.exports = (io) => {
                 groupData.groupChat = groupChatData._id;
                 groupChatData.save();
 
+                groupCustomCategoryData = new CustomCategory({
+                    "group": groupData._id,
+                    "groupCustomCategories": []
+                })
+                groupData.groupCustomMarkCategory = groupCustomCategoryData._id;
+                groupCustomCategoryData.save();
 
                 const savedGroup = await groupData.save();
                 const savedUser = await user.save();
@@ -433,6 +444,7 @@ module.exports = (io) => {
                 const removeGroupEventData = await GroupEvent.deleteOne({ _id: groupEventData._id });
                 const removeGroupMarkData = await GroupMark.deleteOne({ _id: groupMarkData._id });
                 const removeGroupChatData = await GroupChat.deleteOne({ _id: groupChatData._id });
+                const removeGroupCustomCategoryData = await CustomCategory.deleteOne({ _id: groupCustomCategoryData._id });
 
                 throw ("addGroup " + error)
             }
@@ -981,21 +993,21 @@ module.exports = (io) => {
 
         addGroupMark: (GroupId, newData) => {
             return new Promise((resolve, reject) => {
-
                 Group.findById(GroupId)
                     .then(groupData => {
                         if (!groupData) {
                             reject("Group doesn't exist");
                             return;
                         }
+
                         GroupMark.findById(groupData.groupMarks)
                             .then(groupMarksData => {
-                                let image;
+                                let locationImageSet = []
 
-                                if (newData.markLocations.locationImageSet.locationImageData) {
-                                    image = newData.markLocations.locationImageSet.locationImageData.toString('base64');
-                                } else {
-                                    image = '';
+                                if (newData.markLocations.locationImageData) {
+                                    let image = Buffer.from(newData.markLocations.locationImageData, 'base64');
+                                    let locationImage = { locationImage: { data: image, contentType: "image/png" } }
+                                    locationImageSet.push(locationImage)
                                 }
 
                                 let data = {
@@ -1004,7 +1016,7 @@ module.exports = (io) => {
                                         locationAddress: newData.markLocations.locationAddress,
                                         loactionPriceRange: newData.markLocations.loactionPriceRange,
                                         additionalInformation: newData.markLocations.additionalInformation,
-                                        locationImageSet: [{ locationImageData: image }]
+                                        locationImageSet: locationImageSet
                                     },
                                 }
 
@@ -1317,7 +1329,7 @@ module.exports = (io) => {
             }
         },
 
-        addCustomCategoryMark: (groupId, newData) => {
+        addCustomCategoryMark: async (groupId, newData) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
                     .then(groupData => {
@@ -1325,13 +1337,23 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
+                        CustomCategory.findById(groupData.groupCustomMarkCategory)
+                            .then(customCategoryData => {
+                                const data = {
+                                    customMarkCategoryName: newData.customMarkCategoryName,
+                                    isSelected: true,
+                                    categoryColor: newData.categoryColor
+                                }
 
-                        groupData.groupCustomMarkCategory.push(newData);
-
-                        groupData.save()
-                            .then(data => { resolve(data) })
-                            .catch(err => reject(err));
-
+                                customCategoryData.groupCustomCategories.push(data);
+                                customCategoryData.save()
+                                    .then(data => {
+                                        resolve({
+                                            group: data.group,
+                                            groupCustomCategories: data.groupCustomCategories
+                                        })
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
         },
@@ -1347,31 +1369,55 @@ module.exports = (io) => {
             });
         },
 
-        getGroupMark: (GroupId, markId) => {
-            return new Promise((resolve, reject) => {
+        getGroupMark: async (GroupId, markId) => {
+            try {
+                const groupData = await Group.findById(GroupId)
+                if (!groupData) {
+                    reject("Group doesn't exist");
+                    return;
+                }
 
-                Group.findById(GroupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
+                const groupMarksData = await GroupMark.findById(groupData.groupMarks)
+                let markIndex = -1;
+                for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                    if (groupMarksData.groupMarks[i]._id == markId) {
+                        markIndex = i;
+                    }
+                }
+
+                let data = {}
+                let locationImageSet = []
+
+                if (groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet.length > 0) {
+                    const imageArray = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
+                    console.log('get: ', imageArray)
+                    for (let i = 0; i < imageArray.length; i++) {
+                        let image = {
+                            _id: imageArray[i]._doc._id,
+                            locationImage: imageArray[i]._doc.locationImage.data.toString('base64'),
+                            timeStamp: imageArray[i]._doc.timeStamp,
                         }
-                        GroupMark.findById(groupData.groupMarks)
-                            .then(groupMarksData => {
-                                var markIndex = -1;
-                                for (var i = 0; i < groupMarksData.groupMarks.length; i++) {
-                                    if (groupMarksData.groupMarks[i]._id == markId) {
-                                        markIndex = i;
-                                    }
-                                }
+                        locationImageSet.push(image)
+                    }
 
-                                resolve({
-                                    groupMarks: groupMarksData,
-                                    mark: groupMarksData.groupMarks[markIndex]
-                                });
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-            });
+                    data = {
+                        ...groupMarksData.groupMarks[markIndex],
+                        markLocations: {
+                            ...groupMarksData.groupMarks[markIndex].markLocations._doc,
+                            locationImageSet: locationImageSet
+                        }
+                    }
+                }
+
+                data = groupMarksData.groupMarks[markIndex]
+                const rc = {
+                    mark: data,
+                    markImages: locationImageSet
+                }
+                return rc;
+            } catch (error) {
+                throw ("getGroupMark " + error);
+            }
         },
 
         getGroupPost: (GroupId, postId) => {
@@ -1425,6 +1471,17 @@ module.exports = (io) => {
                                 });
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
+            });
+        },
+
+        getCustomCategoryMarks: async (groupCategoryId) => {
+            return new Promise((resolve, reject) => {
+                CustomCategory.findById(groupCategoryId)
+                    .then(data => {
+                        if (data) resolve(data);
+                        else reject("no group category marks with specified id");
+                    })
+                    .catch(err => reject(err));
             });
         },
 
@@ -1638,24 +1695,26 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
-                        var markCategoryIndex = -1;
-                        for (var i = 0; i < groupData.groupCustomMarkCategory.length; i++) {
-                            if (groupData.groupCustomMarkCategory[i]._id == categoryId) {
-                                markCategoryIndex = i;
-                            }
-                        }
 
-                        groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : groupData.groupCustomMarkCategory[markCategoryIndex].customMarkCategoryName;
+                        CustomCategory.findById(groupData.groupCustomMarkCategory)
+                            .then(customCategoryData => {
 
-                        groupData.save()
-                            .then(data => {
-                                resolve({
-                                    group: data,
-                                    updatedCategory: data.groupCustomMarkCategory[markCategoryIndex]
-                                })
-                            })
-                            .catch(err => reject(err));
+                                let markCategoryIndex = -1;
+                                for (let i = 0; i < customCategoryData.groupCustomCategories.length; i++) {
+                                    if (customCategoryData.groupCustomCategories[i]._id == categoryId) {
+                                        markCategoryIndex = i;
+                                    }
+                                }
 
+                                customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName;
+                                customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor = newData.categoryColor ? newData.categoryColor : customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor;
+                                customCategoryData.save()
+                                    .then(data => {
+                                        resolve({
+                                            updatedCategory: data.groupCustomCategories[markCategoryIndex]
+                                        })
+                                    }).catch(err => reject(err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
         },
@@ -1728,7 +1787,7 @@ module.exports = (io) => {
             });
         },
 
-        deleteCustomCategoryMark: (groupId, id) => {
+        deleteCustomCategoryMark: (groupId, categoryId) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
                     .then(groupData => {
@@ -1737,11 +1796,27 @@ module.exports = (io) => {
                             return;
                         }
 
-                        groupData.groupCustomMarkCategory.pull({ _id: id });
+                        GroupMark.findById(groupData.groupMarks)
+                            .then(groupMarksData => {
+                                for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                                    if (groupMarksData.groupMarks[i].customMarkCategory == categoryId) {
+                                        groupMarksData.groupMarks.pull(groupMarksData.groupMarks[i]._id);
+                                    }
+                                }
+                                groupMarksData.save()
 
-                        groupData.save()
-                            .then(data => { resolve(data) })
-                            .catch(err => reject(err));
+                                CustomCategory.findById(groupData.groupCustomMarkCategory)
+                                    .then(customCategoryData => {
+
+                                        customCategoryData.groupCustomCategories.pull(categoryId)
+                                        customCategoryData.save()
+                                            .then(deletedCategoryData => {
+                                                resolve({
+                                                    deletedCategoryData: deletedCategoryData,
+                                                })
+                                            }).catch(err => reject(err));
+                                    }).catch(err => reject('delete all mark error: ' + err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject("Error: " + err));
             });
         },
@@ -2014,12 +2089,36 @@ module.exports = (io) => {
                             .then(data => { })
                             .catch(err => reject(err));
 
+                        // Delete Group category Referencing to the Group being deleted
+                        CustomCategory.deleteOne({ group: groupData._id })
+                            .then(data => { })
+                            .catch(err => reject(err));
+
                         // Delete Group
                         Group.deleteOne({ _id: groupData._id })
                             .then(data => resolve(data))
                             .catch(err => reject(err));
                     }).catch(err => reject(err));
             });
-        }
+        },
+
+        // Initialize group marks category
+        initializeGroupMarksCategory: async (groupId) => {
+            console.log('initializing group categories!')
+            try {
+                const defaultCategoryData = await DefaultCategory.find();
+                if (!defaultCategoryData.length) {
+                    for (categoryData of DEFAULT_CATEGORY_DATA) {
+                        const category = await DefaultCategory.create({
+                            defaultCategoryName: categoryData.defaultCategoryName,
+                            isSelected: categoryData.isSelected,
+                            categoryColor: categoryData.categoryColor
+                        });
+                    }
+                }
+            } catch (error) {
+                throw ("initialize group marks category: " + error);
+            }
+        },
     }
 }
