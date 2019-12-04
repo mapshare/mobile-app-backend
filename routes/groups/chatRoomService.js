@@ -249,6 +249,7 @@ module.exports = () => {
     return {
         setupGroupNamespace: async (groupId, io) => {
             try {
+                var activeMembers = [];
                 // Setup GroupChat NameSpace
                 const nsp = io
                     .of('/' + groupId)
@@ -260,6 +261,8 @@ module.exports = () => {
                         var member;
                         var chatRoom;
                         var group;
+                        var interval;
+                        var connenctionStatus = false;
 
                         socket.on('authenticate', async (token) => {
                             try {
@@ -276,6 +279,7 @@ module.exports = () => {
                         socket.on('join room', async (data) => {
                             try {
                                 console.log('join room')
+                                connenctionStatus = true;
                                 let groupId = data.groupId;
                                 chatRoomName = data.chatRoomName;
                                 group = groupId;
@@ -286,12 +290,39 @@ module.exports = () => {
                                 socket.join(chatRoom.chatRoomName);
                                 member = await getMember(group, user);
 
+                                // Add User to Active Member List
+                                activeMembers.push({
+                                    ...user._doc,
+                                    memberId: member._id
+                                });
+
+                                interval = setInterval(() => {
+                                    console.log("interval: " + user.userFirstName);
+                                    
+                                    if (connenctionStatus == false) {
+                                        // Remove deactivated users                       
+                                        for (var i = 0; i < activeMembers.length; i++) {
+                                            if (activeMembers[i]._id == user._id) {
+                                                activeMembers.splice(i, 1);
+                                                break;
+                                            }
+                                        }
+                                        socket.disconnect();
+                                    } else {
+                                        connenctionStatus = false;
+                                        socket.emit('Still Connected', { user: user.userFirstName });
+                                    }
+                                }, 5000)
+
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
-                                nsp.to(chatRoom.chatRoomName).emit('join room', {
+                                socket.emit('join room', {
                                     chatRoomId: chatRoomId,
                                     data: chatLog
                                 });
+
+                                nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
+
                             } catch (error) {
                                 throw (error);
                             }
@@ -341,6 +372,24 @@ module.exports = () => {
                                 userFirstName: user.userFirstName
                             });
                         });
+
+                        socket.on('Still Connected', () => {
+                            connenctionStatus = true;
+                        });
+
+                        socket.on('disconnect', async () => {
+                            console.log("disconnect Chat")
+                            // Remove disconnected user
+                            for (var i = 0; i < activeMembers.length; i++) {
+                                if (activeMembers[i]._id == user._id) {
+                                    activeMembers.splice(i, 1);
+                                    break;
+                                }
+                            }
+
+                            nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
+                        });
+
                     });
 
                 return;

@@ -14,7 +14,7 @@ const { verifyTokenEmail } = require("./verifyTokenEmail");
 const { verifyLoginToken } = require("./verifyToken");
 const transporter = require("./html/email/transporter");
 // TESTING ONLY REGISTER
-
+/*
 // register new user
 router.post('/testregister', async (req, res, next) => {
   //Verify if the user already exits
@@ -37,6 +37,7 @@ router.post('/testregister', async (req, res, next) => {
     res.status(400).send(err);
   }
 });
+*/
 
 // register new user
 router.post("/register", async (req, res, next) => {
