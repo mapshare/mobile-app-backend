@@ -1003,10 +1003,12 @@ module.exports = (io) => {
 
                         GroupMark.findById(groupData.groupMarks)
                             .then(groupMarksData => {
-                                let image;
+                                let locationImageSet = []
 
-                                if (newData.markLocations.locationImageSet.locationImageData) {
-                                    image = newData.markLocations.locationImageSet.locationImageData.toString('base64');
+                                if (newData.markLocations.locationImageData) {
+                                    let image = Buffer.from(newData.markLocations.locationImageData, 'base64');
+                                    let locationImage = { locationImage: { data: image, contentType: "image/png"} }
+                                    locationImageSet.push(locationImage)
                                 }
 
                                 let data = {
@@ -1015,11 +1017,9 @@ module.exports = (io) => {
                                         locationAddress: newData.markLocations.locationAddress,
                                         loactionPriceRange: newData.markLocations.loactionPriceRange,
                                         additionalInformation: newData.markLocations.additionalInformation,
-                                        locationImageSet: [{ locationImageData: image }]
+                                        locationImageSet: locationImageSet
                                     },
                                 }
-
-                                console.log('add mark: ', data);
 
                                 groupMarksData.groupMarks.push(data);
                                 groupMarksData.save()
@@ -1370,31 +1370,51 @@ module.exports = (io) => {
             });
         },
 
-        getGroupMark: (GroupId, markId) => {
-            return new Promise((resolve, reject) => {
+        getGroupMark: async (GroupId, markId) => {
+            try {
+                const groupData = await Group.findById(GroupId)
+                    if (!groupData) {
+                        reject("Group doesn't exist");
+                        return;
+                    }
 
-                Group.findById(GroupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
+                    const groupMarksData = await GroupMark.findById(groupData.groupMarks)
+                        let markIndex = -1;
+                        for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                            if (groupMarksData.groupMarks[i]._id == markId) {
+                                markIndex = i;
+                            }
                         }
-                        GroupMark.findById(groupData.groupMarks)
-                            .then(groupMarksData => {
-                                var markIndex = -1;
-                                for (var i = 0; i < groupMarksData.groupMarks.length; i++) {
-                                    if (groupMarksData.groupMarks[i]._id == markId) {
-                                        markIndex = i;
-                                    }
-                                }
 
-                                resolve({
-                                    groupMarks: groupMarksData,
-                                    mark: groupMarksData.groupMarks[markIndex]
-                                });
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-            });
+                        let data = {}
+
+                        if (groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet.length > 0) {
+                            const imageArray = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
+                            let locationImageSet = []
+                            for (let i = 0; i < imageArray.length; i++) {
+                                let image = {
+                                    _id: imageArray[i]._doc._id,
+                                    locationImage: imageArray[i]._doc.locationImage.data.toString('base64'),
+                                    timeStamp: imageArray[i]._doc.timeStamp,
+                                }
+                                locationImageSet.push(image)
+                            }
+
+                            data = {
+                                ...groupMarksData.groupMarks[markIndex],
+                                markLocations: {
+                                    ...groupMarksData.groupMarks[markIndex].markLocations._doc,
+                                    locationImageSet: locationImageSet
+                                }
+                            }
+                        }
+
+                        data = groupMarksData.groupMarks[markIndex]
+
+                        return data                 
+            } catch (error) {
+                throw ("getGroupMark " + error);
+            }
         },
 
         getGroupPost: (GroupId, postId) => {
@@ -2004,6 +2024,11 @@ module.exports = (io) => {
 
                         // Delete Group Mark Referencing to the Group being deleted
                         GroupMark.deleteOne({ group: groupData._id })
+                            .then(data => { })
+                            .catch(err => reject(err));
+
+                        // Delete Group category Referencing to the Group being deleted
+                        CustomCategory.deleteOne({ group: groupData._id })
                             .then(data => { })
                             .catch(err => reject(err));
 
