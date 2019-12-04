@@ -417,14 +417,15 @@ module.exports = (io) => {
 
     // update Group Mark
     router.put('/groups/:id/mark/:markId', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.updateGroupMark(req.params.id, req.params.markId, req.body).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to update marks for this group" })
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+                const results = await data.updateGroupMark(req.params.id, req.params.markId, req.body);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to update this mark");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error })
         }
     });
 
@@ -534,7 +535,7 @@ module.exports = (io) => {
             res.status(400).send({ "error": error });
         }
     });
-    
+
     // Un-Ban User From Group
     router.delete('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
         try {

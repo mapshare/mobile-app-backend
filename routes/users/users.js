@@ -52,14 +52,13 @@ router.get("/user", verifyLoginToken, (req, res, next) => {
 });
 
 // update user using JWT
-router.put("/user", verifyLoginToken, (req, res, next) => {
-  data.updateUserById(req.user, req.body)
-    .then(data => {
-      res.status(200).json(data);
-    })
-    .catch(err => {
-      res.status(400).send({ error: err });
-    });
+router.put("/user", verifyLoginToken, async (req, res, next) => {
+  try {
+    const results = await data.updateUserById(req.user, req.body);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(400).send({ "error": error });
+  }
 });
 
 // delete users using JWT

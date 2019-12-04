@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const User = require("../../models/user");
 const GroupMember = require("../../models/groupMember");
 const Group = require("../../models/group");
+const bcrypt = require("bcryptjs");
 
 module.exports = () => {
 	return {
@@ -87,48 +88,49 @@ module.exports = () => {
 			});
 		},
 
-		updateUserById: (userId, newData) => {
-			return new Promise((resolve, reject) => {
+		updateUserById: async (userId, newData) => {
+			try {
+				// Parse New Data
 				let {
-					userGroups,
-					userPosts,
-					userEvent,
 					userEmail,
 					userFirstName,
 					userLastName,
-					googleId,
-					userImages,
-					userReviews
+					userProfilePic,
+					userPassword
 				} = newData;
 
-				User.findById(userId)
-					.then(user => {
-						if (!user) {
-							reject("User doesn't exist");
-							return;
-						}
+				// Get User From Database
+				let userData = User.findById(userId);
+				if (!userData) { throw ("User Not Found") }
 
-						user.userGroups = userGroups ? userGroups : user.userGroups;
-						user.userPosts = userPosts ? userPosts : user.userPosts;
-						user.userEvent = userEvent ? userEvent : user.userEvent;
-						user.userEmail = userEmail ? userEmail : user.userEmail;
-						user.userFirstName = userFirstName
-							? userFirstName
-							: user.userFirstName;
-						user.userLastName = userLastName ? userLastName : user.userLastName;
-						user.googleId = googleId ? googleId : user.googleId;
-						user.userImages = userImages ? userImages : user.userImages;
-						user.userReviews = userReviews ? userReviews : user.userReviews;
+				user.userEmail = userEmail ? userEmail : user.userEmail;
+				user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
+				user.userLastName = userLastName ? userLastName : user.userLastName;
 
-						user
-							.save()
-							.then(data => {
-								resolve({ success: data });
-							})
-							.catch(err => reject(err));
-					})
-					.catch(err => reject(err));
-			});
+				// Update User Profile Picture
+				if (userProfilePic) {
+					let contentType = 'image/png';
+					let buffer = Buffer.from(userProfilePic, 'base64');
+					user.userProfilePic.data = buffer ? buffer : user.userProfilePic.data;
+					user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
+				}
+
+				// Update User Password
+				if (userPassword) {
+					const salt = await bcrypt.genSalt(10);
+					const newHashPassword = await bcrypt.hash(req.body.userPassword, salt);
+					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
+				}
+
+				let updateUser = User.findOneAndUpdate(
+					{ _id: userData._id },
+					user,
+					{ new: true }
+				).exec();
+				if (!updateUser) { throw ("Problem Updating User") }
+			} catch (error) {
+				throw ("updateUserById: " + error);
+			}
 		},
 		deleteUserbyId: id => {
 			return new Promise((resolve, reject) => {

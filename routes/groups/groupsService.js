@@ -9,6 +9,7 @@ const GroupMark = require('../../models/groupMarks');
 const GroupRole = require('../../models/groupRoles');
 
 const dataService = require("../groups/chatRoomService");
+const sharp = require('sharp');
 const ChatData = dataService();
 
 const groupFeedDataService = require("../groups/groupFeedService");
@@ -1470,38 +1471,97 @@ module.exports = (io) => {
             }
         },
 
-        updateGroupMark: (GroupId, markId, newData) => {
-            return new Promise((resolve, reject) => {
+        updateGroupMark: async (groupId, markId, newData) => {
+            try {
+                // parse new Data
+                let {
+                    markName,
+                    geometry,
+                    defaultMarkCategroy,
+                    customMarkCategroy,
+                    markCoordinates,
+                    groupMarkCreatedBy,
+                    markLocations
+                } = newData;
 
-                Group.findById(GroupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
+                // Load Group From DataBase
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                // Load Group Mark From DataBase
+                const groupmarksData = await GroupMark.findById(groupData.groupMarks);
+                if (!groupmarksData) throw ("Could not find Group Mark");
+
+                // Get Index of mark 
+                var markIndex = -1;
+                markIndex = groupMarksData.groupMarks.findindex((mark) => {
+                    return (mark._id == markId);
+                });
+
+                // Update Group Mark
+                groupMarksData.groupMarks[markIndex].markName = markName ? markName : groupMarksData.groupMarks[markIndex].markName;
+                groupMarksData.groupMarks[markIndex].geometry = geometry ? geometry : groupMarksData.groupMarks[markIndex].geometry;
+                groupMarksData.groupMarks[markIndex].defaultMarkCategroy = defaultMarkCategroy ? defaultMarkCategroy : groupMarksData.groupMarks[markIndex].defaultMarkCategroy;
+                groupMarksData.groupMarks[markIndex].customMarkCategroy = customMarkCategroy ? customMarkCategroy : groupMarksData.groupMarks[markIndex].customMarkCategroy;
+                groupMarksData.groupMarks[markIndex].markCoordinates = markCoordinates ? markCoordinates : groupMarksData.groupMarks[markIndex].markCoordinates;
+                groupMarksData.groupMarks[markIndex].groupMarkCreatedBy = groupMarkCreatedBy ? groupMarkCreatedBy : groupMarksData.groupMarks[markIndex].groupMarkCreatedBy;
+
+                // Update Group Mark Location
+                groupMarksData.groupMarks[markIndex].markLocations.locationAddress = markLocations.locationAddress ? markLocations.locationAddress : groupMarksData.groupMarks[markIndex].markLocations.locationAddress;
+                groupMarksData.groupMarks[markIndex].markLocations.loactionPriceRange = markLocations.loactionPriceRange ? markLocations.loactionPriceRange : groupMarksData.groupMarks[markIndex].markLocations.loactionPriceRange;
+                groupMarksData.groupMarks[markIndex].markLocations.additionalInformation = markLocations.additionalInformation ? markLocations.additionalInformation : groupMarksData.groupMarks[markIndex].markLocations.additionalInformation;
+
+                // update Group Mark Location Image
+                if (markLocations.locationImageSet) {
+                    // Loop Through all Location Images
+                    for (let i = 0; i < markLocations.locationImageSet.length; i++) {
+                        let updatePhoto = false;
+                        // Checking if I is Less than Current Image Set size, if I is greater it means a image was added.
+                        if (i < groupMarksData.groupMarks[markIndex].markLocations.locationImageSet.length) {
+                            // Check For deference, if deference than update photo.
+                            if (groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data != markLocations.locationImageSet[i].data) {
+                                updatePhoto = true;
+                            }
+                        } else {
+                            updatePhoto = true;
                         }
-                        GroupMark.findById(groupData.groupMarks)
-                            .then(groupMarksData => {
-                                var markIndex = -1;
-                                for (var i = 0; i < groupMarksData.groupMarks.length; i++) {
-                                    if (groupMarksData.groupMarks[i]._id == markId) {
-                                        markIndex = i;
-                                    }
-                                }
-                                groupMarksData.groupMarks[markIndex].markName = newData.markName ? newData.markName : groupMarksData.groupMarks[markIndex].markName;
-                                groupMarksData.groupMarks[markIndex].markLocations = newData.markLocations ? newData.markLocations : groupMarksData.groupMarks[markIndex].markLocations;
-                                groupMarksData.groupMarks[markIndex].geometry = newData.geometry ? newData.geometry : groupMarksData.groupMarks[markIndex].geometry;
 
-                                groupMarksData.save()
-                                    .then(marks => {
-                                        resolve({
-                                            groupMarks: marks,
-                                            updatedMark: groupMarksData.groupMarks[markIndex]
-                                        })
-                                    })
-                                    .catch(err => reject(err));
-                            })
-                    }).catch(err => reject(err));
-            });
+                        if (updatePhoto) {
+                            let bufferedImage = Buffer.from(markLocations.locationImageSet[i].data, 'base64');
+                            const locationImageResized = await sharp(bufferedImage)
+                                .resize(1280, 720)
+                                .png()
+                                .toBuffer();
+                            let contentType = 'image/png';
+
+                            if (markLocationImageIndex != -1) {
+                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data = locationImageResized ? locationImageResized : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data;
+                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType = contentType ? contentType : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType;
+                            }
+                        }
+                    }
+                }
+
+                // Check if markLocations.locationReviewSet
+                if (markLocations.locationReviewSet) {
+                    // Loop Through all location reviews
+                    for (let i = 0; i < markLocations.locationReviewSet.length; i++) {
+                        groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewRating = markLocations.locationReviewSet[i].reviewRating ? markLocations.locationReviewSet[i].reviewRating : groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewRating;
+                        groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewContent = markLocations.locationReviewSet[i].reviewRating ? markLocations.locationReviewSet[i].reviewContent : groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewContent;
+                    }
+                }
+
+                // Update Group Mark 
+                let updateMark = GroupMark.findOneAndUpdate(
+                    { _id: groupmarksData._id },
+                    groupmarksData,
+                    { new: true }
+                ).exec();
+                if (!updateMark) { throw ("Problem Updating Mark"); }
+
+            } catch (error) {
+                throw ("updateGroupMark " + error);
+            }
         },
 
         updateGroupPost: (GroupId, postId, newData) => {
