@@ -1,10 +1,10 @@
-require("dotenv").config();
-const express = require("express");
+require('dotenv').config();
+const express = require('express');
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Handlebars = require('handlebars');
-const fs = require("fs");
+const fs = require('fs');
 const path = require('path');
 var hbs = require('nodemailer-express-handlebars');
 
@@ -16,26 +16,26 @@ const transporter = require("./html/email/transporter");
 // TESTING ONLY REGISTER
 /*
 // register new user
-router.post("/testregister", async (req, res, next) => {
-	//Verify if the user already exits
-	const emailExist = await User.findOne({ userEmail: req.body.userEmail });
-	if (emailExist) return res.status(400).send("Email already exists!");
+router.post('/testregister', async (req, res, next) => {
+  //Verify if the user already exits
+  const emailExist = await User.findOne({ userEmail: req.body.userEmail });
+  if (emailExist) return res.status(400).send('Email already exists!');
 
-	//Hashing passwords
-	const salt = await bcrypt.genSalt(10);
-	const hashPassword = await bcrypt.hash(req.body.userPassword, salt);
+  //Hashing passwords
+  const salt = await bcrypt.genSalt(10);
+  const hashPassword = await bcrypt.hash(req.body.userPassword, salt);
 
-	const newUser = new User({
-		...req.body,
-		userPassword: hashPassword
-	});
+  const newUser = new User({
+    ...req.body,
+    userPassword: hashPassword
+  });
 
-	try {
-		const savedUser = await newUser.save();
-		res.send({ success: true });
-	} catch (err) {
-		res.status(400).send(err);
-	}
+  try {
+    const savedUser = await newUser.save();
+    res.send({ success: true });
+  } catch (err) {
+    res.status(400).send(err);
+  }
 });
 */
 
@@ -147,22 +147,22 @@ router.get("/verify/:token", verifyTokenEmail, async (req, res, next) => {
 });
 
 // login user
-router.post("/login", async (req, res, next) => {
-	// Verify if the user already exists
-	const user = await User.findOne({ userEmail: req.body.userEmail });
-	if (!user) return res.status(400).send("Email or Password is Wrong");
-	// Verify if password is correct
-	const validPassword = await bcrypt.compare(
-		req.body.userPassword,
-		user.userPassword
-	);
-	if (!validPassword) return res.status(400).send("Email or Password is Wrong");
+router.post('/login', async (req, res, next) => {
+  // Verify if the user already exists
+  const user = await User.findOne({ userEmail: req.body.userEmail });
+  if (!user) return res.status(400).send('Email or Password is Wrong');
+  // Verify if password is correct
+  const validPassword = await bcrypt.compare(
+    req.body.userPassword,
+    user.userPassword
+  );
+  if (!validPassword) return res.status(400).send('Email or Password is Wrong');
 
-	// Create an user logged in token and its header name tag. Add a expiry if needed by adding { expiresIn: '1h' }
-	const token = jwt.sign({ _id: user._id }, process.env.LOGIN_TOKEN);
-	res.setHeader("authentication", token);
+  // Create an user logged in token and its header name tag. Add a expiry if needed by adding { expiresIn: '1h' }
+  const token = jwt.sign({ _id: user._id }, process.env.LOGIN_TOKEN);
+  res.setHeader('authentication', token);
 
-	res.send(user);
+  res.send(user);
 });
 
 // login user With A token
