@@ -33,10 +33,7 @@ const UserSchema = new Schema({
       message: props => `${props.value} is not a valid google id!`
     }
   },
-  userProfilePic: {
-    type: Schema.Types.ObjectId,
-    ref: "userImages"
-  },
+  userProfilePic: { data: Buffer, contentType: String },
   userImages: [UserImages],
   userGroups: [
     {
