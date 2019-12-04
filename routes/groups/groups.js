@@ -425,9 +425,9 @@ module.exports = (io) => {
 
 
     // update Group Mark
-    router.put('/groups/:id/mark/:markId', verifyLoginToken, async (req, res, next) => {
+    router.put('/groups/:groupId/mark/:markId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.updateGroupMark(req.params.id, req.params.markId, req.body).then(data => {
+            data.updateGroupMark(req.params.groupId, req.params.markId, req.body).then(data => {
                 res.status(200).json(data)
             }).catch(err => {
                 res.status(400).send({ "error": err })
@@ -543,7 +543,7 @@ module.exports = (io) => {
             res.status(400).send({ "error": error });
         }
     });
-    
+
     // Un-Ban User From Group
     router.delete('/groups/:groupId/ban/:userId', verifyLoginToken, async (req, res, next) => {
         try {

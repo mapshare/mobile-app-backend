@@ -16,7 +16,7 @@ const ChatData = dataService();
 const groupFeedDataService = require("../groups/groupFeedService");
 const GroupFeedData = groupFeedDataService();
 
-const DEFAULT_CATEGORY_DATA = require ('../../data/defaultCategory');
+const DEFAULT_CATEGORY_DATA = require('../../data/defaultCategory');
 
 module.exports = (io) => {
     return {
@@ -1007,7 +1007,7 @@ module.exports = (io) => {
 
                                 if (newData.markLocations.locationImageData) {
                                     let image = Buffer.from(newData.markLocations.locationImageData, 'base64');
-                                    let locationImage = { locationImage: { data: image, contentType: "image/png"} }
+                                    let locationImage = { locationImage: { data: image, contentType: "image/png" } }
                                     locationImageSet.push(locationImage)
                                 }
 
@@ -1338,21 +1338,21 @@ module.exports = (io) => {
                             reject("Group doesn't exist");
                             return;
                         }
-                            CustomCategory.findById(groupData.groupCustomMarkCategory)
-                                .then(customCategoryData => {
-                                    const data = {
-                                        customMarkCategoryName: newData.customMarkCategoryName,
-                                        isSelected: true,
-                                        categoryColor: newData.categoryColor
-                                    }
-                                    
-                                    customCategoryData.groupCustomCategories.push(data);
-                                    customCategoryData.save()
-                                        .then(data => {
-                                            resolve({
-                                                group: data.group,
-                                                groupCustomCategories: data.groupCustomCategories
-                                            })
+                        CustomCategory.findById(groupData.groupCustomMarkCategory)
+                            .then(customCategoryData => {
+                                const data = {
+                                    customMarkCategoryName: newData.customMarkCategoryName,
+                                    isSelected: true,
+                                    categoryColor: newData.categoryColor
+                                }
+
+                                customCategoryData.groupCustomCategories.push(data);
+                                customCategoryData.save()
+                                    .then(data => {
+                                        resolve({
+                                            group: data.group,
+                                            groupCustomCategories: data.groupCustomCategories
+                                        })
                                     }).catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
@@ -1373,45 +1373,49 @@ module.exports = (io) => {
         getGroupMark: async (GroupId, markId) => {
             try {
                 const groupData = await Group.findById(GroupId)
-                    if (!groupData) {
-                        reject("Group doesn't exist");
-                        return;
+                if (!groupData) {
+                    reject("Group doesn't exist");
+                    return;
+                }
+
+                const groupMarksData = await GroupMark.findById(groupData.groupMarks)
+                let markIndex = -1;
+                for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                    if (groupMarksData.groupMarks[i]._id == markId) {
+                        markIndex = i;
+                    }
+                }
+
+                let data = {}
+                let locationImageSet = []
+
+                if (groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet.length > 0) {
+                    const imageArray = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
+                    console.log('get: ', imageArray)
+                    for (let i = 0; i < imageArray.length; i++) {
+                        let image = {
+                            _id: imageArray[i]._doc._id,
+                            locationImage: imageArray[i]._doc.locationImage.data.toString('base64'),
+                            timeStamp: imageArray[i]._doc.timeStamp,
+                        }
+                        locationImageSet.push(image)
                     }
 
-                    const groupMarksData = await GroupMark.findById(groupData.groupMarks)
-                        let markIndex = -1;
-                        for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
-                            if (groupMarksData.groupMarks[i]._id == markId) {
-                                markIndex = i;
-                            }
+                    data = {
+                        ...groupMarksData.groupMarks[markIndex],
+                        markLocations: {
+                            ...groupMarksData.groupMarks[markIndex].markLocations._doc,
+                            locationImageSet: locationImageSet
                         }
+                    }
+                }
 
-                        let data = {}
-
-                        if (groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet.length > 0) {
-                            const imageArray = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
-                            let locationImageSet = []
-                            for (let i = 0; i < imageArray.length; i++) {
-                                let image = {
-                                    _id: imageArray[i]._doc._id,
-                                    locationImage: imageArray[i]._doc.locationImage.data.toString('base64'),
-                                    timeStamp: imageArray[i]._doc.timeStamp,
-                                }
-                                locationImageSet.push(image)
-                            }
-
-                            data = {
-                                ...groupMarksData.groupMarks[markIndex],
-                                markLocations: {
-                                    ...groupMarksData.groupMarks[markIndex].markLocations._doc,
-                                    locationImageSet: locationImageSet
-                                }
-                            }
-                        }
-
-                        data = groupMarksData.groupMarks[markIndex]
-
-                        return data                 
+                data = groupMarksData.groupMarks[markIndex]
+                const rc = {
+                    mark: data,
+                    markImages: locationImageSet
+                }
+                return rc;
             } catch (error) {
                 throw ("getGroupMark " + error);
             }
@@ -1542,15 +1546,26 @@ module.exports = (io) => {
                                         markIndex = i;
                                     }
                                 }
-                                groupMarksData.groupMarks[markIndex].markName = newData.markName ? newData.markName : groupMarksData.groupMarks[markIndex].markName;
-                                groupMarksData.groupMarks[markIndex].markLocations = newData.markLocations ? newData.markLocations : groupMarksData.groupMarks[markIndex].markLocations;
-                                groupMarksData.groupMarks[markIndex].geometry = newData.geometry ? newData.geometry : groupMarksData.groupMarks[markIndex].geometry;
+
+                                console.log('name: ', newData.markName)
+                                // let locationImageSet = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
+                                // console.log(locationImageSet)
+                                if (newData.locationImageData) {
+                                    let image = Buffer.from(newData.locationImageData, 'base64');
+                                    let locationImage = { locationImage: { data: image, contentType: "image/png" } }
+                                    groupMarksData.groupMarks[markIndex].markLocations.locationImageSet.push(locationImage)
+                                    console.log(groupMarksData.groupMarks[markIndex].markLocations.locationImageSet)
+                                }
+
+
+                                groupMarksData.groupMarks[markIndex].markName = newData.markName;
+                                // groupMarksData.groupMarks[markIndex].markLocations.locationImageSet = locationImageSet
+                                //= newData.markLocations ? newData.markLocations : groupMarksData.groupMarks[markIndex].markLocations;
 
                                 groupMarksData.save()
                                     .then(marks => {
                                         resolve({
-                                            groupMarks: marks,
-                                            updatedMark: groupMarksData.groupMarks[markIndex]
+                                            updatedMark: marks.groupMarks[markIndex]
                                         })
                                     })
                                     .catch(err => reject(err));
@@ -1647,11 +1662,11 @@ module.exports = (io) => {
                                 customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName = newData.customMarkCategoryName ? newData.customMarkCategoryName : customCategoryData.groupCustomCategories[markCategoryIndex].customMarkCategoryName;
                                 customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor = newData.categoryColor ? newData.categoryColor : customCategoryData.groupCustomCategories[markCategoryIndex].categoryColor;
                                 customCategoryData.save()
-                                .then(data => {
-                                    resolve({
-                                        updatedCategory: data.groupCustomCategories[markCategoryIndex]
-                                    })
-                                }).catch(err => reject(err));
+                                    .then(data => {
+                                        resolve({
+                                            updatedCategory: data.groupCustomCategories[markCategoryIndex]
+                                        })
+                                    }).catch(err => reject(err));
                             }).catch(err => reject(err));
                     }).catch(err => reject(err));
             });
@@ -1735,26 +1750,26 @@ module.exports = (io) => {
                         }
 
                         GroupMark.findById(groupData.groupMarks)
-                        .then(groupMarksData => {
-                            for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
-                                if (groupMarksData.groupMarks[i].customMarkCategory == categoryId) {
-                                    groupMarksData.groupMarks.pull(groupMarksData.groupMarks[i]._id);
+                            .then(groupMarksData => {
+                                for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                                    if (groupMarksData.groupMarks[i].customMarkCategory == categoryId) {
+                                        groupMarksData.groupMarks.pull(groupMarksData.groupMarks[i]._id);
+                                    }
                                 }
-                            }
-                            groupMarksData.save()
+                                groupMarksData.save()
 
-                            CustomCategory.findById(groupData.groupCustomMarkCategory)
-                                .then(customCategoryData => {
+                                CustomCategory.findById(groupData.groupCustomMarkCategory)
+                                    .then(customCategoryData => {
 
-                                customCategoryData.groupCustomCategories.pull(categoryId)
-                                customCategoryData.save()
-                                .then(deletedCategoryData => {
-                                    resolve({
-                                        deletedCategoryData: deletedCategoryData,
-                                    })
-                                }).catch(err => reject(err));
-                            }).catch(err => reject('delete all mark error: ' + err));
-                        }).catch(err => reject(err));
+                                        customCategoryData.groupCustomCategories.pull(categoryId)
+                                        customCategoryData.save()
+                                            .then(deletedCategoryData => {
+                                                resolve({
+                                                    deletedCategoryData: deletedCategoryData,
+                                                })
+                                            }).catch(err => reject(err));
+                                    }).catch(err => reject('delete all mark error: ' + err));
+                            }).catch(err => reject(err));
                     }).catch(err => reject("Error: " + err));
             });
         },
