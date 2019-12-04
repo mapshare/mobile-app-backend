@@ -1547,7 +1547,7 @@ module.exports = (io) => {
                                     }
                                 }
 
-                                console.log('name: ', newData.markName)
+                                // console.log('name: ', newData.markName)
                                 // let locationImageSet = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
                                 // console.log(locationImageSet)
                                 if (newData.locationImageData) {
