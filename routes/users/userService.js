@@ -3,6 +3,7 @@ const User = require("../../models/user");
 const GroupMember = require("../../models/groupMember");
 const Group = require("../../models/group");
 const bcrypt = require("bcryptjs");
+const sharp = require('sharp');
 
 module.exports = () => {
 	return {
@@ -130,10 +131,19 @@ module.exports = () => {
 
 				// Update User Profile Picture
 				if (userProfilePic) {
-					let contentType = 'image/png';
 					let buffer = Buffer.from(userProfilePic, 'base64');
-					user.userProfilePic.data = buffer ? buffer : user.userProfilePic.data;
-					user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
+
+					const imageResized = await sharp(buffer)
+						.resize(640, 640)
+						.png()
+						.toBuffer();
+
+					const userProfilePic = {
+							data: imageResized,
+							contentType: 'image/png'
+					}
+
+					user.userProfilePic = userProfilePic;
 				}
 
 				// Update User Password
@@ -165,7 +175,7 @@ module.exports = () => {
 						}
 
 						// Remove Group Reference to GroupMember
-						GroupMember.find({ user: userData._id }).exec(function(err, data) {
+						GroupMember.find({ user: userData._id }).exec(function (err, data) {
 							if (data) {
 								data.forEach(groupMember => {
 									Group.findOneAndUpdate(
@@ -173,12 +183,12 @@ module.exports = () => {
 										{ $pull: { groupMembers: groupMember._id } },
 										{ new: true }
 									)
-										.then(data => {})
+										.then(data => { })
 										.catch(err => reject(err));
 								});
 								// Remove GroupMember referencing User
 								GroupMember.deleteMany({ user: userData._id })
-									.then(data => {})
+									.then(data => { })
 									.catch(err => reject(err));
 							}
 						});
