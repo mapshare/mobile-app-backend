@@ -1516,10 +1516,10 @@ module.exports = (io) => {
                     const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
 
                     joinedData.push({
-                        eventName: eventsData.groupEvents[i].markName,
-                        eventDescription: eventsData.groupEvents[i].markDescription,
-                        eventMembers: eventsData.groupEvents[i].defaultMarkCategory,
-                        eventCreatedBy: eventsData.groupEvents[i].customMarkCategory,
+                        eventName: eventsData.groupEvents[i].eventName,
+                        eventDescription: eventsData.groupEvents[i].eventDescription,
+                        eventMembers: eventsData.groupEvents[i].eventMembers,
+                        eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
                         markDescription: mark.markDescription,
                         markLocations: mark.markLocations,
                         groupMarkCreatedBy: mark.groupMarkCreatedBy,
