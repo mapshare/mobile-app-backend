@@ -386,6 +386,20 @@ module.exports = (io) => {
         }
     });
 
+    // get All Group Events
+    router.get('/groups/:groupId/allEvents', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.getAllGroupEvent(req.params.groupId);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to get all group events for this group");
+            }
+        } catch (error) {
+            res.status(400).send({ 'error': error });
+        }
+    });
+
     // get all custom marks category 
     router.get('/groups/:groupCategoryId/customCategory', verifyLoginToken, async (req, res, next) => {
         data.getCustomCategoryMarks(req.params.groupCategoryId).then(data => {
