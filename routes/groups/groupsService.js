@@ -1511,22 +1511,24 @@ module.exports = (io) => {
                 const eventsData = await GroupEvent.findById(groupData.groupEvents);
                 if (!eventsData) throw ("Could not find Group Events");
 
-                console.log(eventsData);
+                const markData = await GroupMark.findById(groupData.groupMarks);
+                if (!markData) throw ("Could not find Group Marks");
+
                 let joinedData = [];
                 for (let i = 0; i < eventsData.groupEvents.length; i++) {
-                    const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
-                    console.log(mark);
-                    if (mark) {
-                        joinedData.push({
-                            eventName: eventsData.groupEvents[i].eventName,
-                            eventDescription: eventsData.groupEvents[i].eventDescription,
-                            eventMembers: eventsData.groupEvents[i].eventMembers,
-                            eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
-                            markDescription: mark.markDescription ? mark.markDescription : "",
-                            markLocations: mark.markLocations,
-                            groupMarkCreatedBy: mark.groupMarkCreatedBy,
-                        });
-                    }
+                    let markIndex = markData.groupMarks.findIndex((mark) => {
+                        return mark._id == eventsData.groupEvents[i].eventMark;
+                    });
+
+                    joinedData.push({
+                        eventName: eventsData.groupEvents[i].eventName,
+                        eventDescription: eventsData.groupEvents[i].eventDescription,
+                        eventMembers: eventsData.groupEvents[i].eventMembers,
+                        eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
+                        markDescription: markData.groupMarks[markIndex].markDescription ? mark.markDescription : "",
+                        markLocations: markData.groupMarks[markIndex].markLocations,
+                        groupMarkCreatedBy: markData.groupMarks[markIndex].groupMarkCreatedBy,
+                    });
                 }
 
                 return joinedData;
