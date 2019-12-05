@@ -15,7 +15,7 @@ module.exports = () => {
 
 				let image;
 				if (userData.userProfilePic.data) {
-					image = new Buffer(userData.userProfilePic.data).toString('base64');
+					image = userData.userProfilePic.data.toString('base64');
 				} else {
 					image = '';
 				}
