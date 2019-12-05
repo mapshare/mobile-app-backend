@@ -1100,9 +1100,6 @@ module.exports = (io) => {
                 }
                 if (!member) throw ("Could not find Member");
 
-                var groupEventsData = await GroupEvent.findById(groupData.groupEvents);
-                if (!groupEventsData) throw ("Could not find GroupEvents for this group");
-
                 const newEvent = {
                     eventName: newData.eventName,
                     eventDescription: newData.eventDescription,
@@ -1111,21 +1108,15 @@ module.exports = (io) => {
                     eventCreatedBy: member._id
                 };
 
-                groupEventsData.groupEvents.push(newEvent);
-                const events = await groupEventsData.save();
-                if (!events) throw ("Could not save event");
+                const updatedEvents = await GroupEvent.findOneAndUpdate(
+                    { "_id": groupData.groupEvents },
+                    { $addToSet: { "groupEvents": newEvent } },
+                    { new: true }).exec();
 
-                const addedEvent = events.groupEvents[events.groupEvents.length - 1];
+                if (!updatedEvents) throw ("Could not add new GroupEvent");
 
-                member.groupMemberEvent.push(addedEvent._id);
-                const savedMember = await member.save();
-                if (!savedMember) throw ("Could not save Member");
+                return { success: true };
 
-                return {
-                    groupEvents: events,
-                    addedEvent: addedEvent,
-                    member: member
-                };
             } catch (error) {
                 throw ("addGroupEvent: " + error);
             }
@@ -1474,6 +1465,30 @@ module.exports = (io) => {
             });
         },
 
+        getAllGroupEvent: async (groupId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const eventsData = await GroupEvent.findById(groupData.groupEvents);
+                if (!eventsData) throw ("Could not find Group Events");
+
+                let joinedData = [];
+                for (let i = 0; i < eventsData.groupEvents.length; i++) {
+                    const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
+
+                    joinedData.push({
+                        ...eventsData.groupEvents[i],
+                        markData: mark
+                    });
+                }
+
+                return joinedData;
+            } catch (error) {
+                throw ("getAllGroupEvent " + error);
+            }
+        },
+
         getCustomCategoryMarks: async (groupCategoryId) => {
             return new Promise((resolve, reject) => {
                 CustomCategory.findById(groupCategoryId)
@@ -1591,10 +1606,8 @@ module.exports = (io) => {
                                 .toBuffer();
                             let contentType = 'image/png';
 
-                            if (markLocationImageIndex != -1) {
-                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data = locationImageResized ? locationImageResized : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data;
-                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType = contentType ? contentType : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType;
-                            }
+                            groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data = locationImageResized ? locationImageResized : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data;
+                            groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType = contentType ? contentType : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType;
                         }
                     }
                 }
