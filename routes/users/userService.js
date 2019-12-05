@@ -139,7 +139,7 @@ module.exports = () => {
 				// Update User Password
 				if (userPassword) {
 					const salt = await bcrypt.genSalt(10);
-					const newHashPassword = await bcrypt.hash(req.body.userPassword, salt);
+					const newHashPassword = await bcrypt.hash(userPassword, salt);
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 
@@ -149,6 +149,8 @@ module.exports = () => {
 					{ new: true }
 				).exec();
 				if (!updateUser) { throw ("Problem Updating User") }
+
+				return true;
 			} catch (error) {
 				throw ("updateUserById: " + error);
 			}
