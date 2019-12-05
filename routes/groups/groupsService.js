@@ -1511,19 +1511,26 @@ module.exports = (io) => {
                 const eventsData = await GroupEvent.findById(groupData.groupEvents);
                 if (!eventsData) throw ("Could not find Group Events");
 
+                const markData = await GroupMark.findById(groupData.groupMarks);
+                if (!markData) throw ("Could not find Group Marks");
+
                 let joinedData = [];
                 for (let i = 0; i < eventsData.groupEvents.length; i++) {
-                    const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
-
-                    joinedData.push({
-                        eventName: eventsData.groupEvents[i].eventName,
-                        eventDescription: eventsData.groupEvents[i].eventDescription,
-                        eventMembers: eventsData.groupEvents[i].eventMembers,
-                        eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
-                        markDescription: mark.markDescription ? mark.markDescription : "",
-                        markLocations: mark.markLocations,
-                        groupMarkCreatedBy: mark.groupMarkCreatedBy,
+                    let markIndex = markData.groupMarks.findIndex((mark) => {
+                        return mark._id.toString() == eventsData.groupEvents[i].eventMark.toString();
                     });
+                    
+                    if (markIndex >= 0) {
+                        joinedData.push({
+                            eventName: eventsData.groupEvents[i].eventName,
+                            eventDescription: eventsData.groupEvents[i].eventDescription,
+                            eventMembers: eventsData.groupEvents[i].eventMembers,
+                            eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
+                            markDescription: markData.groupMarks[markIndex].markDescription,
+                            markLocations: markData.groupMarks[markIndex].markLocations,
+                            groupMarkCreatedBy: markData.groupMarks[markIndex].groupMarkCreatedBy,
+                        });
+                    }
                 }
 
                 return joinedData;
@@ -1651,7 +1658,7 @@ module.exports = (io) => {
                             const locationImage = {
                                 locationImage: {
                                     data: locationImageResized,
-                                    contentType: 'image/png'  
+                                    contentType: 'image/png'
                                 }
                             }
 
@@ -1681,7 +1688,7 @@ module.exports = (io) => {
                 ).exec();
 
                 if (!updateMark) { throw ("Problem Updating Mark"); }
-                
+
                 return groupMarksData.groupMarks[markIndex];
             } catch (error) {
                 throw ("updateGroupMark " + error);
