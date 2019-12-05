@@ -1519,16 +1519,17 @@ module.exports = (io) => {
                     let markIndex = markData.groupMarks.findIndex((mark) => {
                         return mark._id == eventsData.groupEvents[i].eventMark;
                     });
-
-                    joinedData.push({
-                        eventName: eventsData.groupEvents[i].eventName,
-                        eventDescription: eventsData.groupEvents[i].eventDescription,
-                        eventMembers: eventsData.groupEvents[i].eventMembers,
-                        eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
-                        markDescription: markData.groupMarks[markIndex].markDescription ? mark.markDescription : "",
-                        markLocations: markData.groupMarks[markIndex].markLocations,
-                        groupMarkCreatedBy: markData.groupMarks[markIndex].groupMarkCreatedBy,
-                    });
+                    if (markIndex >= 0) {
+                        joinedData.push({
+                            eventName: eventsData.groupEvents[i].eventName,
+                            eventDescription: eventsData.groupEvents[i].eventDescription,
+                            eventMembers: eventsData.groupEvents[i].eventMembers,
+                            eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
+                            markDescription: markData.groupMarks[markIndex].markDescription,
+                            markLocations: markData.groupMarks[markIndex].markLocations,
+                            groupMarkCreatedBy: markData.groupMarks[markIndex].groupMarkCreatedBy,
+                        });
+                    }
                 }
 
                 return joinedData;
