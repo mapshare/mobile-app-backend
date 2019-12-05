@@ -1520,7 +1520,7 @@ module.exports = (io) => {
                         eventDescription: eventsData.groupEvents[i].eventDescription,
                         eventMembers: eventsData.groupEvents[i].eventMembers,
                         eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
-                        markDescription: mark.markDescription,
+                        markDescription: mark.markDescription ? mark.markDescription : "",
                         markLocations: mark.markLocations,
                         groupMarkCreatedBy: mark.groupMarkCreatedBy,
                     });
