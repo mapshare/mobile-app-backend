@@ -120,6 +120,7 @@ module.exports = () => {
 					userProfilePic,
 					userPassword
 				} = newData;
+				console.log(newData)
 
 				// Get User From Database
 				let user = await User.findById(userId);
@@ -139,10 +140,10 @@ module.exports = () => {
 						.toBuffer();
 
 					const userProfilePicdata = {
-							data: imageResized,
-							contentType: 'image/png'
+						data: imageResized,
+						contentType: 'image/png'
 					}
-
+					console.log(userProfilePicdata)
 					user.userProfilePic = userProfilePicdata;
 				}
 				// Update User Password
