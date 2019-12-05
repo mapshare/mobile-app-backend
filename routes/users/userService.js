@@ -121,8 +121,8 @@ module.exports = () => {
 				} = newData;
 
 				// Get User From Database
-				let userData = User.findById(userId);
-				if (!userData) { throw ("User Not Found") }
+				let user = User.findById(userId);
+				if (!user) { throw ("User Not Found") }
 
 				user.userEmail = userEmail ? userEmail : user.userEmail;
 				user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
