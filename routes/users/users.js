@@ -72,4 +72,15 @@ router.delete("/user", verifyLoginToken, (req, res, next) => {
     });
 });
 
+// comparePassword
+router.put("/comparePassword", verifyLoginToken, async (req, res, next) => {
+  try {
+    const results = await data.comparePassword(req.user, req.body);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(400).send({ "error": error });
+  }
+});
+
+
 module.exports = router;

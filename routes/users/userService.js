@@ -88,6 +88,27 @@ module.exports = () => {
 			});
 		},
 
+
+		comparePassword: (userId, oldPassword) => {
+			try {
+				// Get User From Database
+				let userData = User.findById(userId);
+				if (!userData) { throw ("User Not Found"); }
+
+				// Verify if password is correct
+				const validPassword = await bcrypt.compare(
+					oldPassword,
+					userData.userPassword
+				);
+				if (!validPassword) { throw ("Password does not match"); }
+
+				return validPassword;
+
+			} catch (error) {
+				throw ("comparePassword: " + error);
+			}
+		},
+
 		updateUserById: async (userId, newData) => {
 			try {
 				// Parse New Data
