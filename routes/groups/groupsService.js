@@ -1519,7 +1519,7 @@ module.exports = (io) => {
                     let markIndex = markData.groupMarks.findIndex((mark) => {
                         return mark._id.toString() == eventsData.groupEvents[i].eventMark.toString();
                     });
-                    console.log(markIndex);
+                    
                     if (markIndex >= 0) {
                         joinedData.push({
                             eventName: eventsData.groupEvents[i].eventName,
