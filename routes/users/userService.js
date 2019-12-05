@@ -143,14 +143,9 @@ module.exports = () => {
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 				
-				console.log(user);
-				let updateUser = User.findOneAndUpdate(
-					{ _id: user._id },
-					user,
-					{ new: true }
-				).exec();
-				if (!updateUser) { throw ("Problem Updating User") }
-
+				const saveduser = await user.save();
+				if (!saveduser) { throw ("Problem saving User") }
+				
 				return true;
 			} catch (error) {
 				throw ("updateUserById: " + error);
