@@ -297,7 +297,6 @@ module.exports = () => {
                                 });
 
                                 interval = setInterval(() => {
-                                    console.log("interval: " + user.userFirstName);
                                     
                                     if (connenctionStatus == false) {
                                         // Remove deactivated users                       

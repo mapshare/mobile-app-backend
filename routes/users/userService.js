@@ -121,8 +121,8 @@ module.exports = () => {
 				} = newData;
 
 				// Get User From Database
-				let userData = User.findById(userId);
-				if (!userData) { throw ("User Not Found") }
+				let user = await User.findById(userId);
+				if (!user) { throw ("User Not Found") }
 
 				user.userEmail = userEmail ? userEmail : user.userEmail;
 				user.userFirstName = userFirstName ? userFirstName : user.userFirstName;
@@ -143,8 +143,8 @@ module.exports = () => {
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 
-				let updateUser = User.findOneAndUpdate(
-					{ _id: userData._id },
+				let updateUser = await User.findOneAndUpdate(
+					{ _id: user._id },
 					user,
 					{ new: true }
 				).exec();
