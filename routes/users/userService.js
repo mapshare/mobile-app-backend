@@ -89,7 +89,7 @@ module.exports = () => {
 		},
 
 
-		comparePassword: (userId, oldPassword) => {
+		comparePassword: async (userId, oldPassword) => {
 			try {
 				// Get User From Database
 				let userData = User.findById(userId);
