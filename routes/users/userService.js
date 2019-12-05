@@ -143,7 +143,7 @@ module.exports = () => {
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 
-				let updateUser = User.findOneAndUpdate(
+				let updateUser = await User.findOneAndUpdate(
 					{ _id: user._id },
 					user,
 					{ new: true }
