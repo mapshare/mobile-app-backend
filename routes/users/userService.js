@@ -10,7 +10,7 @@ module.exports = () => {
 		getUsers: async (userId) => {
 			try {
 				// Get User From Database
-				let userData = User.findById(userId);
+				let userData = await User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
 
 				let image;
@@ -118,7 +118,7 @@ module.exports = () => {
 		comparePassword: async (userId, oldPassword) => {
 			try {
 				// Get User From Database
-				let userData = User.findById(userId);
+				let userData = await User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
 
 				// Verify if password is correct
