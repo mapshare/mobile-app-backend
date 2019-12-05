@@ -19,7 +19,7 @@ module.exports = () => {
 				} else {
 					image = '';
 				}
-
+				console.log(image)
 				return {
 					userEmail: userData.userEmail,
 					userFirstName: userData.userFirstName,
