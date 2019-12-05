@@ -143,9 +143,10 @@ module.exports = () => {
 							contentType: 'image/png'
 					}
 
+					console.log(userProfilePic)
 					user.userProfilePic = userProfilePic;
+					console.log(user)
 				}
-
 				// Update User Password
 				if (userPassword) {
 					const salt = await bcrypt.genSalt(10);
