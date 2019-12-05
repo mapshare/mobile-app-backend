@@ -7,7 +7,30 @@ const sharp = require('sharp');
 
 module.exports = () => {
 	return {
-		getUsers: () => {
+		getUsers: async () => {
+			try {
+				// Get User From Database
+				let userData = User.findById(userId);
+				if (!userData) { throw ("User Not Found"); }
+				let userPic = userData.userProfilePic;
+				try {
+					userPic = userData.userProfilePic.data.toString('base64');
+				} catch (error) {
+					userPic = userData.userProfilePic;
+				}
+				return {
+					userEmail: userData.userEmail,
+					userFirstName: userData.userFirstName,
+					userLastName: userData.userLastName,
+					userPassword: userData.userPassword,
+					googleId: userData.googleId,
+					userProfilePic: userPic,
+					userImages: userData.userImages,
+					userGroups: userData.userGroups,
+				}
+			} catch (error) {
+				throw ("updateUserById: " + error);
+			}
 			return new Promise((resolve, reject) => {
 				User.find()
 					.then(data => resolve(data))
@@ -120,7 +143,6 @@ module.exports = () => {
 					userProfilePic,
 					userPassword
 				} = newData;
-				console.log(newData)
 
 				// Get User From Database
 				let user = await User.findById(userId);
@@ -139,13 +161,9 @@ module.exports = () => {
 						.png()
 						.toBuffer();
 
-					const userProfilePicdata = {
-						data: imageResized,
-						contentType: 'image/png'
-					}
-					console.log(userProfilePicdata)
-					user.userProfilePic = userProfilePicdata;
+					user.userProfilePic = { data: imageResized, contentType: "image/png" };
 				}
+
 				// Update User Password
 				if (userPassword) {
 					const salt = await bcrypt.genSalt(10);
