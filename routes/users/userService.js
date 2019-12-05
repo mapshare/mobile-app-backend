@@ -14,14 +14,18 @@ module.exports = () => {
 				if (!userData) { throw ("User Not Found"); }
 
 				let image;
-				if (userData.userProfilePic.data) {
-					image = userData.userProfilePic.data.toString('base64');
-				} else {
-					image = '';
+				try {
+					if (userData.userProfilePic.data) {
+						image = userData.userProfilePic.data.toString('base64');
+					} else {
+						image = '';
+					}
+				} catch (error) {
+						image = '';
 				}
 				console.log(image)
 				return {
-                    _id: userData._id,
+					_id: userData._id,
 					userEmail: userData.userEmail,
 					userFirstName: userData.userFirstName,
 					userLastName: userData.userLastName,
@@ -32,7 +36,7 @@ module.exports = () => {
 					userGroups: userData.userGroups,
 				}
 			} catch (error) {
-				throw ("updateUserById: " + error);
+				throw ("getUsers: " + error);
 			}
 		},
 
@@ -165,8 +169,8 @@ module.exports = () => {
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 
-                const saveduser = await user.save();
-                if (!saveduser) throw ("Could not save User");
+				const saveduser = await user.save();
+				if (!saveduser) throw ("Could not save User");
 
 				/*
 				let updateUser = await User.findOneAndUpdate(
