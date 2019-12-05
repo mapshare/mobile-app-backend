@@ -15,7 +15,6 @@ DELETE  /user  = delete user using JWT
 // get user using JWT
 router.get("/user", verifyLoginToken, async (req, res, next) => {
   try {
-    console.log("getUser")
     const results = await data.getUsers(req.user);
     res.status(200).json(results);
   } catch (error) {
