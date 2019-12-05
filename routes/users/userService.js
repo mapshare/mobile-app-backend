@@ -121,7 +121,7 @@ module.exports = () => {
 				} = newData;
 
 				// Get User From Database
-				let user = User.findById(userId);
+				let user = await User.findById(userId);
 				if (!user) { throw ("User Not Found") }
 
 				user.userEmail = userEmail ? userEmail : user.userEmail;
@@ -142,10 +142,14 @@ module.exports = () => {
 					const newHashPassword = await bcrypt.hash(userPassword, salt);
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
-				
-				const saveduser = await user.save();
-				if (!saveduser) { throw ("Problem saving User") }
-				
+
+				let updateUser = User.findOneAndUpdate(
+					{ _id: user._id },
+					user,
+					{ new: true }
+				).exec();
+				if (!updateUser) { throw ("Problem Updating User") }
+
 				return true;
 			} catch (error) {
 				throw ("updateUserById: " + error);
