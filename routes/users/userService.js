@@ -138,14 +138,12 @@ module.exports = () => {
 						.png()
 						.toBuffer();
 
-					const userProfilePic = {
+					const userProfilePicdata = {
 							data: imageResized,
 							contentType: 'image/png'
 					}
 
-					console.log(userProfilePic)
-					user.userProfilePic = userProfilePic;
-					console.log(user)
+					user.userProfilePic = userProfilePicdata;
 				}
 				// Update User Password
 				if (userPassword) {
