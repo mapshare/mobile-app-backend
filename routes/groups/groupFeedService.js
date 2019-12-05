@@ -77,7 +77,6 @@ const getGroupFeed = async (groupId) => {
                     postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
-                    userProfilePic: user.userProfilePic,
                 }
 
                 allPosts.push(post);
