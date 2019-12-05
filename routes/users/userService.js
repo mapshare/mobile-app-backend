@@ -12,11 +12,11 @@ module.exports = () => {
 				// Get User From Database
 				let userData = User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
-				let userPic = userData.userProfilePic;
+				let userPic = "";
 				try {
 					userPic = userData.userProfilePic.data.toString('base64');
 				} catch (error) {
-					userPic = userData.userProfilePic;
+					userPic = "";
 				}
 				return {
 					userEmail: userData.userEmail,
@@ -31,11 +31,6 @@ module.exports = () => {
 			} catch (error) {
 				throw ("updateUserById: " + error);
 			}
-			return new Promise((resolve, reject) => {
-				User.find()
-					.then(data => resolve(data))
-					.catch(err => reject(err));
-			});
 		},
 
 		addUser: userData => {
