@@ -67,8 +67,8 @@ const getGroupFeed = async (groupId) => {
                 if (!mbr) throw ("Could not find Member");
 
                 const user = await User.findOne({ _id: mbr.user });
-                if (!user) throw ("Could not find User")
-
+                if (!user) throw ("Could not find User");
+                
                 const post = {
                     postImage: groupFeedData.groupPosts[i]._doc.postImage.data.toString('base64'),
                     _id: groupFeedData.groupPosts[i]._doc._id,
@@ -77,7 +77,7 @@ const getGroupFeed = async (groupId) => {
                     postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
-                    userProfilePic: user.userProfilePic.data.toString('base64') ? user.userProfilePic.data.toString('base64') : user.userProfilePic,
+                    userProfilePic: user.userProfilePic,
                 }
 
                 allPosts.push(post);
