@@ -1390,7 +1390,6 @@ module.exports = (io) => {
 
                 if (groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet.length > 0) {
                     const imageArray = groupMarksData.groupMarks[markIndex].markLocations._doc.locationImageSet
-                    console.log('get: ', imageArray)
                     for (let i = 0; i < imageArray.length; i++) {
                         let image = {
                             _id: imageArray[i]._doc._id,
@@ -1415,6 +1414,45 @@ module.exports = (io) => {
                     markImages: locationImageSet
                 }
                 return rc;
+            } catch (error) {
+                throw ("getGroupMark " + error);
+            }
+        },
+
+        getLocationReviews: async (GroupId, markId) => {
+            try {
+                const groupData = await Group.findById(GroupId)
+                if (!groupData) {
+                    reject("Group doesn't exist");
+                    return;
+                }
+
+                const groupMarksData = await GroupMark.findById(groupData.groupMarks)
+                let markIndex = -1;
+                for (let i = 0; i < groupMarksData.groupMarks.length; i++) {
+                    if (groupMarksData.groupMarks[i]._id == markId) {
+                        markIndex = i;
+                    }
+                }
+
+                const locationReviewSet = groupMarksData.groupMarks[markIndex]._doc.markLocations._doc.locationReviewSet;
+                var allReviews = []
+                for (let i = 0; i < locationReviewSet.length; i++) {
+                    const user = await User.findOne({ _id: locationReviewSet[i].reviewCreatedBy });
+                    if (!user) throw ("Could not find User")
+
+                    const review = {
+                        reviewContent: locationReviewSet[i].reviewContent,
+                        reviewCreatedBy: locationReviewSet[i].reviewContent,
+                        reviewCreatedAt: locationReviewSet[i].reviewCreatedAt,
+                        userFirstName: user.userFirstName,
+                        userLastName: user.userLastName,
+                        userProfilePic: user.userProfilePic,
+                    }
+                    allReviews.push(review)
+                }
+
+                return allReviews;
             } catch (error) {
                 throw ("getGroupMark " + error);
             }
@@ -1546,12 +1584,12 @@ module.exports = (io) => {
                 if (!groupData) throw ("Could not find Group");
 
                 // Load Group Mark From DataBase
-                const groupmarksData = await GroupMark.findById(groupData.groupMarks);
-                if (!groupmarksData) throw ("Could not find Group Mark");
+                const groupMarksData = await GroupMark.findById(groupData.groupMarks);
+                if (!groupMarksData) throw ("Could not find Group Mark");
 
                 // Get Index of mark 
                 var markIndex = -1;
-                markIndex = groupMarksData.groupMarks.findindex((mark) => {
+                markIndex = groupMarksData.groupMarks.findIndex((mark) => {
                     return (mark._id == markId);
                 });
 
@@ -1584,17 +1622,20 @@ module.exports = (io) => {
                         }
 
                         if (updatePhoto) {
-                            let bufferedImage = Buffer.from(markLocations.locationImageSet[i].data, 'base64');
+                            let bufferedImage = Buffer.from(markLocations.locationImageSet[i], 'base64');
                             const locationImageResized = await sharp(bufferedImage)
                                 .resize(1280, 720)
                                 .png()
                                 .toBuffer();
-                            let contentType = 'image/png';
 
-                            if (markLocationImageIndex != -1) {
-                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data = locationImageResized ? locationImageResized : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].data;
-                                groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType = contentType ? contentType : groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i].contentType;
+                            const locationImage = {
+                                locationImage: {
+                                    data: locationImageResized,
+                                    contentType: 'image/png'  
+                                }
                             }
+
+                            groupMarksData.groupMarks[markIndex].markLocations.locationImageSet[i] = locationImage
                         }
                     }
                 }
@@ -1603,19 +1644,25 @@ module.exports = (io) => {
                 if (markLocations.locationReviewSet) {
                     // Loop Through all location reviews
                     for (let i = 0; i < markLocations.locationReviewSet.length; i++) {
-                        groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewRating = markLocations.locationReviewSet[i].reviewRating ? markLocations.locationReviewSet[i].reviewRating : groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewRating;
-                        groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewContent = markLocations.locationReviewSet[i].reviewRating ? markLocations.locationReviewSet[i].reviewContent : groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i].reviewContent;
+                        const locationReviewSet = {
+                            reviewCreatedBy: markLocations.locationReviewSet[i].reviewCreatedBy,
+                            reviewContent: markLocations.locationReviewSet[i].reviewContent
+                        }
+
+                        groupMarksData.groupMarks[markIndex].markLocations.locationReviewSet[i] = locationReviewSet
                     }
                 }
 
                 // Update Group Mark 
                 let updateMark = GroupMark.findOneAndUpdate(
-                    { _id: groupmarksData._id },
-                    groupmarksData,
+                    { _id: groupMarksData._id },
+                    groupMarksData,
                     { new: true }
                 ).exec();
-                if (!updateMark) { throw ("Problem Updating Mark"); }
 
+                if (!updateMark) { throw ("Problem Updating Mark"); }
+                
+                return groupMarksData.groupMarks[markIndex];
             } catch (error) {
                 throw ("updateGroupMark " + error);
             }
@@ -2104,7 +2151,6 @@ module.exports = (io) => {
 
         // Initialize group marks category
         initializeGroupMarksCategory: async (groupId) => {
-            console.log('initializing group categories!')
             try {
                 const defaultCategoryData = await DefaultCategory.find();
                 if (!defaultCategoryData.length) {

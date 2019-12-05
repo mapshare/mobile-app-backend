@@ -3,16 +3,18 @@ const Schema = mongoose.Schema;
 
 // create review Schema & model
 const ReviewSchema = new Schema({
-  reviewRating: {
-    type: Number,
-    required: [true, 'rating is required to save review']
-  },
   reviewContent: {
     type: String,
     required: [true, 'content is required to save review']
   },
-  reviewUpdatedAt: Date,
-  reviewCreatedAt: Date,
+  reviewCreatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "groupMember",
+  },
+  reviewCreatedAt: {
+    type: Number,
+    default: Date.now()
+  }
 });
 
 //const Review = mongoose.model('review', ReviewSchema);
