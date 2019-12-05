@@ -41,14 +41,13 @@ router.post("/users", (req, res, next) => {
 */
 
 // get user using JWT
-router.get("/user", verifyLoginToken, (req, res, next) => {
-  data.getUserById(req.user)
-    .then(data => {
-      res.status(200).json(data);
-    })
-    .catch(err => {
-      res.status(400).send({ error: err });
-    });
+router.get("/user", verifyLoginToken, async (req, res, next) => {
+  try {
+    const results = await data.getUsers(req.user);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(400).send({ "error": error });
+  }
 });
 
 // update user using JWT

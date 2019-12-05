@@ -7,7 +7,7 @@ const sharp = require('sharp');
 
 module.exports = () => {
 	return {
-		getUsers: async () => {
+		getUsers: async (userId) => {
 			try {
 				// Get User From Database
 				let userData = User.findById(userId);
@@ -21,6 +21,7 @@ module.exports = () => {
 				}
 				console.log(image)
 				return {
+                    _id: userData._id,
 					userEmail: userData.userEmail,
 					userFirstName: userData.userFirstName,
 					userLastName: userData.userLastName,
