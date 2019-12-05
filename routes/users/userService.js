@@ -152,7 +152,7 @@ module.exports = () => {
 				// Update User Profile Picture
 				if (userProfilePic) {
                     let contentType = 'image/png';
-                    let buffer = Buffer.from(newData.groupImg, 'base64');
+                    let buffer = Buffer.from(userProfilePic, 'base64');
 					user.userProfilePic.data = buffer ? buffer : user.userProfilePic.data;
                     user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
 				}
