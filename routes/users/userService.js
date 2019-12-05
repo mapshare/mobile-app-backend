@@ -23,7 +23,7 @@ module.exports = () => {
 				} catch (error) {
 						image = '';
 				}
-				console.log(image)
+				
 				return {
 					_id: userData._id,
 					userEmail: userData.userEmail,
