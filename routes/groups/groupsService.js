@@ -1511,6 +1511,7 @@ module.exports = (io) => {
                 const eventsData = await GroupEvent.findById(groupData.groupEvents);
                 if (!eventsData) throw ("Could not find Group Events");
 
+                console.log(eventsData);
                 let joinedData = [];
                 for (let i = 0; i < eventsData.groupEvents.length; i++) {
                     const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
