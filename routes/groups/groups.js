@@ -190,7 +190,7 @@ module.exports = (io) => {
     // add Group Mark
     router.post('/groups/:groupId/mark', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 data.addGroupMark(req.params.groupId, req.body).then(data => {
                     res.status(200).json(data)
                 }).catch(err => {
@@ -347,6 +347,19 @@ module.exports = (io) => {
         }
     });
 
+    // get mark reviews
+    router.get('/groups/:groupId/locationReviews/:markId', verifyLoginToken, async (req, res, next) => {
+        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+            data.getLocationReviews(req.params.groupId, req.params.markId).then(data => {
+                res.status(200).json(data)
+            }).catch(err => {
+                res.status(400).send({ "error": err })
+            })
+        } else {
+            res.status(400).send({ "error": "Insufficient permissions to get mark categories for this group" })
+        }
+    });
+
     // get Group Post
     router.get('/groups/:groupId/post/:postId', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
@@ -398,7 +411,7 @@ module.exports = (io) => {
 
     // get custom mark category 
     router.get('/groups/:groupId/customCategory/:categoryId', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
             data.getCustomCategoryMark(req.params.groupId, req.params.categoryId).then(data => {
                 res.status(200).json(data)
             }).catch(err => {
@@ -421,7 +434,6 @@ module.exports = (io) => {
         } catch (error) {
             res.status(400).send({ "error": error })
         }
-
     });
 
     // get list of Group Chat Rooms
@@ -439,10 +451,10 @@ module.exports = (io) => {
 
 
     // update Group Mark
-    router.put('/groups/:id/mark/:markId', verifyLoginToken, async (req, res, next) => {
+    router.put('/groups/:groupId/mark/:markId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-                const results = await data.updateGroupMark(req.params.id, req.params.markId, req.body);
+                const results = await data.updateGroupMark(req.params.groupId, req.params.markId, req.body);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to update this mark");
