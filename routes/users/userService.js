@@ -144,7 +144,7 @@ module.exports = () => {
 				}
 
 				let updateUser = User.findOneAndUpdate(
-					{ _id: userData._id },
+					{ _id: user._id },
 					user,
 					{ new: true }
 				).exec();
