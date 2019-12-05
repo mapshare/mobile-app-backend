@@ -1521,10 +1521,7 @@ module.exports = (io) => {
                         eventMembers: eventsData.groupEvents[i].defaultMarkCategory,
                         eventCreatedBy: eventsData.groupEvents[i].customMarkCategory,
                         markDescription: mark.markDescription,
-                        defaultMarkCategory: mark.defaultMarkCategory,
-                        customMarkCategory: mark.customMarkCategory,
                         markLocations: mark.markLocations,
-                        geometry: mark.geometry,
                         groupMarkCreatedBy: mark.groupMarkCreatedBy,
                     });
                 }
