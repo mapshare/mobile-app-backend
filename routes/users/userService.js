@@ -12,19 +12,21 @@ module.exports = () => {
 				// Get User From Database
 				let userData = User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
-				let userPic = "";
-				try {
-					userPic = userData.userProfilePic.data.toString('base64');
-				} catch (error) {
-					userPic = "";
-				}
+
+				let image;
+                if (userData.userProfilePic.data) {
+                    image = userData.userProfilePic.data.toString('base64');
+                } else {
+                    image = '';
+                }
+
 				return {
 					userEmail: userData.userEmail,
 					userFirstName: userData.userFirstName,
 					userLastName: userData.userLastName,
 					userPassword: userData.userPassword,
 					googleId: userData.googleId,
-					userProfilePic: userPic,
+					userProfilePic: image,
 					userImages: userData.userImages,
 					userGroups: userData.userGroups,
 				}
@@ -149,16 +151,12 @@ module.exports = () => {
 
 				// Update User Profile Picture
 				if (userProfilePic) {
-					let buffer = Buffer.from(userProfilePic, 'base64');
-
-					const imageResized = await sharp(buffer)
-						.resize(640, 640)
-						.png()
-						.toBuffer();
-
-					user.userProfilePic = { data: imageResized, contentType: "image/png" };
+                    let contentType = 'image/png';
+                    let buffer = Buffer.from(newData.groupImg, 'base64');
+					user.userProfilePic.data = buffer ? buffer : user.userProfilePic.data;
+                    user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
 				}
-
+				
 				// Update User Password
 				if (userPassword) {
 					const salt = await bcrypt.genSalt(10);
