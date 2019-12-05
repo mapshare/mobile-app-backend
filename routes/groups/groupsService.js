@@ -1514,16 +1514,18 @@ module.exports = (io) => {
                 let joinedData = [];
                 for (let i = 0; i < eventsData.groupEvents.length; i++) {
                     const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
-
-                    joinedData.push({
-                        eventName: eventsData.groupEvents[i].eventName,
-                        eventDescription: eventsData.groupEvents[i].eventDescription,
-                        eventMembers: eventsData.groupEvents[i].eventMembers,
-                        eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
-                        markDescription: mark.markDescription ? mark.markDescription : "",
-                        markLocations: mark.markLocations,
-                        groupMarkCreatedBy: mark.groupMarkCreatedBy,
-                    });
+                    console.log(mark);
+                    if (mark) {
+                        joinedData.push({
+                            eventName: eventsData.groupEvents[i].eventName,
+                            eventDescription: eventsData.groupEvents[i].eventDescription,
+                            eventMembers: eventsData.groupEvents[i].eventMembers,
+                            eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
+                            markDescription: mark.markDescription ? mark.markDescription : "",
+                            markLocations: mark.markLocations,
+                            groupMarkCreatedBy: mark.groupMarkCreatedBy,
+                        });
+                    }
                 }
 
                 return joinedData;
@@ -1651,7 +1653,7 @@ module.exports = (io) => {
                             const locationImage = {
                                 locationImage: {
                                     data: locationImageResized,
-                                    contentType: 'image/png'  
+                                    contentType: 'image/png'
                                 }
                             }
 
@@ -1681,7 +1683,7 @@ module.exports = (io) => {
                 ).exec();
 
                 if (!updateMark) { throw ("Problem Updating Mark"); }
-                
+
                 return groupMarksData.groupMarks[markIndex];
             } catch (error) {
                 throw ("updateGroupMark " + error);
