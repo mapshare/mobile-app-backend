@@ -142,7 +142,8 @@ module.exports = () => {
 					const newHashPassword = await bcrypt.hash(userPassword, salt);
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
-
+				
+				console.log(user);
 				let updateUser = User.findOneAndUpdate(
 					{ _id: user._id },
 					user,
