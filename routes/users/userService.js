@@ -14,11 +14,11 @@ module.exports = () => {
 				if (!userData) { throw ("User Not Found"); }
 
 				let image;
-                if (userData.userProfilePic.data) {
-                    image = userData.userProfilePic.data.toString('base64');
-                } else {
-                    image = '';
-                }
+				if (userData.userProfilePic.data) {
+					image = new Buffer(userData.userProfilePic.data).toString('base64');
+				} else {
+					image = '';
+				}
 
 				return {
 					userEmail: userData.userEmail,
@@ -151,12 +151,12 @@ module.exports = () => {
 
 				// Update User Profile Picture
 				if (userProfilePic) {
-                    let contentType = 'image/png';
-                    let buffer = Buffer.from(userProfilePic, 'base64');
+					let contentType = 'image/png';
+					let buffer = Buffer.from(userProfilePic, 'base64');
 					user.userProfilePic.data = buffer ? buffer : user.userProfilePic.data;
-                    user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
+					user.userProfilePic.contentType = contentType ? contentType : user.userProfilePic.contentType;
 				}
-				
+
 				// Update User Password
 				if (userPassword) {
 					const salt = await bcrypt.genSalt(10);
@@ -164,13 +164,17 @@ module.exports = () => {
 					user.userPassword = newHashPassword ? newHashPassword : user.userPassword;
 				}
 
+                const saveduser = await user.save();
+                if (!saveduser) throw ("Could not save User");
+
+				/*
 				let updateUser = await User.findOneAndUpdate(
 					{ _id: user._id },
 					user,
 					{ new: true }
 				).exec();
 				if (!updateUser) { throw ("Problem Updating User") }
-
+*/
 				return true;
 			} catch (error) {
 				throw ("updateUserById: " + error);
