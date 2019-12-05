@@ -21,6 +21,9 @@ const MarkSchema = new Schema({
   markName: {
     type: String
   },
+  markDescription: {
+    type: String
+  },
   defaultMarkCategory: {
     type: Schema.Types.ObjectId,
     ref: 'defaultCategory'

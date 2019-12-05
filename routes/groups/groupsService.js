@@ -1516,7 +1516,13 @@ module.exports = (io) => {
                     const mark = await GroupMark.findById(eventsData.groupEvents[i].eventMark);
 
                     joinedData.push({
-                        ...eventsData.groupEvents[i],
+                        markName: eventsData.groupEvents[i].markName,
+                        markDescription: eventsData.groupEvents[i].markDescription,
+                        defaultMarkCategory: eventsData.groupEvents[i].defaultMarkCategory,
+                        customMarkCategory: eventsData.groupEvents[i].customMarkCategory,
+                        markLocations: eventsData.groupEvents[i].markLocations,
+                        geometry: eventsData.groupEvents[i].geometry,
+                        groupMarkCreatedBy: eventsData.groupEvents[i].groupMarkCreatedBy,
                         markData: mark
                     });
                 }
