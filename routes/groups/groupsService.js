@@ -1519,12 +1519,27 @@ module.exports = (io) => {
                     let markIndex = markData.groupMarks.findIndex((mark) => {
                         return mark._id.toString() == eventsData.groupEvents[i].eventMark.toString();
                     });
-                    
+
+                    // Get Members
+                    let eventMember = [];
+                    for (members of eventsData.groupEvents[i].eventMembers) {
+                        const mbr = await GroupMember.findById(members);
+                        if (mbr) {
+                            const user = await User.findById(mbr.user);
+                            eventMember.push({
+                                usrId: user._id,
+                                mbrId: mbr._id,
+                                userFirstName: user.userFirstName,
+                                userLastName: user.userLastName,
+                            })
+                        }
+                    }
+
                     if (markIndex >= 0) {
                         joinedData.push({
                             eventName: eventsData.groupEvents[i].eventName,
                             eventDescription: eventsData.groupEvents[i].eventDescription,
-                            eventMembers: eventsData.groupEvents[i].eventMembers,
+                            eventMembers: eventMember,
                             eventCreatedBy: eventsData.groupEvents[i].eventCreatedBy,
                             markDescription: markData.groupMarks[markIndex].markDescription,
                             markLocations: markData.groupMarks[markIndex].markLocations,
