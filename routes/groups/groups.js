@@ -618,7 +618,7 @@ module.exports = (io) => {
     // delete Group Member from Event
     router.delete('/groups/:groupId/event/:eventId/leave', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.deleteGroupMemberFromEvent(req.params.groupId, req.user, req.params.eventId);
                 res.status(200).json(results)
             } else {
