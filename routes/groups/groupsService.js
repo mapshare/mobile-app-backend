@@ -1935,10 +1935,10 @@ module.exports = (io) => {
             try {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
-                
+
                 const groupEventData = await GroupEvent.findOneAndUpdate(
                     { "_id": groupData.groupEvents },
-                    { $pull: { "groupEvents": groupEventsData._id } },
+                    { $pull: { "groupEvents": eventId } },
                     { new: true }).exec();
                 if (!groupEventData) throw ("Could not find group event");
 
