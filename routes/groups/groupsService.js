@@ -1936,11 +1936,13 @@ module.exports = (io) => {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
-                const groupEventData = await GroupEvent.findOneAndUpdate(
-                    { "_id": groupData.groupEvents },
-                    { $pull: { "groupEvents": eventId } },
-                    { new: true }).exec();
-                if (!groupEventData) throw ("Could not find group event");
+                const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
+                if (!groupEventsData) throw ("Could not find Group Event");
+                
+                groupEventsData.groupEvents.pull(eventId);
+
+                const savedGroupEventsData = await groupEventsData.save();
+                if (!savedGroupEventsData) throw ("Could not save Group Event");
 
                 return { success: true };
             } catch (error) {
