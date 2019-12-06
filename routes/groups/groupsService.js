@@ -1932,24 +1932,23 @@ module.exports = (io) => {
         },
 
         deleteGroupEvent: (groupId, eventId) => {
-            return new Promise((resolve, reject) => {
-                Group.findById(groupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
-                        }
-                        GroupEvent.findById(groupData.groupEvents)
-                            .then(groupEventsData => {
-                                groupEventsData.groupEvents.pull(eventId);
-                                groupEventsData.save()
-                                    .then(events => {
-                                        resolve(events)
-                                    })
-                                    .catch(err => reject(err));
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-            });
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
+                if (!groupEventsData) throw ("Could not find Group Event");
+
+                const groupEventData = await GroupEvent.findOneAndUpdate(
+                    { "groupEvents._id": eventId },
+                    { $pull: { "groupEvents": groupEventsData._id } },
+                    { new: true }).exec();
+                if (!groupEventData) throw ("Could not find group event");
+
+                return { success: true };
+            } catch (error) {
+                throw ("deleteGroupEvent: " + error);
+            }
         },
 
         deleteGroupPost: (groupId, postId) => {

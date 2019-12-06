@@ -671,15 +671,16 @@ module.exports = (io) => {
     });
 
     // delete Group Event
-    router.delete('/groups/:groupId/event/:id', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.deleteGroupEvent(req.params.groupId, req.params.id).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to delete events from this group" })
+    router.delete('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.deleteGroupEvent(req.params.groupId, req.params.eventId);
+                res.status(200).json(results)
+            } else {
+                throw ("Insufficient permissions to delete events from this group")
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error })
         }
     });
 
