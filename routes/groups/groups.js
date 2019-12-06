@@ -481,7 +481,7 @@ module.exports = (io) => {
     router.put('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
-                const results = await data.updateGroupEvent(req.params.id, req.params.eventId, req.user, req.body);
+                const results = await data.updateGroupEvent(req.params.groupId, req.params.eventId, req.user, req.body);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to update events for this group");
