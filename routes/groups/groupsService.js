@@ -1934,7 +1934,7 @@ module.exports = (io) => {
             });
         },
 
-        deleteGroupEvent: async (groupId, eventId) => {
+        deleteGroupEvent: async (groupId, eventId, userId) => {
             try {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
@@ -1942,7 +1942,36 @@ module.exports = (io) => {
                 const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
                 if (!groupEventsData) throw ("Could not find Group Event");
 
-                groupEventsData.groupEvents.pull(eventId);
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                const groupMemberRole = await GroupRole.findById(member.groupMemberRole);
+                if (!groupMemberRole) throw ("Could not find Member Role");
+
+                // Get Index of event 
+                var eventIndex = -1;
+                eventIndex = groupEventsData.groupEvents.findIndex((event) => {
+                    return (event._id == eventId);
+                });
+
+                // check if member is a admin or the creator of event
+                if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id == event[eventIndex].eventCreatedBy)) {
+                    groupEventsData.groupEvents.pull(eventId);
+                } else {
+                    throw ("Cannot delete a event you didn't create");
+                }
 
                 const savedGroupEventsData = await groupEventsData.save();
                 if (!savedGroupEventsData) throw ("Could not save Group Event");

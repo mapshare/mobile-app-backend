@@ -674,7 +674,7 @@ module.exports = (io) => {
     router.delete('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
-                const results = await data.deleteGroupEvent(req.params.groupId, req.params.eventId);
+                const results = await data.deleteGroupEvent(req.params.groupId, req.params.eventId,req.user);
                 res.status(200).json(results)
             } else {
                 throw ("Insufficient permissions to delete events from this group")
