@@ -1290,6 +1290,7 @@ module.exports = (io) => {
 
         deleteGroupMemberFromEvent: async (groupId, userId, eventId) => {
             try {
+                console.log(eventId)
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
@@ -1535,7 +1536,7 @@ module.exports = (io) => {
                             })
                         }
                     }
-                    
+
                     if (markIndex >= 0) {
                         joinedData.push({
                             _id: eventsData.groupEvents[i]._id,
