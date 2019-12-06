@@ -1537,6 +1537,7 @@ module.exports = (io) => {
 
                     if (markIndex >= 0) {
                         joinedData.push({
+                            _id: eventsData.groupEvents[i]._id,
                             eventName: eventsData.groupEvents[i].eventName,
                             eventDescription: eventsData.groupEvents[i].eventDescription,
                             eventMembers: eventMember,
@@ -1938,7 +1939,8 @@ module.exports = (io) => {
 
                 const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
                 if (!groupEventsData) throw ("Could not find Group Event");
-                
+
+                console.log(eventId);
                 groupEventsData.groupEvents.pull(eventId);
                 console.log(groupEventsData.groupEvents);
 
