@@ -175,7 +175,7 @@ module.exports = (io) => {
     // add Group Member to Event
     router.post('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.addGroupMemberToEvent(req.params.groupId, req.user, req.params.eventId, req.body);
                 res.status(200).json(results);
             } else {
