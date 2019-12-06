@@ -1965,7 +1965,8 @@ module.exports = (io) => {
                 eventIndex = groupEventsData.groupEvents.findIndex((event) => {
                     return (event._id == eventId);
                 });
-
+                console.log(member._id)
+                console.log(groupEventsData.groupEvents[eventIndex].eventCreatedBy)
                 // check if member is a admin or the creator of event
                 if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id == groupEventsData.groupEvents[eventIndex].eventCreatedBy)) {
                     groupEventsData.groupEvents.pull(eventId);
