@@ -1931,7 +1931,7 @@ module.exports = (io) => {
             });
         },
 
-        deleteGroupEvent: (groupId, eventId) => {
+        deleteGroupEvent: async (groupId, eventId) => {
             try {
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
