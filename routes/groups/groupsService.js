@@ -1967,7 +1967,7 @@ module.exports = (io) => {
                 });
 
                 // check if member is a admin or the creator of event
-                if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id == event[eventIndex].eventCreatedBy)) {
+                if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id == groupEventsData.groupEvents[eventIndex].eventCreatedBy)) {
                     groupEventsData.groupEvents.pull(eventId);
                 } else {
                     throw ("Cannot delete a event you didn't create");
