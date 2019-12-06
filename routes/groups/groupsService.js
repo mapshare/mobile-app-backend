@@ -1534,7 +1534,7 @@ module.exports = (io) => {
                             })
                         }
                     }
-
+                    console.log(eventsData.groupEvents[i])
                     if (markIndex >= 0) {
                         joinedData.push({
                             _id: eventsData.groupEvents[i]._id,
