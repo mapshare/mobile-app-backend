@@ -1940,6 +1940,7 @@ module.exports = (io) => {
                 if (!groupEventsData) throw ("Could not find Group Event");
                 
                 groupEventsData.groupEvents.pull(eventId);
+                console.log(groupEventsData.groupEvents);
 
                 const savedGroupEventsData = await groupEventsData.save();
                 if (!savedGroupEventsData) throw ("Could not save Group Event");
