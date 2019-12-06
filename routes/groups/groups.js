@@ -176,7 +176,7 @@ module.exports = (io) => {
     router.post('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
-                const results = await data.addGroupMemberToEvent(req.params.groupId, req.user, req.params.eventId, req.body);
+                const results = await data.addGroupMemberToEvent(req.params.groupId, req.user, req.params.eventId);
                 res.status(200).json(results);
             } else {
                 throw ("Insufficient permissions to add member to this event");

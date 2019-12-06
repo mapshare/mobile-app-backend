@@ -1124,6 +1124,7 @@ module.exports = (io) => {
 
         addGroupMemberToEvent: async (groupId, userId, eventId) => {
             try {
+                console.log(eventId)
                 const groupData = await Group.findById(groupId);
                 if (!groupData) throw ("Could not find Group");
 
