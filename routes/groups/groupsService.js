@@ -1746,37 +1746,52 @@ module.exports = (io) => {
             });
         },
 
-        updateGroupEvent: (GroupId, eventId, newData) => {
-            return new Promise((resolve, reject) => {
+        updateGroupEvent: async (groupId, eventId, userId, newData) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
 
-                Group.findById(GroupId)
-                    .then(groupData => {
-                        if (!groupData) {
-                            reject("Group doesn't exist");
-                            return;
+                const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
+                if (!groupEventsData) throw ("Could not find Group Event");
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var member;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
                         }
-                        GroupEvent.findById(groupData.groupEvents)
-                            .then(groupEventsData => {
-                                var eventIndex = -1;
-                                for (var i = 0; i < groupEventsData.groupEvents.length; i++) {
-                                    if (groupEventsData.groupEvents[i]._id == eventId) {
-                                        eventIndex = i;
-                                    }
-                                }
-                                groupEventsData.groupEvents[eventIndex].eventName = newData.eventName ? newData.eventName : groupEventsData.groupEvents[eventIndex].eventName;
-                                groupEventsData.groupEvents[eventIndex].eventDescription = newData.eventDescription ? newData.eventDescription : groupEventsData.groupEvents[eventIndex].eventDescription;
+                    }
+                }
+                if (!member) throw ("Could not find Member");
 
-                                groupEventsData.save()
-                                    .then(events => {
-                                        resolve({
-                                            groupEvents: events,
-                                            updatedEvent: events.groupEvents[eventIndex]
-                                        })
-                                    })
-                                    .catch(err => reject(err));
-                            }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-            });
+                const groupMemberRole = await GroupRole.findById(member.groupMemberRole);
+                if (!groupMemberRole) throw ("Could not find Member Role");
+
+                // Get Index of event 
+                var eventIndex = -1;
+                eventIndex = groupEventsData.groupEvents.findIndex((event) => {
+                    return (event._id == eventId);
+                });
+
+                // check if member is a admin or the creator of event
+                if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id.toString() == groupEventsData.groupEvents[eventIndex].eventCreatedBy.toString())) {
+                    groupEventsData.groupEvents[eventIndex].eventName = newData.eventName ? newData.eventName : groupEventsData.groupEvents[eventIndex].eventName;
+                    groupEventsData.groupEvents[eventIndex].eventDescription = newData.eventDescription ? newData.eventDescription : groupEventsData.groupEvents[eventIndex].eventDescription;
+                } else {
+                    throw ("Cannot delete a event you didn't create");
+                }
+
+                const savedGroupEventsData = await groupEventsData.save();
+                if (!savedGroupEventsData) throw ("Could not save Group Event");
+
+            } catch (error) {
+                throw ("updateGroupEvent: " + error);
+            }
         },
 
         updateCustomCategoryMark: (groupId, categoryId, newData) => {
@@ -1965,7 +1980,7 @@ module.exports = (io) => {
                 eventIndex = groupEventsData.groupEvents.findIndex((event) => {
                     return (event._id == eventId);
                 });
-                
+
                 // check if member is a admin or the creator of event
                 if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id.toString() == groupEventsData.groupEvents[eventIndex].eventCreatedBy.toString())) {
                     groupEventsData.groupEvents.pull(eventId);

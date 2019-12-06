@@ -478,15 +478,16 @@ module.exports = (io) => {
     });
 
     // update Group Event
-    router.put('/groups/:id/event/:eventId', verifyLoginToken, async (req, res, next) => {
-        if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
-            data.updateGroupEvent(req.params.id, req.params.eventId, req.body).then(data => {
-                res.status(200).json(data)
-            }).catch(err => {
-                res.status(400).send({ "error": err })
-            })
-        } else {
-            res.status(400).send({ "error": "Insufficient permissions to update events for this group" })
+    router.put('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.updateGroupEvent(req.params.id, req.params.eventId, req.user, req.body);
+                res.status(200).json(results);
+            } else {
+                throw ("Insufficient permissions to update events for this group");
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error });
         }
     });
 
