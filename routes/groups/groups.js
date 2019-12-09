@@ -631,6 +631,21 @@ module.exports = (io) => {
 
     });
 
+    // Kick Group Member from Event
+    router.delete('/groups/:groupId/event/:eventId/kick/:userId', verifyLoginToken, async (req, res, next) => {
+        try {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
+                const results = await data.kickGroupMemberFromEvent(req.user, req.params.groupId, req.params.userId, req.params.eventId);
+                res.status(200).json(results)
+            } else {
+                throw ("Insufficient permissions to delete group member from this event")
+            }
+        } catch (error) {
+            res.status(400).send({ "error": error })
+        }
+
+    });
+
     // delete custom mark category to event
     router.delete('/groups/:groupId/customCategory/:id', verifyLoginToken, async (req, res, next) => {
         if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
@@ -675,7 +690,7 @@ module.exports = (io) => {
     router.delete('/groups/:groupId/event/:eventId', verifyLoginToken, async (req, res, next) => {
         try {
             if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
-                const results = await data.deleteGroupEvent(req.params.groupId, req.params.eventId,req.user);
+                const results = await data.deleteGroupEvent(req.params.groupId, req.params.eventId, req.user);
                 res.status(200).json(results)
             } else {
                 throw ("Insufficient permissions to delete events from this group")

@@ -1322,6 +1322,73 @@ module.exports = (io) => {
             }
         },
 
+        kickGroupMemberFromEvent: async (eventAdminId, groupId, userId, eventId) => {
+            try {
+                const groupData = await Group.findById(groupId);
+                if (!groupData) throw ("Could not find Group");
+
+                const groupEventsData = await GroupEvent.findById(groupData.groupEvents);
+                if (!groupEventsData) throw ("Could not find Group Event");
+
+                const eventAdmin = await User.findById(eventAdminId);
+                if (!eventAdmin) throw ("Could not find eventAdmin");
+
+                var member;
+                for (let groupMemberId of eventAdmin.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            member = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!member) throw ("Could not find Member");
+
+                const groupMemberRole = await GroupRole.findById(member.groupMemberRole);
+                if (!groupMemberRole) throw ("Could not find Member Role");
+
+                // Get Index of event 
+                var eventIndex = -1;
+                eventIndex = groupEventsData.groupEvents.findIndex((event) => {
+                    return (event._id == eventId);
+                });
+
+                // check if member is a admin or the creator of event
+                if ((groupMemberRole.groupRolePermisionLevel > 3) || (member._id.toString() == groupEventsData.groupEvents[eventIndex].eventCreatedBy.toString())) {
+                    groupEventsData.groupEvents.pull(eventId);
+                } else {
+                    throw ("Cannot delete a event you didn't create");
+                }
+
+                const user = await User.findById(userId);
+                if (!user) throw ("Could not find User");
+
+                var memberToDelete;
+                for (let groupMemberId of user.userGroups) {
+                    const mbr = await GroupMember.findById(groupMemberId);
+                    if (mbr) {
+                        if (mbr.group == groupId) {
+                            memberToDelete = mbr;
+                            break;
+                        }
+                    }
+                }
+                if (!memberToDelete) throw ("Could not find Member");
+
+                const groupEventDataUpdate = await GroupEvent.findOneAndUpdate(
+                    { "groupEvents._id": eventId },
+                    { $pull: { "groupEvents.$.eventMembers": memberToDelete._id } },
+                    { new: true }).exec();
+                if (!groupEventDataUpdate) throw ("Could not find group event");
+
+                return { success: true };
+
+            } catch (error) {
+                throw ("deleteGroupMemberFromEvent: " + error);
+            }
+        },
+
         addCustomCategoryMark: async (groupId, newData) => {
             return new Promise((resolve, reject) => {
                 Group.findById(groupId)
