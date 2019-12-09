@@ -285,7 +285,6 @@ module.exports = () => {
 
                         socket.on('update feed', async () => {
                             try {
-                                console.log('update feed')
                                 const groupFeedData = await getGroupFeed(group);
                                 nsp.emit('update feed', groupFeedData);
                             } catch (error) {
