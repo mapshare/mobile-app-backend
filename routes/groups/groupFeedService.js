@@ -259,7 +259,7 @@ module.exports = () => {
 
                                 nsp.emit('new post', groupFeed);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
@@ -269,7 +269,7 @@ module.exports = () => {
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
                                 nsp.emit('update post', groupFeed);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
@@ -279,7 +279,16 @@ module.exports = () => {
                                 const chatLog = await deletePost(group, postId);
                                 nsp.emit('delete post', chatLog);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
+                            }
+                        });
+
+                        socket.on('update feed', async () => {
+                            try {
+                                const groupFeedData = await getGroupFeed(group);
+                                nsp.emit('update feed', groupFeedData);
+                            } catch (error) {
+                                console.log(error);
                             }
                         });
 
