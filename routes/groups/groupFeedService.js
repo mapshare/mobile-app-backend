@@ -248,7 +248,7 @@ module.exports = () => {
                                 nsp.emit('authenticated', groupFeedData);
                             } catch (error) {
                                 console.log(error)
-                                nsp.emit('unauthorized', error);
+                                nsp.emit('unauthorized', '');
                             }
                         });
 
