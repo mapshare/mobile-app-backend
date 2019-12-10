@@ -296,7 +296,7 @@ module.exports = () => {
                                     userLastName: user.userLastName,
                                     memberId: member._id
                                 });
-
+/*
                                 interval = setInterval(async () => {
                                     try {
                                         let checkMember = await getMember(group, user);
@@ -313,7 +313,7 @@ module.exports = () => {
                                         socket.disconnect();
                                     }
                                 }, 5000)
-
+*/
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
                                 socket.emit('join room', {
@@ -380,14 +380,16 @@ module.exports = () => {
                         socket.on('disconnect', async () => {
                             console.log("disconnect Chat");
                             // Remove disconnected user
-                            console.log(activeMembers)
+                            console.log(user);
+                            console.log(activeMembers);
                             for (var i = 0; i < activeMembers.length; i++) {
                                 if (activeMembers[i].memberId.toString() == user._id.toString()) {
                                     activeMembers.splice(i, 1);
                                     break;
                                 }
                             }
-                            clearInterval(interval);
+                            console.log(activeMembers);
+                            //clearInterval(interval);
                             nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
                         });
 
