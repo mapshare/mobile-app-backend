@@ -21,9 +21,9 @@ module.exports = () => {
 						image = '';
 					}
 				} catch (error) {
-					image = '';
+						image = '';
 				}
-
+				
 				return {
 					_id: userData._id,
 					userEmail: userData.userEmail,
@@ -131,7 +131,7 @@ module.exports = () => {
 				);
 				if (!validPassword) { throw ("Password does not match"); }
 
-				return { passwordMatch: validPassword };
+				return validPassword;
 
 			} catch (error) {
 				throw ("comparePassword: " + error);
