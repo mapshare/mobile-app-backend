@@ -120,6 +120,9 @@ module.exports = () => {
 				// Get User From Database
 				let userData = await User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
+				
+				console.log(userData);
+				console.log(oldPassword);
 
 				// Verify if password is correct
 				const validPassword = await bcrypt.compare(
