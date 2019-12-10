@@ -5,7 +5,7 @@ const Group = require("../../models/group");
 const bcrypt = require("bcryptjs");
 const sharp = require('sharp');
 
-const dataService = require("./groupsService");
+const dataService = require("../groups/groupsService");
 const groupDataService = dataService();
 
 module.exports = () => {
