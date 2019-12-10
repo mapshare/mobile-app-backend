@@ -294,7 +294,8 @@ module.exports = () => {
                                 activeMembers.push({
                                     userFirstName: user.userFirstName,
                                     userLastName: user.userLastName,
-                                    memberId: member._id
+                                    memberId: member._id,
+                                    _id: user._id,
                                 });
 /*
                                 interval = setInterval(async () => {
@@ -383,7 +384,7 @@ module.exports = () => {
                             console.log(user);
                             console.log(activeMembers);
                             for (var i = 0; i < activeMembers.length; i++) {
-                                if (activeMembers[i].memberId.toString() == user._id.toString()) {
+                                if (activeMembers[i]._id.toString() == user._id.toString()) {
                                     activeMembers.splice(i, 1);
                                     break;
                                 }
