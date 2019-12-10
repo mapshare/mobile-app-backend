@@ -297,18 +297,19 @@ module.exports = () => {
                                     memberId: member._id
                                 });
 
-                                interval = setInterval(() => {
+                                interval = setInterval(async () => {
                                     try {
                                         checkMember = await getMember(group, user);
 
                                         if (connenctionStatus == false) {
-                                            socket.disconnect();
+                                            throw ("connenction Status false for: " + user.userFirstName);
                                         } else {
                                             connenctionStatus = false;
                                             socket.emit('Still Connected', { user: user.userFirstName });
                                         }
 
                                     } catch (error) {
+                                        console.log(error);
                                         socket.disconnect();
                                     }
                                 }, 5000)
