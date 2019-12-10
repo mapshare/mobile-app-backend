@@ -1385,7 +1385,7 @@ module.exports = (io) => {
                 return { success: true };
 
             } catch (error) {
-                throw ("deleteGroupMemberFromEvent: " + error);
+                throw ("kickGroupMemberFromEvent: " + error);
             }
         },
 
