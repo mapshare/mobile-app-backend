@@ -380,12 +380,25 @@ module.exports = () => {
                         
                         socket.on('update Active Members', async () => {
                             console.log("update Active Members");
+                            
+                            try {
+                                // Remove disconnected user
+                                for (var i = 0; i < activeMembers.length; i++) {
+                                    let checkMember = await GroupMember.findById(activeMembers[i].memberId);
+                                    if (!checkMember) {
+                                        activeMembers.splice(i, 1);
+                                    }
+                                }
+                            } catch (error) {
+                                console.log(error);
+                            }
+
                             nsp.to(chatRoom.chatRoomName).emit('update Active Members', activeMembers);
                         });
 
                         socket.on('disconnect', async () => {
                             console.log("disconnect Chat");
-                            
+
                             // Remove disconnected user
                             for (var i = 0; i < activeMembers.length; i++) {
                                 if (activeMembers[i]._id.toString() == user._id.toString()) {
