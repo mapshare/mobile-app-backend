@@ -2225,7 +2225,7 @@ module.exports = (io) => {
                             data.forEach(element => {
                                 User.findOneAndUpdate(
                                     { _id: element.user },
-                                    { $pull: { groupMember: element._id } },
+                                    { $pull: { userGroups: element._id } },
                                     { new: true })
                                     .then(data => { })
                                     .catch(err => reject(err));
