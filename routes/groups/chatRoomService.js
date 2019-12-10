@@ -298,19 +298,18 @@ module.exports = () => {
                                 });
 
                                 interval = setInterval(() => {
-                                    
-                                    if (connenctionStatus == false) {
-                                        // Remove deactivated users                       
-                                        for (var i = 0; i < activeMembers.length; i++) {
-                                            if (activeMembers[i]._id == user._id) {
-                                                activeMembers.splice(i, 1);
-                                                break;
-                                            }
+                                    try {
+                                        checkMember = await getMember(group, user);
+
+                                        if (connenctionStatus == false) {
+                                            socket.disconnect();
+                                        } else {
+                                            connenctionStatus = false;
+                                            socket.emit('Still Connected', { user: user.userFirstName });
                                         }
+
+                                    } catch (error) {
                                         socket.disconnect();
-                                    } else {
-                                        connenctionStatus = false;
-                                        socket.emit('Still Connected', { user: user.userFirstName });
                                     }
                                 }, 5000)
 
@@ -386,7 +385,7 @@ module.exports = () => {
                                     break;
                                 }
                             }
-
+                            clearInterval(interval);
                             nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
                         });
 
