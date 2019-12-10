@@ -299,7 +299,7 @@ module.exports = () => {
 
                                 interval = setInterval(async () => {
                                     try {
-                                        checkMember = await getMember(group, user);
+                                        let checkMember = await getMember(group, user);
 
                                         if (connenctionStatus == false) {
                                             throw ("connenction Status false for: " + user.userFirstName);
@@ -378,10 +378,11 @@ module.exports = () => {
                         });
 
                         socket.on('disconnect', async () => {
-                            console.log("disconnect Chat")
+                            console.log("disconnect Chat");
                             // Remove disconnected user
+                            console.log(activeMembers)
                             for (var i = 0; i < activeMembers.length; i++) {
-                                if (activeMembers[i].memberId == user._id) {
+                                if (activeMembers[i].memberId.toString() == user._id.toString()) {
                                     activeMembers.splice(i, 1);
                                     break;
                                 }
