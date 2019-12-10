@@ -978,7 +978,7 @@ module.exports = (io) => {
                 if (user._id.toString() == groupData.groupCreatedBy.toString()) {
                     throw ("Owner of the group cannot leave the group");
                 }
-                
+
                 const deletedMember = await GroupMember.deleteOne({ _id: mbr._id });
 
                 const deletedMemberFromGroup = await Group.findByIdAndUpdate(
@@ -2185,6 +2185,7 @@ module.exports = (io) => {
 
         deleteGroupById: (GroupId) => {
             return new Promise((resolve, reject) => {
+                console.log("Inside delete group")
                 Group.findById(GroupId)
                     .then(groupData => {
                         if (!groupData) {
