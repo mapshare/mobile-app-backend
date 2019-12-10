@@ -33,14 +33,13 @@ router.put("/user", verifyLoginToken, async (req, res, next) => {
 });
 
 // delete users using JWT
-router.delete("/user", verifyLoginToken, (req, res, next) => {
-  data.deleteUserbyId(req.user)
-    .then(data => {
-      res.status(200).json(data);
-    })
-    .catch(err => {
-      res.status(400).send({ error: err });
-    });
+router.delete("/user", verifyLoginToken, async (req, res, next) => {
+  try {
+    const results = await data.deleteUserbyId(req.user);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(400).send({ "error": error });
+  }
 });
 
 // comparePassword
