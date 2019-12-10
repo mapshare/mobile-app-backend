@@ -202,7 +202,7 @@ module.exports = () => {
 				const mbrList = await GroupMember.find({ user: userData._id });
 				if (!mbrList) throw ("Could not find any group memberships");
 
-				mbrList.forEach(groupMember => {
+				mbrList.forEach(async (groupMember) => {
 					const groupData = await Group.findById(groupMember.group);
 					if (groupData.groupCreatedBy == userData._id) {
 						groupDataService.deleteGroupById(groupData._id);
