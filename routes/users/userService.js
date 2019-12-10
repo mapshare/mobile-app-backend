@@ -115,18 +115,18 @@ module.exports = () => {
 		},
 
 
-		comparePassword: async (userId, oldPassword) => {
+		comparePassword: async (userId, data) => {
 			try {
 				// Get User From Database
 				let userData = await User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
-				
+
 				console.log(userData);
-				console.log(oldPassword);
+				console.log(data);
 
 				// Verify if password is correct
 				const validPassword = await bcrypt.compare(
-					oldPassword,
+					data.oldPassword,
 					userData.userPassword
 				);
 				if (!validPassword) { throw ("Password does not match"); }
