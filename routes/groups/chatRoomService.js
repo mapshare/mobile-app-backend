@@ -381,7 +381,7 @@ module.exports = () => {
                             console.log("disconnect Chat")
                             // Remove disconnected user
                             for (var i = 0; i < activeMembers.length; i++) {
-                                if (activeMembers[i]._id == user._id) {
+                                if (activeMembers[i].memberId == user._id) {
                                     activeMembers.splice(i, 1);
                                     break;
                                 }
