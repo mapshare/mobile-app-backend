@@ -386,7 +386,6 @@ module.exports = () => {
                             for (var i = 0; i < activeMembers.length; i++) {
                                 if (activeMembers[i]._id.toString() == user._id.toString()) {
                                     activeMembers.splice(i, 1);
-                                    break;
                                 }
                             }
                             console.log(activeMembers);
