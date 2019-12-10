@@ -377,19 +377,22 @@ module.exports = () => {
                         socket.on('Still Connected', () => {
                             connenctionStatus = true;
                         });
+                        
+                        socket.on('update Active Members', async () => {
+                            console.log("update Active Members");
+                            nsp.to(chatRoom.chatRoomName).emit('update Active Members', activeMembers);
+                        });
 
                         socket.on('disconnect', async () => {
                             console.log("disconnect Chat");
+                            
                             // Remove disconnected user
-                            console.log(user);
-                            console.log(activeMembers);
                             for (var i = 0; i < activeMembers.length; i++) {
                                 if (activeMembers[i]._id.toString() == user._id.toString()) {
                                     activeMembers.splice(i, 1);
                                 }
                             }
-                            console.log(activeMembers);
-                            //clearInterval(interval);
+
                             nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
                         });
 
