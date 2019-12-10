@@ -361,9 +361,8 @@ module.exports = () => {
                             connenctionStatus = true;
                         });
 
-                        socket.on('update Active Members', async () => 
+                        socket.on('update Active Members', async () => {
                         
-
                             try {
                                 // Remove disconnected user
                                 for (var i = 0; i < activeMembers.length; i++) {
