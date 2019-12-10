@@ -5,6 +5,9 @@ const Group = require("../../models/group");
 const bcrypt = require("bcryptjs");
 const sharp = require('sharp');
 
+const dataService = require("../groups/groupsService");
+const groupDataService = dataService();
+
 module.exports = () => {
 	return {
 		getUsers: async (userId) => {
@@ -21,9 +24,9 @@ module.exports = () => {
 						image = '';
 					}
 				} catch (error) {
-						image = '';
+					image = '';
 				}
-				
+
 				return {
 					_id: userData._id,
 					userEmail: userData.userEmail,
@@ -115,20 +118,24 @@ module.exports = () => {
 		},
 
 
-		comparePassword: async (userId, oldPassword) => {
+		comparePassword: async (userId, data) => {
 			try {
 				// Get User From Database
 				let userData = await User.findById(userId);
 				if (!userData) { throw ("User Not Found"); }
 
+				console.log(userData);
+				console.log(data);
+
 				// Verify if password is correct
 				const validPassword = await bcrypt.compare(
-					oldPassword,
+					data.oldPassword,
 					userData.userPassword
 				);
+				console.log(validPassword);
 				if (!validPassword) { throw ("Password does not match"); }
 
-				return validPassword;
+				return { passwordMatch: validPassword };
 
 			} catch (error) {
 				throw ("comparePassword: " + error);
@@ -185,40 +192,45 @@ module.exports = () => {
 				throw ("updateUserById: " + error);
 			}
 		},
-		deleteUserbyId: id => {
-			return new Promise((resolve, reject) => {
-				User.findById(id)
-					.then(userData => {
-						if (!userData) {
-							reject("User doesn't exist");
-							return;
-						}
 
-						// Remove Group Reference to GroupMember
-						GroupMember.find({ user: userData._id }).exec(function (err, data) {
-							if (data) {
-								data.forEach(groupMember => {
-									Group.findOneAndUpdate(
-										{ _id: groupMember.group },
-										{ $pull: { groupMembers: groupMember._id } },
-										{ new: true }
-									)
-										.then(data => { })
-										.catch(err => reject(err));
-								});
-								// Remove GroupMember referencing User
-								GroupMember.deleteMany({ user: userData._id })
-									.then(data => { })
-									.catch(err => reject(err));
-							}
-						});
+		deleteUserbyId: async (userId) => {
+			try {
+				// Get User From Database
+				let userData = await User.findById(userId);
+				if (!userData) { throw ("User Not Found") }
 
-						User.findByIdAndDelete(userData._id)
-							.then(data => resolve(data))
-							.catch(err => reject(err));
-					})
-					.catch(err => reject(err));
-			});
+				const mbrList = await GroupMember.find({ user: userData._id });
+				if (!mbrList) throw ("Could not find any group memberships");
+
+				mbrList.forEach(async (groupMember) => {
+					const groupData = await Group.findById(groupMember.group);
+					
+					console.log(groupData.groupCreatedBy);
+					console.log(userData._id);
+					
+					if (groupData.groupCreatedBy.toString() == userData._id.toString()) {
+						console.log("HERE AT DELETE GROUP");
+						groupDataService.deleteGroupById(groupData._id);
+					} else {
+						console.log("HERE AT DELETE MEMBER");
+						const updateGroup = await Group.findOneAndUpdate(
+							{ _id: groupMember.group },
+							{ $pull: { groupMembers: groupMember._id } },
+							{ new: true }
+						).exec();
+					}
+					// Remove GroupMember referencing User
+					const updateGroupMember = await GroupMember.deleteMany({ user: userData._id });
+				});
+
+				const deletedUser = await User.findByIdAndDelete(userData._id);
+				if (!deletedUser) throw ("Could not delete User");
+
+				return { success: true };
+			} catch (error) {
+				console.log(error);
+				throw ("deleteUserbyId: " + error);
+			}
 		}
 	};
 };

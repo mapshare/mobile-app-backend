@@ -68,7 +68,18 @@ const getGroupFeed = async (groupId) => {
 
                 const user = await User.findOne({ _id: mbr.user });
                 if (!user) throw ("Could not find User");
-                
+
+                let image;
+                try {
+                    if (user.userProfilePic.data) {
+                        image = user.userProfilePic.data.toString('base64');
+                    } else {
+                        image = '';
+                    }
+                } catch (error) {
+                    image = '';
+                }
+
                 const post = {
                     postImage: groupFeedData.groupPosts[i]._doc.postImage.data.toString('base64'),
                     _id: groupFeedData.groupPosts[i]._doc._id,
@@ -77,6 +88,7 @@ const getGroupFeed = async (groupId) => {
                     postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
+                    userProfilePic: image
                 }
 
                 allPosts.push(post);
@@ -236,7 +248,7 @@ module.exports = () => {
                                 nsp.emit('authenticated', groupFeedData);
                             } catch (error) {
                                 console.log(error)
-                                nsp.emit('unauthorized', error);
+                                nsp.emit('unauthorized', '');
                             }
                         });
 
@@ -247,7 +259,7 @@ module.exports = () => {
 
                                 nsp.emit('new post', groupFeed);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
@@ -257,7 +269,7 @@ module.exports = () => {
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
                                 nsp.emit('update post', groupFeed);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
@@ -267,7 +279,16 @@ module.exports = () => {
                                 const chatLog = await deletePost(group, postId);
                                 nsp.emit('delete post', chatLog);
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
+                            }
+                        });
+
+                        socket.on('update feed', async () => {
+                            try {
+                                const groupFeedData = await getGroupFeed(group);
+                                nsp.emit('update feed', groupFeedData);
+                            } catch (error) {
+                                console.log(error);
                             }
                         });
 
