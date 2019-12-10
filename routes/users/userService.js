@@ -204,7 +204,11 @@ module.exports = () => {
 
 				mbrList.forEach(async (groupMember) => {
 					const groupData = await Group.findById(groupMember.group);
-					if (groupData.groupCreatedBy == userData._id) {
+					
+					console.log(groupData.groupCreatedBy);
+					console.log(userData._id);
+					
+					if (groupData.groupCreatedBy.toString() == userData._id.toString()) {
 						console.log("HERE AT DELETE GROUP");
 						groupDataService.deleteGroupById(groupData._id);
 					} else {
