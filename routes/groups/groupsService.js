@@ -978,11 +978,18 @@ module.exports = (io) => {
                 if (user._id.toString() == groupData.groupCreatedBy.toString()) {
                     throw ("Owner of the group cannot leave the group");
                 }
-
-                user.userGroups.pull(mbr._id);
-                groupData.groupMembers.pull(mbr._id);
-
+                
                 const deletedMember = await GroupMember.deleteOne({ _id: mbr._id });
+
+                const deletedMemberFromGroup = await Group.findByIdAndUpdate(
+                    { _id: groupId },
+                    { $pull: { "groupMembers": mbr._id } },
+                    { new: true }).exec();
+
+                const deletedMemberFromUser = await User.findByIdAndUpdate(
+                    { _id: mbr.user },
+                    { $pull: { "userGroups": mbr._id } },
+                    { new: true }).exec();
 
                 return ({ success: true });
             } catch (error) {
