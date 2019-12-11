@@ -72,7 +72,12 @@ const getGroupFeed = async (groupId) => {
                 let image;
                 try {
                     if (user.userProfilePic.data) {
-                        image = user.userProfilePic.data.toString('base64');
+                        const locationImageResized = await sharp(user.userProfilePic.data)
+                        .resize(100, 100)
+                        .png()
+                        .toBuffer();
+
+                        image = locationImageResized.toString('base64');
                     } else {
                         image = '';
                     }
