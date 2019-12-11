@@ -247,10 +247,12 @@ module.exports = () => {
                                 console.log('Group Feed Sending Data')
                                 socket.emit('authenticated', groupFeedData);
 
-                                
+
                                 console.log("ALL CONNECTIONS");
-                                var clients = io.of('/groupFeed:' + groupId).clients();
-                                console.log(clients);
+                                io.of('/groupFeed:' + groupId).clients.clients((error, clients) => {
+                                    if (error) throw error;
+                                    console.log(clients); // => [Anw2LatarvGVVXEIAAAD] 
+                                });
 
                             } catch (error) {
                                 console.log(error)
