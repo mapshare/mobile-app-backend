@@ -73,9 +73,9 @@ const getGroupFeed = async (groupId) => {
                 try {
                     if (user.userProfilePic.data) {
                         const locationImageResized = await sharp(user.userProfilePic.data)
-                        .resize(100, 100)
-                        .png()
-                        .toBuffer();
+                            .resize(100, 100)
+                            .png()
+                            .toBuffer();
 
                         image = locationImageResized.toString('base64');
                     } else {
@@ -253,8 +253,8 @@ module.exports = () => {
                                     for (let feedData of groupFeedData) {
                                         socket.emit('authenticated', feedData);
                                     }
-                                } else { 
-                                    socket.emit('authenticated', []);
+                                } else {
+                                    socket.emit('authenticated', null);
                                 }
 
 
@@ -305,8 +305,8 @@ module.exports = () => {
                                     for (let feedData of groupFeed) {
                                         nsp.emit('delete post', feedData);
                                     }
-                                } else { 
-                                    socket.emit('delete post', []);
+                                } else {
+                                    socket.emit('delete post', null);
                                 }
                             } catch (error) {
                                 console.log(error);
