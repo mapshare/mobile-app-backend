@@ -283,7 +283,7 @@ module.exports = () => {
                             }
                         });
 
-                        socket.on('update feed', async () => {
+                        socket.on('update feed', async (data) => {
                             try {
                                 const groupFeedData = await getGroupFeed(group);
                                 nsp.emit('update feed', groupFeedData);
