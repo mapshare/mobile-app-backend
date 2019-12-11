@@ -230,7 +230,7 @@ module.exports = () => {
 
                         socket.on('authenticate', async (data) => {
                             try {
-                                console.log('authenticate')
+                                console.log('Group Feed Authenticate')
                                 userId = await verifyLoginToken(data.token);
                                 if (!userId) {
                                     throw ("Could Not Verify Token");
@@ -244,11 +244,11 @@ module.exports = () => {
 
                                 const groupFeedData = await getGroupFeed(group);
 
-                                console.log('sending Data')
-                                nsp.emit('authenticated', groupFeedData);
+                                console.log('Group Feed Sending Data')
+                                socket.emit('authenticated', groupFeedData);
                             } catch (error) {
                                 console.log(error)
-                                nsp.emit('unauthorized', '');
+                                socket.emit('unauthorized', '');
                             }
                         });
 

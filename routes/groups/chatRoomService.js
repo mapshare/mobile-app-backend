@@ -375,7 +375,7 @@ module.exports = () => {
                                 console.log(error);
                             }
 
-                            nsp.to(chatRoom.chatRoomName).emit('update Active Members', activeMembers);
+                            socket.emit('update Active Members', activeMembers);
                         });
 
                         socket.on('disconnect', async () => {
