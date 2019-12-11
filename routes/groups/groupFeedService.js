@@ -249,11 +249,13 @@ module.exports = () => {
 
                                 const groupFeedData = await getGroupFeed(group);
                                 console.log('Group Feed Sending Data');
+                                console.log(groupFeedData)
                                 if (groupFeedData.length > 0) {
                                     for (let feedData of groupFeedData) {
                                         socket.emit('authenticated', feedData);
                                     }
                                 } else { 
+                                    console.log('send empty');
                                     socket.emit('authenticated', []);
                                 }
 
@@ -306,7 +308,7 @@ module.exports = () => {
                                         nsp.emit('delete post', feedData);
                                     }
                                 } else { 
-                                    socket.emit('authenticated', []);
+                                    socket.emit('delete post', []);
                                 }
                             } catch (error) {
                                 console.log(error);
