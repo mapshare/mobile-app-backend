@@ -245,7 +245,7 @@ module.exports = () => {
                                 const groupFeedData = await getGroupFeed(group);
 
                                 console.log('Group Feed Sending Data');
-                                for(let feedData of groupFeedData){
+                                for (let feedData of groupFeedData) {
                                     socket.emit('authenticated', feedData);
                                 }
 
@@ -267,7 +267,7 @@ module.exports = () => {
                                 console.log('new post')
                                 const groupFeed = await addPost(group, user, member, post);
 
-                                for(let feedData of groupFeed){
+                                for (let feedData of groupFeed) {
                                     nsp.emit('new post', feedData);
                                 }
                             } catch (error) {
@@ -280,7 +280,7 @@ module.exports = () => {
                                 console.log('update post')
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
 
-                                for(let feedData of groupFeed){
+                                for (let feedData of groupFeed) {
                                     nsp.emit('update post', feedData);
                                 }
                             } catch (error) {
@@ -292,7 +292,8 @@ module.exports = () => {
                             try {
                                 console.log('delete post')
                                 const groupFeed = await deletePost(group, postId);
-                                for(let feedData of groupFeed){
+                                nsp.emit('reset post data');
+                                for (let feedData of groupFeed) {
                                     nsp.emit('delete post', feedData);
                                 }
                             } catch (error) {
@@ -303,7 +304,7 @@ module.exports = () => {
                         socket.on('update feed', async (data) => {
                             try {
                                 const groupFeed = await getGroupFeed(group);
-                                for(let feedData of groupFeed){
+                                for (let feedData of groupFeed) {
                                     socket.emit('update feed', feedData);
                                 }
                             } catch (error) {
