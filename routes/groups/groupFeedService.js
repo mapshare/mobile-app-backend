@@ -243,10 +243,13 @@ module.exports = () => {
                                 if (!user) { throw ("Could Not find member"); }
 
                                 const groupFeedData = await getGroupFeed(group);
-
                                 console.log('Group Feed Sending Data');
-                                for (let feedData of groupFeedData) {
-                                    socket.emit('authenticated', feedData);
+                                if (groupFeedData.length > 0) {
+                                    for (let feedData of groupFeedData) {
+                                        socket.emit('authenticated', feedData);
+                                    }
+                                } else { 
+                                    socket.emit('authenticated', groupFeedData);
                                 }
 
 
