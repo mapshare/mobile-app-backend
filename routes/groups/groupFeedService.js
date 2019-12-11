@@ -249,7 +249,7 @@ module.exports = () => {
 
                                 
                                 console.log("ALL CONNECTIONS");
-                                var clients = nsp.clients();
+                                var clients = io.of('/groupFeed:' + groupId).clients();
                                 console.log(clients);
 
                             } catch (error) {
