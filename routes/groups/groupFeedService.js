@@ -258,11 +258,11 @@ module.exports = () => {
                                 }
 
 
-                                console.log("ALL CONNECTIONS");
+                               /* console.log("ALL CONNECTIONS");
                                 io.of('/groupFeed:' + groupId).clients((error, clients) => {
                                     if (error) throw error;
                                     console.log(clients); // => [Anw2LatarvGVVXEIAAAD] 
-                                });
+                                });*/
 
                             } catch (error) {
                                 console.log(error)
