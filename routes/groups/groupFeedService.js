@@ -244,8 +244,10 @@ module.exports = () => {
 
                                 const groupFeedData = await getGroupFeed(group);
 
-                                console.log('Group Feed Sending Data')
-                                socket.emit('authenticated', groupFeedData);
+                                console.log('Group Feed Sending Data');
+                                for(let feedData of groupFeedData){
+                                    socket.emit('authenticated', feedData);
+                                }
 
 
                                 console.log("ALL CONNECTIONS");
