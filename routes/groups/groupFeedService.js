@@ -249,7 +249,7 @@ module.exports = () => {
 
 
                                 console.log("ALL CONNECTIONS");
-                                io.of('/groupFeed:' + groupId).clients.clients((error, clients) => {
+                                io.of('/groupFeed:' + groupId).clients((error, clients) => {
                                     if (error) throw error;
                                     console.log(clients); // => [Anw2LatarvGVVXEIAAAD] 
                                 });
