@@ -246,6 +246,12 @@ module.exports = () => {
 
                                 console.log('Group Feed Sending Data')
                                 socket.emit('authenticated', groupFeedData);
+
+                                
+                                console.log("ALL CONNECTIONS");
+                                var clients = nsp.clients();
+                                console.log(clients);
+
                             } catch (error) {
                                 console.log(error)
                                 socket.emit('unauthorized', '');
