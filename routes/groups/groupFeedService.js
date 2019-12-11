@@ -249,7 +249,7 @@ module.exports = () => {
                                         socket.emit('authenticated', feedData);
                                     }
                                 } else { 
-                                    socket.emit('authenticated', groupFeedData);
+                                    socket.emit('authenticated', []);
                                 }
 
 
@@ -296,8 +296,12 @@ module.exports = () => {
                                 console.log('delete post')
                                 const groupFeed = await deletePost(group, postId);
                                 nsp.emit('reset post data');
-                                for (let feedData of groupFeed) {
-                                    nsp.emit('delete post', feedData);
+                                if (groupFeed.length > 0) {
+                                    for (let feedData of groupFeed) {
+                                        nsp.emit('delete post', feedData);
+                                    }
+                                } else { 
+                                    socket.emit('authenticated', []);
                                 }
                             } catch (error) {
                                 console.log(error);
