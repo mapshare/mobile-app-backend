@@ -304,7 +304,7 @@ module.exports = () => {
                             try {
                                 const groupFeed = await getGroupFeed(group);
                                 for(let feedData of groupFeed){
-                                    socket.emit('update post', feedData);
+                                    socket.emit('update feed', feedData);
                                 }
                             } catch (error) {
                                 console.log(error);
