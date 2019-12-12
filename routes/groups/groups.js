@@ -453,7 +453,7 @@ module.exports = (io) => {
     // update Group Mark
     router.put('/groups/:groupId/mark/:markId', verifyLoginToken, async (req, res, next) => {
         try {
-            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_ADMIN)) {
+            if (await verifyRole(req.user, req.params.groupId, process.env.ROLE_MEMBER)) {
                 const results = await data.updateGroupMark(req.params.groupId, req.params.markId, req.body);
                 res.status(200).json(results);
             } else {
