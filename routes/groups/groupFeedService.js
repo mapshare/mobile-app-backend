@@ -68,7 +68,23 @@ const getGroupFeed = async (groupId) => {
 
                 const user = await User.findOne({ _id: mbr.user });
                 if (!user) throw ("Could not find User");
-                
+
+                let image;
+                try {
+                    if (user.userProfilePic.data) {
+                        const locationImageResized = await sharp(user.userProfilePic.data)
+                            .resize(100, 100)
+                            .png()
+                            .toBuffer();
+
+                        image = locationImageResized.toString('base64');
+                    } else {
+                        image = '';
+                    }
+                } catch (error) {
+                    image = '';
+                }
+
                 const post = {
                     postImage: groupFeedData.groupPosts[i]._doc.postImage.data.toString('base64'),
                     _id: groupFeedData.groupPosts[i]._doc._id,
@@ -77,6 +93,7 @@ const getGroupFeed = async (groupId) => {
                     postCreatedAt: groupFeedData.groupPosts[i]._doc.postCreatedAt,
                     userFirstName: user.userFirstName,
                     userLastName: user.userLastName,
+                    userProfilePic: image
                 }
 
                 allPosts.push(post);
@@ -218,7 +235,7 @@ module.exports = () => {
 
                         socket.on('authenticate', async (data) => {
                             try {
-                                console.log('authenticate')
+                                console.log('Group Feed Authenticate')
                                 userId = await verifyLoginToken(data.token);
                                 if (!userId) {
                                     throw ("Could Not Verify Token");
@@ -231,12 +248,25 @@ module.exports = () => {
                                 if (!user) { throw ("Could Not find member"); }
 
                                 const groupFeedData = await getGroupFeed(group);
+                                console.log('Group Feed Sending Data');
+                                if (groupFeedData.length > 0) {
+                                    for (let feedData of groupFeedData) {
+                                        socket.emit('authenticated', feedData);
+                                    }
+                                } else {
+                                    socket.emit('authenticated', null);
+                                }
 
-                                console.log('sending Data')
-                                nsp.emit('authenticated', groupFeedData);
+
+                               /* console.log("ALL CONNECTIONS");
+                                io.of('/groupFeed:' + groupId).clients((error, clients) => {
+                                    if (error) throw error;
+                                    console.log(clients); // => [Anw2LatarvGVVXEIAAAD] 
+                                });*/
+
                             } catch (error) {
                                 console.log(error)
-                                nsp.emit('unauthorized', error);
+                                socket.emit('unauthorized', '');
                             }
                         });
 
@@ -245,9 +275,11 @@ module.exports = () => {
                                 console.log('new post')
                                 const groupFeed = await addPost(group, user, member, post);
 
-                                nsp.emit('new post', groupFeed);
+                                for (let feedData of groupFeed) {
+                                    nsp.emit('new post', feedData);
+                                }
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
@@ -255,19 +287,40 @@ module.exports = () => {
                             try {
                                 console.log('update post')
                                 const groupFeed = await updatepost(group, user, member, postId, updatedPost);
-                                nsp.emit('update post', groupFeed);
+
+                                for (let feedData of groupFeed) {
+                                    nsp.emit('update post', feedData);
+                                }
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
                             }
                         });
 
                         socket.on('delete post', async (postId) => {
                             try {
                                 console.log('delete post')
-                                const chatLog = await deletePost(group, postId);
-                                nsp.emit('delete post', chatLog);
+                                const groupFeed = await deletePost(group, postId);
+                                nsp.emit('reset post data');
+                                if (groupFeed.length > 0) {
+                                    for (let feedData of groupFeed) {
+                                        nsp.emit('delete post', feedData);
+                                    }
+                                } else {
+                                    socket.emit('delete post', null);
+                                }
                             } catch (error) {
-                                throw (error);
+                                console.log(error);
+                            }
+                        });
+
+                        socket.on('update feed', async (data) => {
+                            try {
+                                const groupFeed = await getGroupFeed(group);
+                                for (let feedData of groupFeed) {
+                                    socket.emit('update feed', feedData);
+                                }
+                            } catch (error) {
+                                console.log(error);
                             }
                         });
 

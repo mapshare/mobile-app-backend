@@ -294,26 +294,10 @@ module.exports = () => {
                                 activeMembers.push({
                                     userFirstName: user.userFirstName,
                                     userLastName: user.userLastName,
-                                    memberId: member._id
+                                    memberId: member._id,
+                                    _id: user._id,
                                 });
-
-                                interval = setInterval(() => {
-                                    
-                                    if (connenctionStatus == false) {
-                                        // Remove deactivated users                       
-                                        for (var i = 0; i < activeMembers.length; i++) {
-                                            if (activeMembers[i]._id == user._id) {
-                                                activeMembers.splice(i, 1);
-                                                break;
-                                            }
-                                        }
-                                        socket.disconnect();
-                                    } else {
-                                        connenctionStatus = false;
-                                        socket.emit('Still Connected', { user: user.userFirstName });
-                                    }
-                                }, 5000)
-
+                                
                                 const chatLog = await getChatLog(group, member, chatRoomId);
                                 console.log("Sending room")
                                 socket.emit('join room', {
@@ -377,14 +361,35 @@ module.exports = () => {
                             connenctionStatus = true;
                         });
 
-                        socket.on('disconnect', async () => {
-                            console.log("disconnect Chat")
-                            // Remove disconnected user
-                            for (var i = 0; i < activeMembers.length; i++) {
-                                if (activeMembers[i]._id == user._id) {
-                                    activeMembers.splice(i, 1);
-                                    break;
+                        socket.on('update Active Members', async () => {
+                        
+                            try {
+                                // Remove disconnected user
+                                for (var i = 0; i < activeMembers.length; i++) {
+                                    let checkMember = await GroupMember.findById(activeMembers[i].memberId);
+                                    if (!checkMember) {
+                                        activeMembers.splice(i, 1);
+                                    }
                                 }
+                            } catch (error) {
+                                console.log(error);
+                            }
+
+                            socket.emit('update Active Members', activeMembers);
+                        });
+
+                        socket.on('disconnect', async () => {
+                            console.log("disconnect Chat");
+
+                            try {
+                                // Remove disconnected user
+                                for (var i = 0; i < activeMembers.length; i++) {
+                                    if (activeMembers[i]._id.toString() == user._id.toString()) {
+                                        activeMembers.splice(i, 1);
+                                    }
+                                }
+                            } catch (error) {
+                                console.log(error);
                             }
 
                             nsp.to(chatRoom.chatRoomName).emit('User Joined or Left', activeMembers);
