@@ -1510,7 +1510,7 @@ module.exports = (io) => {
 
                     const review = {
                         reviewContent: locationReviewSet[i].reviewContent,
-                        reviewCreatedBy: locationReviewSet[i].reviewContent,
+                        reviewCreatedBy: locationReviewSet[i].reviewCreatedBy,
                         reviewCreatedAt: locationReviewSet[i].reviewCreatedAt,
                         userFirstName: user.userFirstName,
                         userLastName: user.userLastName,
